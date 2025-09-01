@@ -1,22 +1,3 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "preview/dist/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://omniboard-backend-production.up.railway.app/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/preview/$1"
-    }
-  ],
-  "env": {
-    "REACT_APP_API_URL": "https://omniboard-backend-production.up.railway.app"
-  }
+  "version": 2
 }
