@@ -1,0 +1,122 @@
+const express = require('express');
+const cors = require('cors');
+const compression = require('compression');
+require('dotenv').config();
+
+// Импортируем новые middleware
+const { securityMiddleware, validateContentType, requestSizeLimit, validateUserAgent, sqlInjectionProtection, nosqlInjectionProtection, suspiciousActivityLogger } = require('./middleware/security');
+const { morganMiddleware, requestIdMiddleware, errorLogger, successLogger } = require('./middleware/logger');
+const { apiLimiter, strictLimiter } = require('./middleware/rate-limiter');
+const { errorHandler, notFoundHandler, unhandledRejectionHandler, uncaughtExceptionHandler } = require('./middleware/error-handler');
+const { requestTracker, errorTracker, healthCheckWithMetrics, detailedMetrics, resetMetrics } = require('./middleware/monitoring');
+
+// Импортируем сервисы
+const bingXService = require('./services/bingx-service');
+const marketService = require('./services/market-service');
+const cacheService = require('./services/cache-service');
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Обработка необработанных ошибок
+process.on('unhandledRejection', unhandledRejectionHandler);
+process.on('uncaughtException', uncaughtExceptionHandler);
+
+// Middleware для безопасности
+app.use(securityMiddleware);
+
+// Middleware для валидации и ограничений
+app.use(validateContentType);
+app.use(requestSizeLimit);
+app.use(validateUserAgent);
+app.use(sqlInjectionProtection);
+app.use(nosqlInjectionProtection);
+app.use(suspiciousActivityLogger);
+
+// Middleware для логирования и мониторинга
+app.use(requestIdMiddleware);
+app.use(morganMiddleware);
+app.use(requestTracker);
+app.use(successLogger);
+
+// Rate limiting
+app.use('/api/', apiLimiter);
+app.use('/api/v1/coins/details', strictLimiter); // Строгий лимит для детальных данных
+app.use('/api/v1/coins/market-data', strictLimiter);
+
+// Compression middleware
+app.use(compression());
+
+// Body parsing middleware
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// CORS configuration
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+    exposedHeaders: ['X-Request-ID', 'X-Response-Time']
+}));
+
+// Health check endpoint с метриками
+app.get('/health', healthCheckWithMetrics);
+
+// Admin endpoints для метрик (в продакшене должны быть защищены)
+if (process.env.NODE_ENV === 'development') {
+    app.get('/admin/metrics', detailedMetrics);
+    app.post('/admin/metrics/reset', resetMetrics);
+}
+
+// API Routes
+app.use('/api/v1', require('./routes'));
+
+// 404 handler
+app.use(notFoundHandler);
+
+// Error handling middleware
+app.use(errorTracker);
+app.use(errorLogger);
+app.use(errorHandler);
+
+// Start server
+const server = app.listen(PORT, () => {
+    console.log(`🚀 OmniBoard Backend running on port ${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+    
+    // Initialize services
+    cacheService.init();
+    marketService.init();
+    
+    console.log('✅ Services initialized successfully');
+});
+
+// Graceful shutdown
+const gracefulShutdown = (signal) => {
+    console.log(`🔄 ${signal} received, shutting down gracefully...`);
+    
+    // Останавливаем сервер
+    server.close(() => {
+        console.log('🛑 HTTP server closed');
+        
+        // Останавливаем сервисы
+        cacheService.stop();
+        marketService.stop();
+        
+        console.log('✅ Graceful shutdown completed');
+        process.exit(0);
+    });
+    
+    // Принудительное завершение через 30 секунд
+    setTimeout(() => {
+        console.error('❌ Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+    }, 30000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+module.exports = app;
