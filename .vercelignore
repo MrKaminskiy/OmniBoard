@@ -1,0 +1,14 @@
+# Игнорировать все папки, кроме preview
+backend/
+core/
+docs/
+shared/
+src/
+tests/
+node_modules/
+*.log
+.env
+.env.local
+.env.*.local
+.git/
+.github/

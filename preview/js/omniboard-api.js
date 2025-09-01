@@ -5,7 +5,7 @@
 
 class OmniBoardAPI {
     constructor() {
-        this.baseURL = 'http://localhost:3001';
+        this.baseURL = 'https://omniboard-backend-production.up.railway.app';
         this.apiVersion = 'v1';
         this.endpoints = {
             market: {

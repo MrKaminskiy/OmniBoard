@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://omniboard-backend-production.up.railway.app/api/$1"
+    },
+    {
       "source": "/stats/js/script.js",
       "destination": "https://plausible.io/js/script.js"
     },
@@ -10,7 +14,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/error-404.html"
+      "destination": "/$1"
     }
   ],
   "redirects": [
