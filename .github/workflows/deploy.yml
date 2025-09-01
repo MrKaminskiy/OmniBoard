@@ -34,7 +34,7 @@ jobs:
     - name: Deploy to Railway
       uses: railway/deploy@v1
       with:
-        service: responsible-fulfillment
+        service: OmniBoard-Backend
         token: ${{ secrets.RAILWAY_TOKEN }}
     
     - name: Health check
@@ -43,7 +43,7 @@ jobs:
         sleep 30
         
         # Get Railway URL from Railway CLI or environment
-        RAILWAY_URL="https://responsible-fulfillment-production.up.railway.app"
+        RAILWAY_URL="https://omniboard-backend-production.up.railway.app"
         
         echo "Testing health endpoint: $RAILWAY_URL/health"
         curl -f "$RAILWAY_URL/health" || exit 1
