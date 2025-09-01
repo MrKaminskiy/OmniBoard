@@ -1,0 +1,12 @@
+# Игнорировать все папки Tabler, оставить только backend
+core/
+docs/
+preview/
+shared/
+src/
+tests/
+node_modules/
+*.log
+.env
+.env.local
+.env.*.local
