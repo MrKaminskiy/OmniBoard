@@ -1,0 +1,102 @@
+[
+  {
+    "symbol": "BTC",
+    "price": 45000,
+    "rsi_1h": 65,
+    "rsi_4h": 58,
+    "rsi_1d": 62,
+    "signal_1h": "BUY",
+    "signal_4h": "HOLD",
+    "signal_1d": "BUY"
+  },
+  {
+    "symbol": "ETH",
+    "price": 2800,
+    "rsi_1h": 42,
+    "rsi_4h": 45,
+    "rsi_1d": 48,
+    "signal_1h": "SELL",
+    "signal_4h": "HOLD",
+    "signal_1d": "HOLD"
+  },
+  {
+    "symbol": "SOL",
+    "price": 95,
+    "rsi_1h": 78,
+    "rsi_4h": 72,
+    "rsi_1d": 68,
+    "signal_1h": "BUY",
+    "signal_4h": "BUY",
+    "signal_1d": "BUY"
+  },
+  {
+    "symbol": "BNB",
+    "price": 320,
+    "rsi_1h": 55,
+    "rsi_4h": 52,
+    "rsi_1d": 54,
+    "signal_1h": "HOLD",
+    "signal_4h": "HOLD",
+    "signal_1d": "HOLD"
+  },
+  {
+    "symbol": "XRP",
+    "price": 0.52,
+    "rsi_1h": 38,
+    "rsi_4h": 41,
+    "rsi_1d": 43,
+    "signal_1h": "SELL",
+    "signal_4h": "HOLD",
+    "signal_1d": "HOLD"
+  },
+  {
+    "symbol": "DOGE",
+    "price": 0.085,
+    "rsi_1h": 82,
+    "rsi_4h": 75,
+    "rsi_1d": 71,
+    "signal_1h": "BUY",
+    "signal_4h": "BUY",
+    "signal_1d": "BUY"
+  },
+  {
+    "symbol": "SUI",
+    "price": 1.25,
+    "rsi_1h": 88,
+    "rsi_4h": 85,
+    "rsi_1d": 79,
+    "signal_1h": "BUY",
+    "signal_4h": "BUY",
+    "signal_1d": "BUY"
+  },
+  {
+    "symbol": "LINK",
+    "price": 15.80,
+    "rsi_1h": 68,
+    "rsi_4h": 64,
+    "rsi_1d": 61,
+    "signal_1h": "BUY",
+    "signal_4h": "HOLD",
+    "signal_1d": "HOLD"
+  },
+  {
+    "symbol": "AAVE",
+    "price": 280,
+    "rsi_1h": 35,
+    "rsi_4h": 38,
+    "rsi_1d": 42,
+    "signal_1h": "SELL",
+    "signal_4h": "HOLD",
+    "signal_1d": "HOLD"
+  },
+  {
+    "symbol": "PEPE",
+    "price": 0.0000012,
+    "rsi_1h": 92,
+    "rsi_4h": 89,
+    "rsi_1d": 85,
+    "signal_1h": "BUY",
+    "signal_4h": "BUY",
+    "signal_1d": "BUY"
+  }
+]

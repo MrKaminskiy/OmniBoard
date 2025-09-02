@@ -1,0 +1,52 @@
+[
+  {
+    "symbol": "BTC",
+    "mentions": 45,
+    "sentiment": "bullish"
+  },
+  {
+    "symbol": "ETH",
+    "mentions": 32,
+    "sentiment": "neutral"
+  },
+  {
+    "symbol": "SOL",
+    "mentions": 28,
+    "sentiment": "bullish"
+  },
+  {
+    "symbol": "BNB",
+    "mentions": 22,
+    "sentiment": "bearish"
+  },
+  {
+    "symbol": "XRP",
+    "mentions": 18,
+    "sentiment": "neutral"
+  },
+  {
+    "symbol": "DOGE",
+    "mentions": 25,
+    "sentiment": "bullish"
+  },
+  {
+    "symbol": "SUI",
+    "mentions": 15,
+    "sentiment": "bullish"
+  },
+  {
+    "symbol": "LINK",
+    "mentions": 20,
+    "sentiment": "bullish"
+  },
+  {
+    "symbol": "AAVE",
+    "mentions": 12,
+    "sentiment": "bearish"
+  },
+  {
+    "symbol": "PEPE",
+    "mentions": 30,
+    "sentiment": "bullish"
+  }
+]

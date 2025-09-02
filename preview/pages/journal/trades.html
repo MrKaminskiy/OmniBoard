@@ -1,0 +1,82 @@
+---
+
+title: Trade History
+page-header: Trade History
+page-header-pretitle: All Trades
+---
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Trade History</h3>
+    <div class="card-actions">
+      <button class="btn btn-primary">Add Trade</button>
+      <button class="btn btn-outline-primary">Export CSV</button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label class="form-label">Date Range</label>
+        <select class="form-select">
+          <option>Last 7 days</option>
+          <option>Last 30 days</option>
+          <option>Last 3 months</option>
+          <option>Custom</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Symbol</label>
+        <input type="text" class="form-control" placeholder="e.g., BTC">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Result</label>
+        <select class="form-select">
+          <option>All</option>
+          <option>Winners</option>
+          <option>Losers</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-outline-primary mt-4">Filter</button>
+      </div>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-vcenter card-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Symbol</th>
+          <th>Side</th>
+          <th>Size</th>
+          <th>Entry</th>
+          <th>Exit</th>
+          <th>PnL</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Dec 10, 2024</td>
+          <td>BTCUSDT</td>
+          <td><span class="badge bg-success">Long</span></td>
+          <td>0.05 BTC</td>
+          <td>$42,800</td>
+          <td>$43,200</td>
+          <td><span class="text-success">+$20.00</span></td>
+          <td><span class="badge bg-success">Win</span></td>
+        </tr>
+        <tr>
+          <td>Dec 9, 2024</td>
+          <td>ETHUSDT</td>
+          <td><span class="badge bg-danger">Short</span></td>
+          <td>2.0 ETH</td>
+          <td>$2,750</td>
+          <td>$2,720</td>
+          <td><span class="text-success">+$60.00</span></td>
+          <td><span class="badge bg-success">Win</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

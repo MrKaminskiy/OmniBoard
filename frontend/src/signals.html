@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+  
+  <!-- API Configuration Meta Tags -->
+  <meta name="api-base-url" content="">
+  <meta name="use-mock-market" content="true">
+  <meta name="use-mock-signals" content="true">
+  <meta name="use-mock-journal" content="true">
+  <meta name="use-mock-media" content="true">
+  
+  <title>Crypto Signals - OmniBoard</title>
+  <meta name="description" content="Real-time cryptocurrency trading signals with RSI indicators and timeframes"/>
+  
+  <!-- Tabler Core CSS -->
+  <link href="https://unpkg.com/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/@tabler/icons@latest/dist/tabler-icons.min.css" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <link href="/css/omniboard.css" rel="stylesheet">
+</head>
+<body class="theme-dark">
+  <div class="page">
+    <!-- Sidebar -->
+    <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <button class="navbar-toggler" type="button">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <h1 class="navbar-brand navbar-brand-autodark">
+          <a href="/index.html">
+            OmniBoard
+          </a>
+        </h1>
+        <div class="navbar-nav flex-row d-lg-none">
+          <div class="nav-item dropdown">
+            <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+              <span class="avatar avatar-sm" style="background-image: url(./static/avatars/000m.jpg)"></span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+              <a href="#" class="dropdown-item">Settings</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item">Logout</a>
+            </div>
+          </div>
+        </div>
+        <div class="collapse navbar-collapse" id="sidebar-menu">
+          <ul class="navbar-nav pt-lg-3">
+            <li class="nav-item">
+              <a class="nav-link" href="/index.html">
+                <span class="nav-link-icon">
+                  <i class="ti ti-chart-line"></i>
+                </span>
+                <span class="nav-link-title">Market Overview</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/signals/index.html">
+                <span class="nav-link-icon">
+                  <i class="ti ti-signal"></i>
+                </span>
+                <span class="nav-link-title">Crypto Signals</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/journal/index.html">
+                <span class="nav-link-icon">
+                  <i class="ti ti-book"></i>
+                </span>
+                <span class="nav-link-title">Trading Journal</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/media/index.html">
+                <span class="nav-link-icon">
+                  <i class="ti ti-device-tv"></i>
+                </span>
+                <span class="nav-link-title">Public Media</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- Topbar -->
+    <div class="page-wrapper">
+      <header class="navbar navbar-expand-md navbar-light d-print-none">
+        <div class="container-xl">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="navbar-nav flex-row order-md-last">
+            <div class="nav-item">
+              <button class="btn btn-icon btn-link" id="theme-toggle" title="Toggle theme">
+                <i class="ti ti-moon" id="theme-icon"></i>
+              </button>
+            </div>
+            <div class="nav-item dropdown">
+              <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+                <span class="avatar avatar-sm bg-primary">
+                  <i class="ti ti-user"></i>
+                </span>
+                <div class="d-none d-xl-block ps-2">
+                  <div>Admin</div>
+                  <div class="mt-1 small text-muted">Administrator</div>
+                </div>
+              </a>
+              <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <a href="#" class="dropdown-item">Settings</a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">Logout</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Page Content -->
+      <div class="page-body">
+        <div class="container-xl">
+          <div class="page-header d-print-none">
+            <div class="container-xl">
+              <div class="row g-2 align-items-center">
+                <div class="col">
+                  <h2 class="page-title">
+                    Crypto Signals
+                  </h2>
+                  <div class="text-muted mt-1">Real-time trading signals with RSI analysis across multiple timeframes</div>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                  <div class="btn-list">
+                    <button class="btn btn-primary" onclick="loadSignalsData()">
+                      <i class="ti ti-refresh me-1"></i>
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Symbols</label>
+                  <select class="form-select" id="symbols-filter">
+                    <option value="BTC,ETH,SOL,BNB,XRP">Top 5</option>
+                    <option value="BTC,ETH,SOL,BNB,XRP,DOGE,SUI,LINK,AAVE,PEPE">Top 10</option>
+                    <option value="BTC,ETH,SOL,BNB,XRP,DOGE,SUI,LINK,AAVE,PEPE,MATIC,ADA,DOT,AVAX,UNI">Top 15</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Timeframes</label>
+                  <select class="form-select" id="timeframes-filter">
+                    <option value="1h,4h,1d">1H, 4H, 1D</option>
+                    <option value="15m,1h,4h">15M, 1H, 4H</option>
+                    <option value="4h,1d,1w">4H, 1D, 1W</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Signal Filter</label>
+                  <select class="form-select" id="signal-filter">
+                    <option value="all">All Signals</option>
+                    <option value="BUY">Buy Only</option>
+                    <option value="SELL">Sell Only</option>
+                    <option value="HOLD">Hold Only</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Signals Grid -->
+          <div class="row row-cards" id="signals-grid">
+            <div class="col-12 text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <div class="mt-2 text-muted">Loading signals...</div>
+            </div>
+          </div>
+
+          <!-- No Signals State -->
+          <div class="row d-none" id="no-signals">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body text-center py-5">
+                  <div class="text-muted">
+                    <i class="ti ti-signal-off ti-3x mb-3"></i>
+                    <h3>No signals available</h3>
+                    <p>Try adjusting your filters or check back later.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <footer class="footer footer-transparent d-print-none">
+        <div class="container-xl">
+          <div class="row text-center align-items-center flex-row-reverse">
+            <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+              <ul class="list-inline list-inline-dots mb-0">
+                <li class="list-inline-item">
+                  Copyright &copy; 2024
+                  <a href="." class="link-secondary">OmniBoard</a>.
+                  All rights reserved.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+  
+  <!-- Tabler Core JS -->
+  <script src="https://unpkg.com/@tabler/core@latest/dist/js/tabler.min.js" defer></script>
+  
+  <!-- OmniBoard Scripts -->
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  
+  <script>
+  // Crypto Signals Page Logic
+  class CryptoSignalsPage {
+    constructor() {
+      this.signals = [];
+      this.filteredSignals = [];
+      this.refreshInterval = null;
+      this.init();
+    }
+
+    init() {
+      this.loadSignalsData();
+      this.setupFilters();
+      this.startAutoRefresh();
+    }
+
+    // Загрузить данные сигналов
+    async loadSignalsData() {
+      try {
+        const symbols = document.getElementById('symbols-filter')?.value || 'BTC,ETH,SOL,BNB,XRP';
+        const timeframes = document.getElementById('timeframes-filter')?.value || '1h,4h,1d';
+        
+        const data = await window.omniboardAPI.getSignalsLatest(symbols, timeframes);
+        this.signals = data;
+        this.applyFilters();
+      } catch (error) {
+        console.error('Failed to load signals:', error);
+        this.showError('Failed to load signals data');
+      }
+    }
+
+    // Настроить фильтры
+    setupFilters() {
+      const symbolsFilter = document.getElementById('symbols-filter');
+      const timeframesFilter = document.getElementById('timeframes-filter');
+      const signalFilter = document.getElementById('signal-filter');
+
+      if (symbolsFilter) {
+        symbolsFilter.addEventListener('change', () => this.loadSignalsData());
+      }
+      if (timeframesFilter) {
+        timeframesFilter.addEventListener('change', () => this.loadSignalsData());
+      }
+      if (signalFilter) {
+        signalFilter.addEventListener('change', () => this.applyFilters());
+      }
+    }
+
+    // Применить фильтры
+    applyFilters() {
+      const signalFilter = document.getElementById('signal-filter')?.value || 'all';
+      
+      this.filteredSignals = this.signals.filter(signal => {
+        if (signalFilter === 'all') return true;
+        return signal.signal_1h === signalFilter || 
+               signal.signal_4h === signalFilter || 
+               signal.signal_1d === signalFilter;
+      });
+
+      this.renderSignals();
+    }
+
+    // Отобразить сигналы
+    renderSignals() {
+      const grid = document.getElementById('signals-grid');
+      const noSignals = document.getElementById('no-signals');
+      
+      if (!grid) return;
+
+      if (!this.filteredSignals || this.filteredSignals.length === 0) {
+        grid.classList.add('d-none');
+        if (noSignals) noSignals.classList.remove('d-none');
+        return;
+      }
+
+      if (noSignals) noSignals.classList.add('d-none');
+      grid.classList.remove('d-none');
+
+      grid.innerHTML = this.filteredSignals.map(signal => 
+        window.omniboardComponents.createSignalCard(signal)
+      ).join('');
+    }
+
+    // Начать автообновление
+    startAutoRefresh() {
+      const config = window.OMNIBOARD_CONFIG;
+      
+      // Обновление сигналов каждые 60 секунд
+      this.refreshInterval = setInterval(() => {
+        this.loadSignalsData();
+      }, (config.REFRESH_INTERVALS.SIGNALS || 60) * 1000);
+    }
+
+    // Остановить автообновление
+    stopAutoRefresh() {
+      if (this.refreshInterval) {
+        clearInterval(this.refreshInterval);
+      }
+    }
+
+    // Показать ошибку
+    showError(message) {
+      window.omniboardComponents.showAlert(message, 'danger');
+    }
+  }
+
+  // Глобальная функция для кнопки обновления
+  function loadSignalsData() {
+    if (window.cryptoSignalsPage) {
+      window.cryptoSignalsPage.loadSignalsData();
+    }
+  }
+
+  // Инициализация страницы
+  document.addEventListener('DOMContentLoaded', function() {
+    window.cryptoSignalsPage = new CryptoSignalsPage();
+  });
+
+  // Очистка при уходе со страницы
+  window.addEventListener('beforeunload', function() {
+    if (window.cryptoSignalsPage) {
+      window.cryptoSignalsPage.stopAutoRefresh();
+    }
+  });
+  </script>
+</body>
+</html>

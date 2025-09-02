@@ -1,0 +1,72 @@
+[
+  {
+    "symbol": "BTC",
+    "price": 45000,
+    "change_24h": 2.5,
+    "oi": 15000000000,
+    "funding": 0.01
+  },
+  {
+    "symbol": "ETH",
+    "price": 2800,
+    "change_24h": -1.2,
+    "oi": 8000000000,
+    "funding": 0.008
+  },
+  {
+    "symbol": "SOL",
+    "price": 95,
+    "change_24h": 5.8,
+    "oi": 2000000000,
+    "funding": 0.015
+  },
+  {
+    "symbol": "BNB",
+    "price": 320,
+    "change_24h": 1.8,
+    "oi": 3000000000,
+    "funding": 0.012
+  },
+  {
+    "symbol": "XRP",
+    "price": 0.52,
+    "change_24h": -0.5,
+    "oi": 1500000000,
+    "funding": 0.009
+  },
+  {
+    "symbol": "DOGE",
+    "price": 0.085,
+    "change_24h": 3.2,
+    "oi": 800000000,
+    "funding": 0.018
+  },
+  {
+    "symbol": "SUI",
+    "price": 1.25,
+    "change_24h": 7.5,
+    "oi": 500000000,
+    "funding": 0.022
+  },
+  {
+    "symbol": "LINK",
+    "price": 15.80,
+    "change_24h": 4.1,
+    "oi": 1200000000,
+    "funding": 0.014
+  },
+  {
+    "symbol": "AAVE",
+    "price": 280,
+    "change_24h": -2.3,
+    "oi": 600000000,
+    "funding": 0.011
+  },
+  {
+    "symbol": "PEPE",
+    "price": 0.0000012,
+    "change_24h": 12.5,
+    "oi": 300000000,
+    "funding": 0.025
+  }
+]

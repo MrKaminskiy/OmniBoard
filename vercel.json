@@ -1,3 +1,5 @@
 {
-  "version": 2
+  "outputDirectory": "preview/dist",
+  "installCommand": "echo 'No install needed'",
+  "buildCommand": "echo 'No build needed'"
 }
