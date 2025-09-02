@@ -62,6 +62,11 @@ const securityMiddleware = [
 
 // Middleware для валидации Content-Type
 const validateContentType = (req, res, next) => {
+    // Разрешаем CORS preflight запросы
+    if (req.method === 'OPTIONS') {
+        return next();
+    }
+    
     // Проверяем только для POST/PUT/PATCH запросов
     if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
         const contentType = req.get('Content-Type');
@@ -96,6 +101,11 @@ const requestSizeLimit = (req, res, next) => {
 
 // Middleware для проверки User-Agent
 const validateUserAgent = (req, res, next) => {
+    // Разрешаем CORS preflight запросы
+    if (req.method === 'OPTIONS') {
+        return next();
+    }
+    
     const userAgent = req.get('User-Agent');
     
     // Блокируем подозрительные User-Agent

@@ -17,6 +17,7 @@ const cacheService = require('./services/cache-service');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Обработка необработанных ошибок
 process.on('unhandledRejection', unhandledRejectionHandler);
@@ -60,14 +61,29 @@ app.use(compression());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// CORS configuration
-app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+// CORS configuration - более гибкие настройки для Railway
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Разрешаем все origins в production (Railway)
+        if (NODE_ENV === 'production') {
+            callback(null, true);
+        } else {
+            // В development разрешаем localhost
+            const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
+            if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'User-Agent'],
     exposedHeaders: ['X-Request-ID', 'X-Response-Time']
-}));
+};
+
+app.use(cors(corsOptions));
 
 // Health check endpoint с метриками
 app.get('/health', healthCheckWithMetrics);
@@ -92,7 +108,7 @@ app.use(errorHandler);
 // Start server
 const server = app.listen(PORT, () => {
     console.log(`🚀 OmniBoard Backend running on port ${PORT}`);
-    console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+    console.log(`📊 Environment: ${NODE_ENV}`);
     console.log(`🔗 Health check: http://localhost:${PORT}/health`);
     
     // Логируем переменные окружения для отладки

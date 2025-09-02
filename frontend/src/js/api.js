@@ -32,8 +32,7 @@ class OmniBoardAPI {
             const response = await fetch(url.toString(), {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'OmniBoard-Frontend/1.0.0'
+                    'Content-Type': 'application/json'
                 }
             });
 
@@ -61,8 +60,7 @@ class OmniBoardAPI {
             const response = await fetch(url.toString(), {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'OmniBoard-Frontend/1.0.0'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(body)
             });
@@ -145,68 +143,101 @@ class OmniBoardAPI {
 
     // Получить конкретный список монет для отображения
     async getSpecificCoins() {
-        const symbols = ['BTC', 'ETH', 'SOL'];
+        const symbols = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'SUI', 'LINK', 'AAVE', '1000PEPE', 'WIF', 'LTC', 'ADA', 'FARTCOIN', 'OP'];
         
         try {
-            console.log('Testing with coins:', symbols);
+            console.log('🚀 Starting API calls for coins:', symbols);
+            console.log('📊 API Base URL:', this.baseURL);
+            console.log('🔧 Mock mode flags:', this.useMock);
             
             // Получаем данные последовательно с задержкой
             const coins = [];
             for (let i = 0; i < symbols.length; i++) {
                 try {
                     const symbol = symbols[i];
-                    console.log(`Fetching ${symbol}...`);
+                    console.log(`\n📈 Fetching ${symbol}... (${i + 1}/${symbols.length})`);
+                    
+                    // Логируем URL и параметры
+                    const url = new URL('/api/v1/coins/details', this.baseURL);
+                    url.searchParams.append('symbol', `${symbol}-USDT`);
+                    console.log(`🔗 Request URL: ${url.toString()}`);
                     
                     const coin = await this.getJSON(`/api/v1/coins/details`, { symbol: `${symbol}-USDT` });
-                    console.log(`${symbol} data received:`, coin);
+                    console.log(`✅ ${symbol} data received:`, coin);
                     
                     if (coin && coin.data && coin.data.ticker) {
                         const ticker = coin.data.ticker;
-                        console.log(`Raw ticker data for ${symbol}:`, ticker);
+                        console.log(`🔍 Raw ticker data for ${symbol}:`, ticker);
+                        console.log(`📋 Available ticker fields:`, Object.keys(ticker));
                         
-                        // Проверяем все возможные поля
+                        // Проверяем все возможные поля с логированием
+                        const price = ticker.lastPrice || ticker.price || ticker.currentPrice;
+                        const priceChange = ticker.priceChangePercent || ticker.priceChange || ticker.change24h || ticker.changePercent;
+                        const volume = ticker.volume || ticker.volume24h || ticker.totalVolume;
+                        const marketCap = ticker.quoteVolume || ticker.marketCap || ticker.marketCapUsd;
+                        
+                        console.log(`💰 ${symbol} parsed values:`, {
+                            price: price,
+                            priceChange: priceChange,
+                            volume: volume,
+                            marketCap: marketCap
+                        });
+                        
                         const formattedCoin = {
-                            symbol: symbol, // Используем исходный символ
+                            symbol: symbol,
                             name: symbol,
-                            price: parseFloat(ticker.lastPrice || ticker.price || 0),
-                            price_change_24h: parseFloat(ticker.priceChangePercent || ticker.priceChange || ticker.change24h || 0),
-                            volume_24h: parseFloat(ticker.volume || ticker.volume24h || 0),
-                            market_cap: parseFloat(ticker.quoteVolume || ticker.marketCap || 0),
+                            price: parseFloat(price) || 0,
+                            price_change_24h: parseFloat(priceChange) || 0,
+                            volume_24h: parseFloat(volume) || 0,
+                            market_cap: parseFloat(marketCap) || 0,
                             market_cap_rank: 0
                         };
                         
-                        console.log(`Formatted ${symbol}:`, formattedCoin);
+                        console.log(`✨ Formatted ${symbol}:`, formattedCoin);
                         coins.push(formattedCoin);
                     } else {
-                        console.log(`Invalid coin structure for ${symbol}:`, coin);
+                        console.log(`❌ Invalid coin structure for ${symbol}:`, coin);
+                        console.log(`🔍 Coin data structure:`, {
+                            hasCoin: !!coin,
+                            hasData: !!(coin && coin.data),
+                            hasTicker: !!(coin && coin.data && coin.data.ticker),
+                            dataKeys: coin && coin.data ? Object.keys(coin.data) : 'no data'
+                        });
                     }
                     
                     // Увеличиваем задержку до 1 секунды чтобы избежать rate limiting
                     if (i < symbols.length - 1) {
-                        console.log(`Waiting 1000ms before next request...`);
+                        console.log(`⏳ Waiting 1000ms before next request...`);
                         await new Promise(resolve => setTimeout(resolve, 1000));
                     }
                 } catch (error) {
-                    console.error(`Error fetching ${symbols[i]}:`, error);
+                    console.error(`💥 Error fetching ${symbols[i]}:`, error);
+                    console.error(`📊 Error details:`, {
+                        message: error.message,
+                        status: error.status,
+                        response: error.response
+                    });
                 }
             }
             
-            console.log('All coins processed:', coins);
+            console.log(`\n🎯 All coins processed:`, coins);
+            console.log(`📊 Total coins received: ${coins.length}/${symbols.length}`);
             
             // Если не получили ни одной монеты, используем mock данные
             if (coins.length === 0) {
-                console.log('No coins received from API, using mock data');
+                console.log('⚠️ No coins received from API, using mock data');
                 return this.getMockData('/specific_coins');
             }
             
+            console.log('✅ Returning API data successfully');
             return {
                 status: 'ok',
                 data: { coins: coins },
                 timestamp: new Date().toISOString()
             };
         } catch (error) {
-            console.error('Failed to fetch specific coins:', error);
-            console.log('Falling back to mock data');
+            console.error('💥 Failed to fetch specific coins:', error);
+            console.log('🔄 Falling back to mock data');
             // Fallback к mock данным
             return this.getMockData('/specific_coins');
         }

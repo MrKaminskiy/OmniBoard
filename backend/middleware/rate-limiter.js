@@ -39,11 +39,11 @@ const createRateLimiter = (windowMs = 15 * 60 * 1000, max = 100) => {
 // Разные лимиты для разных эндпоинтов
 const apiLimiter = createRateLimiter(
     parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 минут
-    parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 500 // Увеличиваем до 500 запросов
+    parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100 // 100 запросов
 );
 
-const strictLimiter = createRateLimiter(5 * 60 * 1000, 100); // 5 минут, 100 запросов
-const authLimiter = createRateLimiter(15 * 60 * 1000, 20); // 15 минут, 20 попыток
+const strictLimiter = createRateLimiter(5 * 60 * 1000, 20); // 5 минут, 20 запросов
+const authLimiter = createRateLimiter(15 * 60 * 1000, 5); // 15 минут, 5 попыток
 
 module.exports = {
     apiLimiter,
