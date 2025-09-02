@@ -39,10 +39,19 @@ app.use(morganMiddleware);
 app.use(requestTracker);
 app.use(successLogger);
 
-// Rate limiting
-app.use('/api/', apiLimiter);
-app.use('/api/v1/coins/details', strictLimiter); // Строгий лимит для детальных данных
-app.use('/api/v1/coins/market-data', strictLimiter);
+// Rate limiting - ВРЕМЕННО ОТКЛЮЧЕН для тестирования
+console.log('⚠️ Rate limiting TEMPORARILY DISABLED for testing');
+// TODO: Восстановить когда решим проблемы с API
+/*
+if (process.env.DISABLE_RATE_LIMIT !== 'true') {
+    app.use('/api/', apiLimiter);
+    app.use('/api/v1/coins/details', strictLimiter);
+    app.use('/api/v1/coins/market-data', strictLimiter);
+    console.log('🔒 Rate limiting enabled');
+} else {
+    console.log('⚠️ Rate limiting DISABLED for testing');
+}
+*/
 
 // Compression middleware
 app.use(compression());
@@ -85,6 +94,12 @@ const server = app.listen(PORT, () => {
     console.log(`🚀 OmniBoard Backend running on port ${PORT}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV}`);
     console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+    
+    // Логируем переменные окружения для отладки
+    console.log('🔧 Environment Variables:');
+    console.log(`   DISABLE_RATE_LIMIT: ${process.env.DISABLE_RATE_LIMIT}`);
+    console.log(`   CORS_ORIGIN: ${process.env.CORS_ORIGIN}`);
+    console.log(`   RATE_LIMIT_MAX_REQUESTS: ${process.env.RATE_LIMIT_MAX_REQUESTS}`);
     
     // Initialize services
     cacheService.init();
