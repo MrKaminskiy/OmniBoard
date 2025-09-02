@@ -1,169 +1,172 @@
-// OmniBoard API Client
+/**
+ * OmniBoard API Client
+ * Handles API requests and mock data fallback
+ */
 class OmniBoardAPI {
-  constructor() {
-    this.config = window.OMNIBOARD_CONFIG || {};
-    this.baseURL = this.config.API_BASE || '';
-  }
+    constructor() {
+        this.baseURL = window.OMNIBOARD_CONFIG?.API_BASE || '';
+        this.useMock = {
+            market: window.OMNIBOARD_CONFIG?.USE_MOCK_MARKET || false,
+            signals: window.OMNIBOARD_CONFIG?.USE_MOCK_SIGNALS || false,
+            journal: window.OMNIBOARD_CONFIG?.USE_MOCK_JOURNAL || false,
+            media: window.OMNIBOARD_CONFIG?.USE_MOCK_MEDIA || false
+        };
+    }
 
-  // Получить JSON данные
-  async getJSON(path, params = {}) {
-    try {
-      const url = new URL(path, this.baseURL);
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null) {
-          url.searchParams.append(key, params[key]);
+    /**
+     * Make GET request to API
+     */
+    async getJSON(path, params = {}) {
+        try {
+            if (!this.baseURL) {
+                throw new Error('API base URL not configured');
+            }
+
+            const url = new URL(path, this.baseURL);
+            Object.keys(params).forEach(key => {
+                if (params[key] !== undefined && params[key] !== null) {
+                    url.searchParams.append(key, params[key]);
+                }
+            });
+
+            const response = await fetch(url.toString(), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'OmniBoard-Frontend/1.0.0'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error(`API Error (${path}):`, error);
+            throw error;
         }
-      });
-
-      const response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('API Error:', error);
-      throw error;
     }
-  }
 
-  // Отправить POST запрос
-  async postJSON(path, body = {}) {
-    try {
-      const url = new URL(path, this.baseURL);
-      
-      const response = await fetch(url.toString(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+    /**
+     * Make POST request to API
+     */
+    async postJSON(path, body = {}) {
+        try {
+            if (!this.baseURL) {
+                throw new Error('API base URL not configured');
+            }
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+            const url = new URL(path, this.baseURL);
+            const response = await fetch(url.toString(), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'OmniBoard-Frontend/1.0.0'
+                },
+                body: JSON.stringify(body)
+            });
 
-      return await response.json();
-    } catch (error) {
-      console.error('API Error:', error);
-      throw error;
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error(`API Error (${path}):`, error);
+            throw error;
+        }
     }
-  }
 
-  // Получить мок данные
-  async getMockData(endpoint) {
-    try {
-      const response = await fetch(`/mocks/${endpoint}.json`);
-      if (!response.ok) {
-        throw new Error(`Mock data not found: ${endpoint}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Mock data error:', error);
-      return this.getDefaultMockData(endpoint);
+    /**
+     * Smart GET - tries API first, falls back to mock if configured
+     */
+    async smartGet(path, params = {}, mockPath = null) {
+        try {
+            // Try real API first
+            return await this.getJSON(path, params);
+        } catch (error) {
+            // If mock is enabled and mockPath provided, try mock
+            if (mockPath && this.shouldUseMock(path)) {
+                console.log(`Falling back to mock data for ${path}`);
+                return await this.getMockData(mockPath);
+            }
+            throw error;
+        }
     }
-  }
 
-  // Дефолтные мок данные
-  getDefaultMockData(endpoint) {
-    const defaults = {
-      'market_overview': {
-        market_cap: 2500000000000,
-        volume_24h: 85000000000,
-        fear_greed: 65,
-        altseason: 45
-      },
-      'market_tickers': [
-        { symbol: 'BTC', price: 45000, change_24h: 2.5, oi: 15000000000, funding: 0.01 },
-        { symbol: 'ETH', price: 2800, change_24h: -1.2, oi: 8000000000, funding: 0.008 },
-        { symbol: 'SOL', price: 95, change_24h: 5.8, oi: 2000000000, funding: 0.015 }
-      ],
-      'signals_latest': [
-        { symbol: 'BTC', price: 45000, rsi_1h: 65, rsi_4h: 58, rsi_1d: 62, signal_1h: 'BUY', signal_4h: 'HOLD', signal_1d: 'BUY' },
-        { symbol: 'ETH', price: 2800, rsi_1h: 42, rsi_4h: 45, rsi_1d: 48, signal_1h: 'SELL', signal_4h: 'HOLD', signal_1d: 'HOLD' }
-      ],
-      'journal_summary': {
-        total_pnl: 1250.50,
-        win_rate: 68.5,
-        avg_fee: 0.15,
-        avg_duration: 2.5
-      },
-      'journal_trades': [
-        { id: 1, symbol: 'BTC', side: 'BUY', status: 'CLOSED', pnl: 150.25, fee: 0.12, duration: 3.2 },
-        { id: 2, symbol: 'ETH', side: 'SELL', status: 'OPEN', pnl: -45.80, fee: 0.08, duration: 1.8 }
-      ],
-      'influencers_feed': [
-        { source: 'twitter', handle: '@crypto_expert', text: 'Bitcoin showing strong support at $44k', symbols: ['BTC'], sentiment: 'bullish', timestamp: '2024-01-15T10:30:00Z' },
-        { source: 'telegram', handle: 'CryptoSignals', text: 'ETH breakout imminent', symbols: ['ETH'], sentiment: 'bullish', timestamp: '2024-01-15T10:25:00Z' }
-      ],
-      'influencers_heatmap': [
-        { symbol: 'BTC', mentions: 45, sentiment: 'bullish' },
-        { symbol: 'ETH', mentions: 32, sentiment: 'neutral' },
-        { symbol: 'SOL', mentions: 28, sentiment: 'bullish' }
-      ]
-    };
-
-    return defaults[endpoint] || [];
-  }
-
-  // Smart API вызов с fallback на моки
-  async smartGet(endpoint, params = {}, mockFlag = null) {
-    const shouldUseMock = mockFlag !== null ? mockFlag : this.config[`USE_MOCK_${endpoint.toUpperCase()}`];
-    
-    if (shouldUseMock || !this.baseURL) {
-      return await this.getMockData(endpoint);
+    /**
+     * Check if we should use mock for this endpoint
+     */
+    shouldUseMock(path) {
+        if (path.includes('/market/')) return this.useMock.market;
+        if (path.includes('/signals/')) return this.useMock.signals;
+        if (path.includes('/journal/')) return this.useMock.journal;
+        if (path.includes('/influencers/')) return this.useMock.media;
+        return false;
     }
-    
-    return await this.getJSON(endpoint, params);
-  }
 
-  // Market API методы
-  async getMarketOverview() {
-    return await this.smartGet('market_overview', {}, this.config.USE_MOCK_MARKET);
-  }
+    /**
+     * Get mock data from static files
+     */
+    async getMockData(path) {
+        try {
+            const response = await fetch(`/static/mocks${path}.json`);
+            if (!response.ok) {
+                throw new Error(`Mock file not found: ${path}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error(`Mock data error (${path}):`, error);
+            throw error;
+        }
+    }
 
-  async getMarketTickers(symbols = 'BTC,ETH,SOL,BNB,XRP,DOGE,SUI,LINK,AAVE,PEPE') {
-    return await this.smartGet('market/tickers', { symbols }, this.config.USE_MOCK_MARKET);
-  }
+    // Market Data Methods
+    async getMarketOverview() {
+        return this.smartGet('/api/v1/market/overview', {}, '/market_overview');
+    }
 
-  // Signals API методы
-  async getSignalsLatest(symbols = 'BTC,ETH,SOL,BNB,XRP', tfs = '1h,4h,1d') {
-    return await this.smartGet('signals/latest', { symbols, tfs }, this.config.USE_MOCK_SIGNALS);
-  }
+    async getTopGainers(limit = 10) {
+        return this.smartGet('/api/v1/market/top-gainers', { limit }, '/top_gainers');
+    }
 
-  // Journal API методы
-  async getJournalSummary(accountId, range = '90d') {
-    return await this.smartGet('journal/summary', { account_id: accountId, range }, this.config.USE_MOCK_JOURNAL);
-  }
+    async getTopLosers(limit = 10) {
+        return this.smartGet('/api/v1/market/top-losers', { limit }, '/top_losers');
+    }
 
-  async getJournalTrades(accountId, limit = 100) {
-    return await this.smartGet('journal/trades', { account_id: accountId, limit }, this.config.USE_MOCK_JOURNAL);
-  }
+    async getFearGreed() {
+        return this.smartGet('/api/v1/market/fear-greed', {}, '/fear_greed');
+    }
 
-  async createAccount(accountData) {
-    return await this.postJSON('accounts', accountData);
-  }
+    async getAltseason() {
+        return this.smartGet('/api/v1/market/altseason', {}, '/altseason');
+    }
 
-  async syncJournal(accountId, range = '90d') {
-    return await this.postJSON('journal/sync', { account_id: accountId, range });
-  }
+    // Signals Methods (placeholder - implement when endpoints are available)
+    async getSignals(symbols = [], timeframes = []) {
+        // For now, return mock data since signals endpoint doesn't exist yet
+        return this.getMockData('/signals_latest');
+    }
 
-  // Media API методы
-  async getInfluencersFeed(since = '24h') {
-    return await this.smartGet('influencers', { since }, this.config.USE_MOCK_MEDIA);
-  }
+    // Journal Methods (placeholder - implement when endpoints are available)
+    async getJournalSummary(accountId, range = '90d') {
+        return this.getMockData('/journal_summary');
+    }
 
-  async getInfluencersHeatmap(since = '24h') {
-    return await this.smartGet('influencers/heatmap', { since }, this.config.USE_MOCK_MEDIA);
-  }
+    async getJournalTrades(accountId, limit = 100) {
+        return this.getMockData('/journal_trades');
+    }
+
+    // Media Methods (placeholder - implement when endpoints are available)
+    async getInfluencersFeed(since = '24h') {
+        return this.getMockData('/influencers_feed');
+    }
+
+    async getInfluencersHeatmap(since = '24h') {
+        return this.getMockData('/influencers_heatmap');
+    }
 }
 
-// Создаем глобальный экземпляр API
-window.omniboardAPI = new OmniBoardAPI();
+// Create global instance
+window.omniBoardAPI = new OmniBoardAPI();

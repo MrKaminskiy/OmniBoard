@@ -1,9 +1,9 @@
 // OmniBoard Configuration
 window.OMNIBOARD_CONFIG = {
-  // API Base URL - будет заменен на реальный URL при деплое
+  // API Base URL - временно пустой для mock режима
   API_BASE: '',
   
-  // Mock mode flags
+  // Mock mode flags - включаем mock режим для демонстрации
   USE_MOCK_MARKET: true,
   USE_MOCK_SIGNALS: true,
   USE_MOCK_JOURNAL: true,

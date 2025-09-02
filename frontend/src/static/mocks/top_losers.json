@@ -1,0 +1,41 @@
+{
+  "status": "ok",
+  "data": {
+    "coins": [
+      {
+        "id": "doge",
+        "symbol": "DOGE",
+        "name": "Dogecoin",
+        "price": "---",
+        "price_change_24h": "---",
+        "market_cap": "---",
+        "volume_24h": "---",
+        "market_cap_rank": "---",
+        "image": "---"
+      },
+      {
+        "id": "link",
+        "symbol": "LINK",
+        "name": "Chainlink",
+        "price": "---",
+        "price_change_24h": "---",
+        "market_cap": "---",
+        "volume_24h": "---",
+        "market_cap_rank": "---",
+        "image": "---"
+      },
+      {
+        "id": "uni",
+        "symbol": "UNI",
+        "name": "Uniswap",
+        "price": "---",
+        "price_change_24h": "---",
+        "market_cap": "---",
+        "volume_24h": "---",
+        "market_cap_rank": "---",
+        "image": "---"
+      }
+    ]
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}

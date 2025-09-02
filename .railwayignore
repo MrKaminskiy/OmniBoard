@@ -1,12 +1,16 @@
-# Игнорировать все папки Tabler, оставить только backend
-core/
+# Исключаем фронтенд и другие ненужные файлы
+frontend/
 docs/
-preview/
+core/
 shared/
+preview/
 src/
 tests/
+*.md
+.env*
+.git/
 node_modules/
-*.log
-.env
-.env.local
-.env.*.local
+dist/
+.turbo/
+turbo.json*
+pnpm-lock.yaml

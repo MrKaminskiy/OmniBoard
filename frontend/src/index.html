@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
   
-  <!-- API Configuration Meta Tags -->
-  <meta name="api-base-url" content="">
-  <meta name="use-mock-market" content="true">
-  <meta name="use-mock-signals" content="true">
-  <meta name="use-mock-journal" content="true">
-  <meta name="use-mock-media" content="true">
+     <!-- API Configuration Meta Tags -->
+   <meta name="api-base-url" content="https://omniboard-backend-production.up.railway.app">
+   <meta name="use-mock-market" content="false">
+   <meta name="use-mock-signals" content="false">
+   <meta name="use-mock-journal" content="false">
+   <meta name="use-mock-media" content="false">
   
   <title>Market Overview - OmniBoard</title>
   <meta name="description" content="Real-time cryptocurrency market overview with key metrics and ticker data"/>
   
   <!-- Tabler Core CSS -->
   <link href="https://unpkg.com/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet">
-  <link href="https://unpkg.com/@tabler/icons@latest/dist/tabler-icons.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css" rel="stylesheet">
   
   <!-- Custom CSS -->
   <link href="/css/omniboard.css" rel="stylesheet">
@@ -251,8 +251,8 @@
                     <th>Coin</th>
                     <th>Price</th>
                     <th>24h %</th>
-                    <th>OI</th>
-                    <th>Funding</th>
+                    <th>Volume 24h</th>
+                    <th>Market Cap</th>
                   </tr>
                 </thead>
                 <tbody id="tickers-tbody">
@@ -316,22 +316,27 @@
     // Загрузить данные обзора рынка
     async loadMarketData() {
       try {
-        const data = await window.omniboardAPI.getMarketOverview();
-        this.updateKPICards(data);
+        const data = await window.omniBoardAPI.getMarketOverview();
+        this.updateKPICards(data.data || data);
       } catch (error) {
         console.error('Failed to load market overview:', error);
         this.showError('Failed to load market overview data');
       }
     }
 
-    // Загрузить данные тикеров
+    // Загрузить данные топ-движущихся монет
     async loadTickersData() {
       try {
-        const data = await window.omniboardAPI.getMarketTickers();
-        this.updateTickersTable(data);
+        // Загружаем топ-гайнеры и топ-лузеры вместо тикеров
+        const [gainersData, losersData] = await Promise.all([
+          window.omniBoardAPI.getTopGainers(5),
+          window.omniBoardAPI.getTopLosers(5)
+        ]);
+        
+        this.updateTopMoversTable(gainersData, losersData);
       } catch (error) {
-        console.error('Failed to load tickers:', error);
-        this.showError('Failed to load tickers data');
+        console.error('Failed to load top movers:', error);
+        this.showError('Failed to load top movers data');
       }
     }
 
@@ -348,34 +353,40 @@
       if (altseasonEl) altseasonEl.textContent = data.altseason + '%';
     }
 
-    // Обновить таблицу тикеров
-    updateTickersTable(data) {
+    // Обновить таблицу топ-движущихся монет
+    updateTopMoversTable(gainersData, losersData) {
       const tbody = document.getElementById('tickers-tbody');
       if (!tbody) return;
 
-      if (!data || data.length === 0) {
+      const gainers = gainersData?.data?.coins || gainersData?.coins || [];
+      const losers = losersData?.data?.coins || losersData?.coins || [];
+
+      if (gainers.length === 0 && losers.length === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="5" class="text-center text-muted py-4">
-              No ticker data available
+              No market data available
             </td>
           </tr>
         `;
         return;
       }
 
-      tbody.innerHTML = data.map(ticker => `
+      // Объединяем топ-гайнеры и топ-лузеры
+      const allMovers = [...gainers, ...losers].slice(0, 10);
+      
+      tbody.innerHTML = allMovers.map(coin => `
         <tr>
           <td>
             <div class="d-flex align-items-center">
-              <span class="avatar avatar-xs me-2">${ticker.symbol}</span>
-              <strong>${ticker.symbol}</strong>
+              <span class="avatar avatar-xs me-2">${coin.symbol || 'N/A'}</span>
+              <strong>${coin.symbol || 'N/A'}</strong>
             </div>
           </td>
-          <td>$${ticker.price.toLocaleString()}</td>
-          <td>${window.omniboardComponents.createPriceBadge(ticker.change_24h)}</td>
-          <td>$${window.omniboardComponents.formatNumber(ticker.oi)}</td>
-          <td>${(ticker.funding * 100).toFixed(3)}%</td>
+          <td>$${coin.price ? coin.price.toLocaleString() : 'N/A'}</td>
+          <td>${window.omniboardComponents.createPriceBadge(coin.change_24h || 0)}</td>
+          <td>$${coin.volume_24h ? window.omniboardComponents.formatNumber(coin.volume_24h) : 'N/A'}</td>
+          <td>${coin.market_cap ? window.omniboardComponents.formatNumber(coin.market_cap) : 'N/A'}</td>
         </tr>
       `).join('');
     }

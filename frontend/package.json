@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "eleventy",
-    "dev": "eleventy --serve --port=3000",
+    "dev": "npx eleventy --serve --port=3000",
     "vercel-build": "eleventy"
   },
   "dependencies": {

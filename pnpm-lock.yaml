@@ -197,9 +197,6 @@ importers:
 
   frontend:
     dependencies:
-      '@tabler/core':
-        specifier: workspace:*
-        version: link:../core
       '@tabler/icons':
         specifier: ^3.34.1
         version: 3.34.1

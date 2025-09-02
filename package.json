@@ -1,18 +1,17 @@
 {
   "private": true,
-  "description": "Premium and Open Source dashboard template with responsive and high quality UI.",
-  "homepage": "https://tabler.io",
+  "description": "OmniBoard - Crypto Trading Dashboard Backend",
+  "homepage": "https://omniboard.io",
   "scripts": {
-    "build": "turbo build && pnpm run zip-package",
-    "dev": "turbo dev",
-    "clean": "turbo clean",
-    "bundlewatch": "turbo bundlewatch",
+    "build": "cd backend && npm install",
+    "dev": "cd backend && npm run dev",
+    "start": "cd backend && npm start",
+    "clean": "rm -rf node_modules backend/node_modules",
     "version": "changeset version",
     "publish": "changeset publish",
     "playwright": "pnpm run build && pnpm run vt",
     "reformat-md": "node .build/reformat-md.mjs",
-    "zip-package": "node .build/zip-package.mjs",
-    "start": "pnpm dev"
+    "zip-package": "node .build/zip-package.mjs"
   },
   "packageManager": "pnpm@10.12.4",
   "dependencies": {

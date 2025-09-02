@@ -1,0 +1,41 @@
+{
+  "status": "ok",
+  "data": {
+    "coins": [
+      {
+        "id": "sol",
+        "symbol": "SOL",
+        "name": "Solana",
+        "price": "---",
+        "price_change_24h": "---",
+        "market_cap": "---",
+        "volume_24h": "---",
+        "market_cap_rank": "---",
+        "image": "---"
+      },
+      {
+        "id": "avax",
+        "symbol": "AVAX",
+        "name": "Avalanche",
+        "price": "---",
+        "price_change_24h": "---",
+        "market_cap": "---",
+        "volume_24h": "---",
+        "market_cap_rank": "---",
+        "image": "---"
+      },
+      {
+        "id": "matic",
+        "symbol": "MATIC",
+        "name": "Polygon",
+        "price": "---",
+        "price_change_24h": "---",
+        "market_cap": "---",
+        "volume_24h": "---",
+        "market_cap_rank": "---",
+        "image": "---"
+      }
+    ]
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
