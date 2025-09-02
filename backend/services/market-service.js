@@ -141,11 +141,12 @@ class MarketService {
             });
         });
         
-        // Обогащаем данными от CoinGecko
+        // Добавляем данные от CoinGecko (даже если BingX не работает)
         if (coinGeckoData?.topCoins) {
             coinGeckoData.topCoins.forEach(coin => {
                 const symbol = coin.symbol;
                 if (tickerMap.has(symbol)) {
+                    // Обогащаем существующие данные
                     const existing = tickerMap.get(symbol);
                     tickerMap.set(symbol, {
                         ...existing,
@@ -159,6 +160,25 @@ class MarketService {
                         atl: coin.atl,
                         atlChange: coin.atl_change_percentage,
                         coingeckoData: true
+                    });
+                } else {
+                    // Создаем новые данные только из CoinGecko
+                    tickerMap.set(symbol, {
+                        symbol: `${coin.symbol}-USDT`,
+                        lastPrice: coin.current_price,
+                        priceChangePercent: coin.price_change_percentage_24h,
+                        volume: coin.total_volume,
+                        quoteVolume: coin.total_volume,
+                        marketCap: coin.market_cap,
+                        marketCapRank: coin.market_cap_rank,
+                        priceChange7d: coin.price_change_percentage_7d,
+                        priceChange30d: coin.price_change_percentage_30d,
+                        ath: coin.ath,
+                        athChange: coin.ath_change_percentage,
+                        atl: coin.atl,
+                        atlChange: coin.atl_change_percentage,
+                        source: 'coingecko',
+                        lastUpdate: new Date().toISOString()
                     });
                 }
             });
