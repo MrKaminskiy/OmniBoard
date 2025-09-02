@@ -1,51 +1,17 @@
 {
   "private": true,
-  "description": "OmniBoard - Crypto Trading Dashboard Backend",
+  "description": "OmniBoard - Crypto Trading Dashboard",
   "homepage": "https://omniboard.io",
   "scripts": {
-    "build": "cd backend && npm install",
-    "dev": "cd backend && npm run dev",
-    "start": "cd backend && npm start",
-    "clean": "rm -rf node_modules backend/node_modules",
-    "version": "changeset version",
-    "publish": "changeset publish",
-    "playwright": "pnpm run build && pnpm run vt",
-    "reformat-md": "node .build/reformat-md.mjs",
-    "zip-package": "node .build/zip-package.mjs"
-  },
-  "packageManager": "pnpm@10.12.4",
-  "dependencies": {
-    "shx": "^0.4.0"
+    "dev": "cd frontend && npm run dev",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:start": "cd backend && npm start",
+    "backend:build": "cd backend && npm run build",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "clean": "rm -rf node_modules backend/node_modules frontend/node_modules"
   },
   "devDependencies": {
-    "@argos-ci/playwright": "^5.0.5",
-    "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.29.5",
-    "@playwright/test": "^1.53.2",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^28.0.6",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-replace": "^6.0.2",
-    "adm-zip": "^0.5.16",
-    "autoprefixer": "^10.4.21",
-    "bundlewatch": "^0.4.1",
-    "clean-css-cli": "^5.6.3",
-    "concurrently": "^9.2.0",
-    "cross-env": "^7.0.3",
-    "fs-extra": "^11.3.0",
-    "glob": "^11.0.3",
-    "js-beautify": "^1.15.4",
-    "nodemon": "^3.1.10",
-    "pnpm": "^10.6.5",
-    "postcss": "^8.5.6",
-    "postcss-cli": "^11.0.1",
-    "prettier": "^3.6.2",
-    "rollup": "4.44.2",
-    "rollup-plugin-dotenv": "^0.5.1",
-    "rtlcss": "^4.3.0",
-    "sass": "1.89.2",
-    "shelljs": "^0.10.0",
-    "terser": "^5.43.1",
-    "turbo": "^2.5.4"
+    "concurrently": "^9.2.0"
   }
 }

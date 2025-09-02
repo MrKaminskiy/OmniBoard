@@ -1,5 +1,6 @@
 {
-  "outputDirectory": "preview/dist",
-  "installCommand": "echo 'No install needed'",
-  "buildCommand": "echo 'No build needed'"
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/.next",
+  "installCommand": "cd frontend && npm install",
+  "framework": "nextjs"
 }

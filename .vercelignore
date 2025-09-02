@@ -1,14 +1,22 @@
-# Игнорировать все папки, кроме preview
+# Backend
 backend/
-core/
-docs/
-shared/
-src/
-tests/
 node_modules/
-*.log
-.env
-.env.local
-.env.*.local
+
+# Git
 .git/
 .github/
+
+# Environment files
+.env*
+*.env
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

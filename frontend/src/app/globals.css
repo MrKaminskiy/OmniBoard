@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basic styles */
+body {
+  font-family: inherit;
+}
+
+/* Simple dark theme */
+.theme-dark {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
