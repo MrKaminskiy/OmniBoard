@@ -1,13 +1,13 @@
 // OmniBoard Configuration
 window.OMNIBOARD_CONFIG = {
-  // API Base URL - временно пустой для mock режима
-  API_BASE: '',
+  // API Base URL - подключаемся к Railway
+  API_BASE: 'https://omniboard-backend-production.up.railway.app',
   
-  // Mock mode flags - включаем mock режим для демонстрации
-  USE_MOCK_MARKET: true,
-  USE_MOCK_SIGNALS: true,
-  USE_MOCK_JOURNAL: true,
-  USE_MOCK_MEDIA: true,
+  // Mock mode flags - отключаем mock режим
+  USE_MOCK_MARKET: false,
+  USE_MOCK_SIGNALS: false,
+  USE_MOCK_JOURNAL: false,
+  USE_MOCK_MEDIA: false,
   
   // Auto-refresh intervals (in seconds)
   REFRESH_INTERVALS: {

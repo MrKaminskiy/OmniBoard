@@ -143,6 +143,75 @@ class OmniBoardAPI {
         return this.smartGet('/api/v1/market/altseason', {}, '/altseason');
     }
 
+    // Получить конкретный список монет для отображения
+    async getSpecificCoins() {
+        const symbols = ['BTC', 'ETH', 'SOL'];
+        
+        try {
+            console.log('Testing with coins:', symbols);
+            
+            // Получаем данные последовательно с задержкой
+            const coins = [];
+            for (let i = 0; i < symbols.length; i++) {
+                try {
+                    const symbol = symbols[i];
+                    console.log(`Fetching ${symbol}...`);
+                    
+                    const coin = await this.getJSON(`/api/v1/coins/details`, { symbol: `${symbol}-USDT` });
+                    console.log(`${symbol} data received:`, coin);
+                    
+                    if (coin && coin.data && coin.data.ticker) {
+                        const ticker = coin.data.ticker;
+                        console.log(`Raw ticker data for ${symbol}:`, ticker);
+                        
+                        // Проверяем все возможные поля
+                        const formattedCoin = {
+                            symbol: symbol, // Используем исходный символ
+                            name: symbol,
+                            price: parseFloat(ticker.lastPrice || ticker.price || 0),
+                            price_change_24h: parseFloat(ticker.priceChangePercent || ticker.priceChange || ticker.change24h || 0),
+                            volume_24h: parseFloat(ticker.volume || ticker.volume24h || 0),
+                            market_cap: parseFloat(ticker.quoteVolume || ticker.marketCap || 0),
+                            market_cap_rank: 0
+                        };
+                        
+                        console.log(`Formatted ${symbol}:`, formattedCoin);
+                        coins.push(formattedCoin);
+                    } else {
+                        console.log(`Invalid coin structure for ${symbol}:`, coin);
+                    }
+                    
+                    // Увеличиваем задержку до 1 секунды чтобы избежать rate limiting
+                    if (i < symbols.length - 1) {
+                        console.log(`Waiting 1000ms before next request...`);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                } catch (error) {
+                    console.error(`Error fetching ${symbols[i]}:`, error);
+                }
+            }
+            
+            console.log('All coins processed:', coins);
+            
+            // Если не получили ни одной монеты, используем mock данные
+            if (coins.length === 0) {
+                console.log('No coins received from API, using mock data');
+                return this.getMockData('/specific_coins');
+            }
+            
+            return {
+                status: 'ok',
+                data: { coins: coins },
+                timestamp: new Date().toISOString()
+            };
+        } catch (error) {
+            console.error('Failed to fetch specific coins:', error);
+            console.log('Falling back to mock data');
+            // Fallback к mock данным
+            return this.getMockData('/specific_coins');
+        }
+    }
+
     // Signals Methods (placeholder - implement when endpoints are available)
     async getSignals(symbols = [], timeframes = []) {
         // For now, return mock data since signals endpoint doesn't exist yet

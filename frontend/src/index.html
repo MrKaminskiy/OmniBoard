@@ -324,19 +324,15 @@
       }
     }
 
-    // Загрузить данные топ-движущихся монет
+    // Загрузить данные конкретного списка монет
     async loadTickersData() {
       try {
-        // Загружаем топ-гайнеры и топ-лузеры вместо тикеров
-        const [gainersData, losersData] = await Promise.all([
-          window.omniBoardAPI.getTopGainers(5),
-          window.omniBoardAPI.getTopLosers(5)
-        ]);
-        
-        this.updateTopMoversTable(gainersData, losersData);
+        // Загружаем конкретный список монет
+        const coinsData = await window.omniBoardAPI.getSpecificCoins();
+        this.updateTopMoversTable(coinsData);
       } catch (error) {
-        console.error('Failed to load top movers:', error);
-        this.showError('Failed to load top movers data');
+        console.error('Failed to load specific coins:', error);
+        this.showError('Failed to load specific coins data');
       }
     }
 
@@ -347,21 +343,20 @@
       const fearGreedEl = document.getElementById('fear-greed');
       const altseasonEl = document.getElementById('altseason');
 
-      if (marketCapEl) marketCapEl.textContent = window.omniboardComponents.formatCurrency(data.market_cap);
-      if (volume24hEl) volume24hEl.textContent = window.omniboardComponents.formatCurrency(data.volume_24h);
-      if (fearGreedEl) fearGreedEl.textContent = data.fear_greed + '/100';
-      if (altseasonEl) altseasonEl.textContent = data.altseason + '%';
+      if (marketCapEl) marketCapEl.innerHTML = window.omniboardComponents.formatLargeNumber(data.market_cap);
+      if (volume24hEl) volume24hEl.innerHTML = window.omniboardComponents.formatLargeNumber(data.volume_24h);
+      if (fearGreedEl) fearGreedEl.innerHTML = window.omniboardComponents.formatFearGreed(data.fear_greed, data.fear_greed_status);
+      if (altseasonEl) altseasonEl.innerHTML = window.omniboardComponents.formatAltseason(data.altseason, data.altseason_status);
     }
 
-    // Обновить таблицу топ-движущихся монет
-    updateTopMoversTable(gainersData, losersData) {
+    // Обновить таблицу конкретных монет
+    updateTopMoversTable(coinsData) {
       const tbody = document.getElementById('tickers-tbody');
       if (!tbody) return;
 
-      const gainers = gainersData?.data?.coins || gainersData?.coins || [];
-      const losers = losersData?.data?.coins || losersData?.coins || [];
+      const coins = coinsData?.data?.coins || coinsData?.coins || [];
 
-      if (gainers.length === 0 && losers.length === 0) {
+      if (coins.length === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="5" class="text-center text-muted py-4">
@@ -371,11 +366,8 @@
         `;
         return;
       }
-
-      // Объединяем топ-гайнеры и топ-лузеры
-      const allMovers = [...gainers, ...losers].slice(0, 10);
       
-      tbody.innerHTML = allMovers.map(coin => `
+      tbody.innerHTML = coins.map(coin => `
         <tr>
           <td>
             <div class="d-flex align-items-center">
@@ -384,9 +376,9 @@
             </div>
           </td>
           <td>$${coin.price ? coin.price.toLocaleString() : 'N/A'}</td>
-          <td>${window.omniboardComponents.createPriceBadge(coin.change_24h || 0)}</td>
-          <td>$${coin.volume_24h ? window.omniboardComponents.formatNumber(coin.volume_24h) : 'N/A'}</td>
-          <td>${coin.market_cap ? window.omniboardComponents.formatNumber(coin.market_cap) : 'N/A'}</td>
+          <td>${window.omniboardComponents.createPriceBadge(coin.price_change_24h || 0)}</td>
+          <td>${window.omniboardComponents.formatLargeNumber(coin.volume_24h)}</td>
+          <td>${window.omniboardComponents.formatLargeNumber(coin.market_cap)}</td>
         </tr>
       `).join('');
     }

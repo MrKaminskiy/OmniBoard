@@ -1,0 +1,143 @@
+{
+  "status": "ok",
+  "data": {
+    "coins": [
+      {
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "ETH",
+        "name": "Ethereum",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "SOL",
+        "name": "Solana",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "XRP",
+        "name": "Ripple",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "BNB",
+        "name": "BNB",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "DOGE",
+        "name": "Dogecoin",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "SUI",
+        "name": "Sui",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "LINK",
+        "name": "Chainlink",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "AAVE",
+        "name": "Aave",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "1000PEPE",
+        "name": "1000PEPE",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "WIF",
+        "name": "dogwifhat",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "LTC",
+        "name": "Litecoin",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "ADA",
+        "name": "Cardano",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "FARTCOIN",
+        "name": "Fartcoin",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      },
+      {
+        "symbol": "OP",
+        "name": "Optimism",
+        "price": "---",
+        "price_change_24h": "---",
+        "volume_24h": "---",
+        "market_cap": "---",
+        "market_cap_rank": "---"
+      }
+    ]
+  },
+  "timestamp": "2025-01-15T10:30:00Z"
+}

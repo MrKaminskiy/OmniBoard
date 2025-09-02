@@ -95,8 +95,69 @@ class OmniBoardComponents {
     `;
   }
 
+  // Форматирование больших чисел для Market Cap и Volume
+  formatLargeNumber(num) {
+    if (num === "---" || typeof num !== 'number' || isNaN(num)) return '---';
+    
+    if (num >= 1e12) {
+      return `$${(num / 1e12).toFixed(2)}T`;
+    } else if (num >= 1e9) {
+      return `$${(num / 1e9).toFixed(2)}B`;
+    } else if (num >= 1e6) {
+      return `$${(num / 1e6).toFixed(2)}M`;
+    } else if (num >= 1e3) {
+      return `$${(num / 1e3).toFixed(2)}K`;
+    } else {
+      return `$${num.toFixed(2)}`;
+    }
+  }
+
+  // Форматирование процентов
+  formatPercentage(num) {
+    if (typeof num !== 'number' || isNaN(num)) return '---';
+    return `${num >= 0 ? '+' : ''}${num.toFixed(2)}%`;
+  }
+
+  // Форматирование Fear & Greed
+  formatFearGreed(value, status) {
+    if (typeof value !== 'number' || isNaN(value)) return '---';
+    
+    let color = 'secondary';
+    if (value >= 75) color = 'success';
+    else if (value >= 50) color = 'warning';
+    else if (value >= 25) color = 'danger';
+    
+    return `
+      <div class="d-flex align-items-center">
+        <span class="badge bg-${color} me-2">${value}/100</span>
+        <span class="text-muted">${status}</span>
+      </div>
+    `;
+  }
+
+  // Форматирование Altseason
+  formatAltseason(value, status) {
+    if (typeof value !== 'number' || isNaN(value)) return '---';
+    
+    let color = 'secondary';
+    if (value >= 50) color = 'success';
+    else color = 'danger';
+    
+    return `
+      <div class="d-flex align-items-center">
+        <span class="badge bg-${color} me-2">${value}/100</span>
+        <span class="text-muted">${status}</span>
+      </div>
+    `;
+  }
+
   // Создать badge для изменения цены
   createPriceBadge(change) {
+    // Если change это "---" или не число, показываем "---"
+    if (change === "---" || typeof change !== 'number' || isNaN(change)) {
+      return `<span class="badge bg-secondary">---</span>`;
+    }
+    
     const isPositive = change >= 0;
     const color = isPositive ? 'success' : 'danger';
     const icon = isPositive ? 'trending-up' : 'trending-down';
