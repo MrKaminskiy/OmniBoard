@@ -583,6 +583,8 @@ class MarketService {
                     market_cap: 0, // BingX не предоставляет market cap
                     volume_24h: ticker.quoteVolume || 0,
                     market_cap_rank: null, // BingX не предоставляет rank
+                    rsi_1d: 0, // Пока не получаем RSI, устанавливаем 0
+                    liquidations_24h: 0, // Пока не получаем ликвидации, устанавливаем 0
                     image: this.getCoinImage(cleanSymbol),
                     last_update: new Date().toISOString()
                 };
@@ -607,6 +609,8 @@ class MarketService {
                             market_cap: coin.market_cap || 0,
                             volume_24h: coin.total_volume || 0,
                             market_cap_rank: coin.market_cap_rank || null,
+                            rsi_1d: 0, // Пока не получаем RSI, устанавливаем 0
+                            liquidations_24h: 0, // Пока не получаем ликвидации, устанавливаем 0
                             image: coin.image || this.getCoinImage(coin.symbol.toUpperCase()),
                             last_update: new Date().toISOString()
                         }));
@@ -707,6 +711,8 @@ class MarketService {
             atl_change: ticker.atlChange || null,
             open_interest: 0,
             funding_rate: 0,
+            rsi_1d: 0, // Пока не получаем RSI, устанавливаем 0
+            liquidations_24h: 0, // Пока не получаем ликвидации, устанавливаем 0
             image: ticker.image || this.getCoinImage(cleanSymbol),
             source: ticker.source || 'unknown',
             last_update: ticker.lastUpdate || new Date().toISOString()
