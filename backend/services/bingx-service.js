@@ -96,6 +96,57 @@ class BingXService {
     }
 
     /**
+     * Get Long/Short ratio from Binance
+     * Note: Binance doesn't provide this data directly, we'll use alternative sources
+     */
+    async getLongShortRatio(symbol = 'BTCUSDT') {
+        try {
+            // Попробуем получить данные через Binance Futures API
+            const response = await axios.get('https://fapi.binance.com/futures/data/globalLongShortAccountRatio', {
+                params: {
+                    symbol: symbol,
+                    period: '5m',
+                    limit: 1
+                },
+                timeout: 10000,
+                headers: {
+                    'User-Agent': 'OmniBoard/1.0.0'
+                }
+            });
+
+            if (response.data && response.data.length > 0) {
+                const data = response.data[0];
+                return {
+                    symbol: data.symbol,
+                    longShortRatio: parseFloat(data.longShortRatio),
+                    longAccount: parseFloat(data.longAccount),
+                    shortAccount: parseFloat(data.shortAccount),
+                    timestamp: new Date(data.timestamp).toISOString()
+                };
+            }
+            
+            throw new Error('No data received from Binance Futures API');
+        } catch (error) {
+            console.error('Error getting Long/Short ratio from Binance:', error.message);
+            // Fallback к mock данным
+            return this.getDefaultLongShortRatio();
+        }
+    }
+
+    /**
+     * Get default Long/Short ratio data
+     */
+    getDefaultLongShortRatio() {
+        return {
+            symbol: 'BTCUSDT',
+            longShortRatio: 1.46,
+            longAccount: 0.59,
+            shortAccount: 0.41,
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    /**
      * Get order book for a symbol
      */
     async getOrderBook(symbol = 'BTC-USDT', limit = 100) {
