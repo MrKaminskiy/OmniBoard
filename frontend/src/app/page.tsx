@@ -308,25 +308,40 @@ export default function MarketOverview() {
         <div className="col-sm-6 col-lg-3">
           <div className="card">
             <div className="card-body">
-              <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center mb-3">
                 <div className="subheader">
                   <i className="ti ti-chart-pie me-2"></i>
                   Market Dominance
                 </div>
               </div>
-              <div className="d-flex align-items-center mb-2">
-                <div className="avatar avatar-sm me-2" style={{ backgroundColor: '#f7931a' }}>
-                  <span className="avatar-initials text-white">₿</span>
+              
+              {/* Bitcoin Dominance */}
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div className="d-flex align-items-center">
+                  <div className="avatar avatar-sm me-3" style={{ backgroundColor: '#f7931a' }}>
+                    <i className="ti ti-bitcoin text-white" style={{ fontSize: '16px' }}></i>
+                  </div>
+                  <div>
+                    <div className="text-muted small">Bitcoin</div>
+                    <div className="h3 mb-0">{formatDominance(marketData?.btc_dominance || '')}</div>
+                  </div>
                 </div>
-                <div className="h3 mb-0">{formatDominance(marketData?.btc_dominance || '')}</div>
               </div>
-              <div className="d-flex align-items-center mb-3">
-                <div className="avatar avatar-sm me-2" style={{ backgroundColor: '#627eea' }}>
-                  <span className="avatar-initials text-white">Ξ</span>
+
+              {/* Ethereum Dominance */}
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div className="d-flex align-items-center">
+                  <div className="avatar avatar-sm me-3" style={{ backgroundColor: '#627eea' }}>
+                    <i className="ti ti-currency-ethereum text-white" style={{ fontSize: '16px' }}></i>
+                  </div>
+                  <div>
+                    <div className="text-muted small">Ethereum</div>
+                    <div className="h3 mb-0">{formatDominance(marketData?.eth_dominance || '')}</div>
+                  </div>
                 </div>
-                <div className="h3 mb-0">{formatDominance(marketData?.eth_dominance || '')}</div>
               </div>
-              <div className="text-muted">Рыночное доминирование</div>
+
+              <div className="text-muted small">Рыночное доминирование</div>
             </div>
           </div>
         </div>
