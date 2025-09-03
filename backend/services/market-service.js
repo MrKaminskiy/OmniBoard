@@ -450,43 +450,45 @@ class MarketService {
      */
     async getSpecificCoins(coinIds = []) {
         try {
-            const coinsData = [];
+            // Преобразуем coinIds в символы для BingX API
+            const symbolMap = {
+                'bitcoin': 'BTC-USDT',
+                'ethereum': 'ETH-USDT',
+                'solana': 'SOL-USDT',
+                'ripple': 'XRP-USDT',
+                'binancecoin': 'BNB-USDT',
+                'dogecoin': 'DOGE-USDT',
+                'sui': 'SUI-USDT',
+                'chainlink': 'LINK-USDT',
+                'aave': 'AAVE-USDT',
+                'pepe': 'PEPE-USDT',
+                'dogwifhat': 'WIF-USDT',
+                'litecoin': 'LTC-USDT',
+                'cardano': 'ADA-USDT',
+                'optimism': 'OP-USDT',
+                'aptos': 'APT-USDT'
+            };
+
+            const symbols = coinIds.map(id => symbolMap[id] || `${id.toUpperCase()}-USDT`);
             
-            for (const coinId of coinIds) {
-                try {
-                    const coinData = await coinGeckoService.getCoinData(coinId);
-                    if (coinData) {
-                        const transformedCoin = {
-                            id: coinData.id,
-                            symbol: coinData.symbol,
-                            name: coinData.name,
-                            price: coinData.market_data?.current_price?.usd || 0,
-                            price_change_24h: coinData.market_data?.price_change_percentage_24h || 0,
-                            market_cap: coinData.market_data?.market_cap?.usd || 0,
-                            volume_24h: coinData.market_data?.total_volume?.usd || 0,
-                            market_cap_rank: coinData.market_data?.market_cap_rank || null,
-                            image: coinData.image?.large || null,
-                            last_update: coinData.last_updated || new Date().toISOString()
-                        };
-                        coinsData.push(transformedCoin);
-                    }
-                } catch (error) {
-                    console.error(`Error fetching data for ${coinId}:`, error);
-                    // Добавляем заглушку для монеты, если не удалось получить данные
-                    coinsData.push({
-                        id: coinId,
-                        symbol: coinId.toUpperCase(),
-                        name: coinId.charAt(0).toUpperCase() + coinId.slice(1),
-                        price: 0,
-                        price_change_24h: 0,
-                        market_cap: 0,
-                        volume_24h: 0,
-                        market_cap_rank: null,
-                        image: null,
-                        last_update: new Date().toISOString()
-                    });
-                }
-            }
+            // Получаем данные через BingX API
+            const tickers = await bingXService.getMultipleTickers(symbols);
+            
+            const coinsData = tickers.map((ticker, index) => {
+                const coinId = coinIds[index] || 'unknown';
+                return {
+                    id: coinId,
+                    symbol: ticker.symbol.replace('-USDT', ''),
+                    name: this.getCoinName(ticker.symbol.replace('-USDT', '')),
+                    price: ticker.lastPrice || 0,
+                    price_change_24h: ticker.priceChangePercent || 0,
+                    market_cap: 0, // BingX не предоставляет market cap, оставляем 0
+                    volume_24h: ticker.quoteVolume || 0,
+                    market_cap_rank: null, // BingX не предоставляет rank, оставляем null
+                    image: this.getCoinImage(ticker.symbol.replace('-USDT', '')),
+                    last_update: new Date().toISOString()
+                };
+            });
             
             return {
                 coins: coinsData
@@ -497,6 +499,54 @@ class MarketService {
                 coins: []
             };
         }
+    }
+
+    /**
+     * Get coin name by symbol
+     */
+    getCoinName(symbol) {
+        const nameMap = {
+            'BTC': 'Bitcoin',
+            'ETH': 'Ethereum',
+            'SOL': 'Solana',
+            'XRP': 'XRP',
+            'BNB': 'BNB',
+            'DOGE': 'Dogecoin',
+            'SUI': 'Sui',
+            'LINK': 'Chainlink',
+            'AAVE': 'Aave',
+            'PEPE': 'Pepe',
+            'WIF': 'Dogwifhat',
+            'LTC': 'Litecoin',
+            'ADA': 'Cardano',
+            'OP': 'Optimism',
+            'APT': 'Aptos'
+        };
+        return nameMap[symbol] || symbol;
+    }
+
+    /**
+     * Get coin image URL by symbol
+     */
+    getCoinImage(symbol) {
+        const imageMap = {
+            'BTC': 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
+            'ETH': 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
+            'SOL': 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
+            'XRP': 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png',
+            'BNB': 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png',
+            'DOGE': 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png',
+            'SUI': 'https://assets.coingecko.com/coins/images/26375/large/sui_asset.jpeg',
+            'LINK': 'https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png',
+            'AAVE': 'https://assets.coingecko.com/coins/images/12645/large/AAVE.png',
+            'PEPE': 'https://assets.coingecko.com/coins/images/29850/large/pepe-token.jpeg',
+            'WIF': 'https://assets.coingecko.com/coins/images/33566/large/dogwifhat.jpg',
+            'LTC': 'https://assets.coingecko.com/coins/images/2/large/litecoin.png',
+            'ADA': 'https://assets.coingecko.com/coins/images/975/large/cardano.png',
+            'OP': 'https://assets.coingecko.com/coins/images/25244/large/Optimism.png',
+            'APT': 'https://assets.coingecko.com/coins/images/26455/large/aptos_round.png'
+        };
+        return imageMap[symbol] || `https://assets.coingecko.com/coins/images/1/large/bitcoin.png`;
     }
 
     /**
