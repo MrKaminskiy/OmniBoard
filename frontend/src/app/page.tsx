@@ -299,41 +299,50 @@ export default function MarketOverview() {
               <div className="text-muted mb-2">{getFearGreedLabel(marketData?.fear_greed || '')}</div>
               
               {/* Сегментированная полоса Fear & Greed */}
-              <div className="position-relative mb-2" style={{ height: '12px', backgroundColor: '#f1f3f4', borderRadius: '6px', overflow: 'hidden' }}>
-                {/* Fear зона (красная) */}
+              <div className="position-relative mb-2" style={{ 
+                height: '16px', 
+                backgroundColor: '#f8f9fa', 
+                borderRadius: '8px', 
+                overflow: 'hidden',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+              }}>
+                {/* Fear зона (мягкий красный) */}
                 <div className="position-absolute" style={{ 
                   left: '0', 
                   top: '0', 
                   width: '25%', 
                   height: '100%', 
-                  backgroundColor: '#dc3545' 
+                  background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
+                  borderRight: '1px solid rgba(255,255,255,0.3)'
                 }}></div>
                 
-                {/* Extreme Fear зона (темно-красная) */}
+                {/* Extreme Fear зона (мягкий фиолетовый) */}
                 <div className="position-absolute" style={{ 
                   left: '25%', 
                   top: '0', 
                   width: '25%', 
                   height: '100%', 
-                  backgroundColor: '#6f42c1' 
+                  background: 'linear-gradient(135deg, #a55eea 0%, #8b5cf6 100%)',
+                  borderRight: '1px solid rgba(255,255,255,0.3)'
                 }}></div>
                 
-                {/* Neutral зона (желтая) */}
+                {/* Neutral зона (мягкий желтый) */}
                 <div className="position-absolute" style={{ 
                   left: '50%', 
                   top: '0', 
                   width: '25%', 
                   height: '100%', 
-                  backgroundColor: '#ffc107' 
+                  background: 'linear-gradient(135deg, #ffd93d 0%, #f6c90e 100%)',
+                  borderRight: '1px solid rgba(255,255,255,0.3)'
                 }}></div>
                 
-                {/* Greed зона (зеленая) */}
+                {/* Greed зона (мягкий зеленый) */}
                 <div className="position-absolute" style={{ 
                   left: '75%', 
                   top: '0', 
                   width: '25%', 
                   height: '100%', 
-                  backgroundColor: '#28a745' 
+                  background: 'linear-gradient(135deg, #51cf66 0%, #40c057 100%)'
                 }}></div>
                 
                 {/* Точка-индикатор */}
@@ -342,12 +351,13 @@ export default function MarketOverview() {
                     left: `${parseFloat(marketData.fear_greed)}%`,
                     top: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: '16px',
-                    height: '16px',
-                    backgroundColor: '#fff',
-                    border: '2px solid #000',
+                    width: '20px',
+                    height: '20px',
+                    background: 'linear-gradient(135deg, #fff 0%, #f8f9fa 100%)',
+                    border: '3px solid #495057',
                     borderRadius: '50%',
-                    zIndex: 10
+                    zIndex: 10,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                   }}></div>
                 )}
               </div>
@@ -373,32 +383,40 @@ export default function MarketOverview() {
               <div className="text-muted mb-2">Индекс альткоин сезона</div>
               
               {/* Сегментированная полоса Altseason */}
-              <div className="position-relative mb-2" style={{ height: '12px', backgroundColor: '#f1f3f4', borderRadius: '6px', overflow: 'hidden' }}>
-                {/* Bitcoin Season зона (оранжевая) */}
+              <div className="position-relative mb-2" style={{ 
+                height: '16px', 
+                backgroundColor: '#f8f9fa', 
+                borderRadius: '8px', 
+                overflow: 'hidden',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+              }}>
+                {/* Bitcoin Season зона (мягкий оранжевый) */}
                 <div className="position-absolute" style={{ 
                   left: '0', 
                   top: '0', 
                   width: '33.33%', 
                   height: '100%', 
-                  backgroundColor: '#fd7e14' 
+                  background: 'linear-gradient(135deg, #ff922b 0%, #f76707 100%)',
+                  borderRight: '1px solid rgba(255,255,255,0.3)'
                 }}></div>
                 
-                {/* Neutral зона (светло-серая) */}
+                {/* Neutral зона (мягкий серый) */}
                 <div className="position-absolute" style={{ 
                   left: '33.33%', 
                   top: '0', 
                   width: '33.34%', 
                   height: '100%', 
-                  backgroundColor: '#e9ecef' 
+                  background: 'linear-gradient(135deg, #dee2e6 0%, #ced4da 100%)',
+                  borderRight: '1px solid rgba(255,255,255,0.3)'
                 }}></div>
                 
-                {/* Altcoin Season зона (синяя) */}
+                {/* Altcoin Season зона (мягкий синий) */}
                 <div className="position-absolute" style={{ 
                   left: '66.67%', 
                   top: '0', 
                   width: '33.33%', 
                   height: '100%', 
-                  backgroundColor: '#007bff' 
+                  background: 'linear-gradient(135deg, #4dabf7 0%, #339af0 100%)'
                 }}></div>
                 
                 {/* Точка-индикатор */}
@@ -407,12 +425,13 @@ export default function MarketOverview() {
                     left: `${parseFloat(marketData.altseason)}%`,
                     top: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: '16px',
-                    height: '16px',
-                    backgroundColor: '#fff',
-                    border: '2px solid #000',
+                    width: '20px',
+                    height: '20px',
+                    background: 'linear-gradient(135deg, #fff 0%, #f8f9fa 100%)',
+                    border: '3px solid #495057',
                     borderRadius: '50%',
-                    zIndex: 10
+                    zIndex: 10,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                   }}></div>
                 )}
               </div>
