@@ -121,6 +121,7 @@ export default function MarketOverview() {
   }
 
   const formatPrice = (price: number): string => {
+    if (price === 0) return '---';
     if (price >= 1) {
       return `$${price.toFixed(2)}`;
     } else if (price >= 0.01) {
@@ -131,6 +132,7 @@ export default function MarketOverview() {
   };
 
   const formatMarketCap = (marketCap: number): string => {
+    if (marketCap === 0) return '---';
     if (marketCap >= 1e12) return `$${(marketCap / 1e12).toFixed(2)}T`;
     if (marketCap >= 1e9) return `$${(marketCap / 1e9).toFixed(2)}B`;
     if (marketCap >= 1e6) return `$${(marketCap / 1e6).toFixed(2)}M`;
@@ -139,11 +141,17 @@ export default function MarketOverview() {
   };
 
   const formatVolume = (volume: number): string => {
+    if (volume === 0) return '---';
     if (volume >= 1e12) return `$${(volume / 1e12).toFixed(2)}T`;
     if (volume >= 1e9) return `$${(volume / 1e9).toFixed(2)}B`;
     if (volume >= 1e6) return `$${(volume / 1e6).toFixed(2)}M`;
     if (volume >= 1e3) return `$${(volume / 1e3).toFixed(2)}K`;
     return `$${volume.toFixed(2)}`;
+  };
+
+  const formatPriceChange = (change: number): string => {
+    if (change === 0) return '---';
+    return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
   };
 
   return (
@@ -251,9 +259,13 @@ export default function MarketOverview() {
                       </td>
                       <td className="font-weight-medium">{formatPrice(coin.price)}</td>
                       <td>
-                        <span className={`badge bg-${coin.price_change_24h >= 0 ? 'success' : 'danger'}`}>
-                          {coin.price_change_24h >= 0 ? '+' : ''}{coin.price_change_24h.toFixed(2)}%
-                        </span>
+                        {coin.price_change_24h === 0 ? (
+                          <span className="badge bg-secondary">---</span>
+                        ) : (
+                          <span className={`badge bg-${coin.price_change_24h >= 0 ? 'success' : 'danger'}`}>
+                            {formatPriceChange(coin.price_change_24h)}
+                          </span>
+                        )}
                       </td>
                       <td>{formatVolume(coin.volume_24h)}</td>
                       <td>{formatMarketCap(coin.market_cap)}</td>
