@@ -23,7 +23,7 @@ export default function MarketOverview() {
   const fetchCoins = useCallback(async () => {
     try {
       setError(null);
-      const response = await apiClient.getCoinsList(15);
+      const response = await apiClient.getTopGainers(15);
       setCoins(response.data.coins || []);
     } catch (err) {
       setError('Failed to fetch coins data');
@@ -234,7 +234,7 @@ export default function MarketOverview() {
                   {coins.map((coin, index) => (
                     <tr key={coin.id}>
                       <td>
-                        <span className="badge bg-secondary">#{coin.marketCapRank || index + 1}</span>
+                        <span className="badge bg-secondary">#{coin.market_cap_rank || index + 1}</span>
                       </td>
                       <td>
                         <div className="d-flex align-items-center">
@@ -251,12 +251,12 @@ export default function MarketOverview() {
                       </td>
                       <td className="font-weight-medium">{formatPrice(coin.price)}</td>
                       <td>
-                        <span className={`badge bg-${coin.priceChangePercent >= 0 ? 'success' : 'danger'}`}>
-                          {coin.priceChangePercent >= 0 ? '+' : ''}{coin.priceChangePercent.toFixed(2)}%
+                        <span className={`badge bg-${coin.price_change_24h >= 0 ? 'success' : 'danger'}`}>
+                          {coin.price_change_24h >= 0 ? '+' : ''}{coin.price_change_24h.toFixed(2)}%
                         </span>
                       </td>
-                      <td>{formatVolume(coin.volume24h)}</td>
-                      <td>{formatMarketCap(coin.marketCap)}</td>
+                      <td>{formatVolume(coin.volume_24h)}</td>
+                      <td>{formatMarketCap(coin.market_cap)}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -23,10 +23,10 @@ export interface Coin {
   symbol: string;
   name: string;
   price: number;
-  priceChangePercent: number;
-  volume24h: number;
-  marketCap: number;
-  marketCapRank: number;
+  price_change_24h: number;
+  market_cap: number;
+  volume_24h: number;
+  market_cap_rank: number;
   image?: string;
 }
 
@@ -93,10 +93,6 @@ class ApiClient {
     return this.request<ApiResponse<MarketOverview>>('/api/v1/market/overview');
   }
 
-  async getCoinsList(limit: number = 15): Promise<ApiResponse<{ coins: Coin[] }>> {
-    return this.request<ApiResponse<{ coins: Coin[] }>>(`/api/v1/market/coins?limit=${limit}`);
-  }
-
   async getTopGainers(limit: number = 10): Promise<ApiResponse<{ coins: Coin[] }>> {
     return this.request<ApiResponse<{ coins: Coin[] }>>(`/api/v1/market/top-gainers?limit=${limit}`);
   }
@@ -106,8 +102,8 @@ class ApiClient {
   }
 
   async getTickers(): Promise<ApiResponse<{ coins: Coin[] }>> {
-    // Используем coins endpoint для получения списка монет
-    return this.getCoinsList(15);
+    // Используем top-gainers для получения списка монет
+    return this.getTopGainers(15);
   }
 
   async getSignals(): Promise<ApiResponse<Signal[]>> {
