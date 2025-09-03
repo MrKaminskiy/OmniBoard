@@ -362,6 +362,60 @@ class MarketService {
     }
 
     /**
+     * Get comprehensive market overview with all metrics for frontend
+     */
+    async getComprehensiveMarketOverview() {
+        try {
+            const startTime = Date.now();
+            
+            // Получаем все данные параллельно
+            const [marketOverview, btcDominance, fearGreed, altseason, liquidations, longShortRatio] = await Promise.allSettled([
+                this.getMarketOverview(),
+                this.getBTCDominance(),
+                this.getFearGreedIndex(),
+                this.getAltseasonIndex(),
+                this.getLiquidations(),
+                this.getLongShortRatio()
+            ]);
+            
+            const comprehensiveData = {
+                // Основные метрики рынка
+                market_cap: marketOverview.status === 'fulfilled' ? marketOverview.value.market_cap : 0,
+                market_cap_formatted: marketOverview.status === 'fulfilled' ? marketOverview.value.market_cap_formatted : '---',
+                volume_24h: marketOverview.status === 'fulfilled' ? marketOverview.value.volume_24h : 0,
+                volume_formatted: marketOverview.status === 'fulfilled' ? marketOverview.value.volume_formatted : '---',
+                
+                // Индексы
+                fear_greed: fearGreed.status === 'fulfilled' ? fearGreed.value.value : '---',
+                altseason: altseason.status === 'fulfilled' ? altseason.value.value : '---',
+                
+                // Доминирование
+                btc_dominance: btcDominance.status === 'fulfilled' ? btcDominance.value.value : '---',
+                eth_dominance: btcDominance.status === 'fulfilled' ? btcDominance.value.eth : '---',
+                
+                // Ликвидации и лонг/шорт
+                total_liquidations_24h: liquidations.status === 'fulfilled' ? liquidations.value.value : '---',
+                long_short_ratio: longShortRatio.status === 'fulfilled' ? longShortRatio.value.value : '---',
+                long_short_accounts_percentage: longShortRatio.status === 'fulfilled' ? longShortRatio.value.accountsPercentage : '---',
+                
+                // Временные метки
+                last_update: new Date().toISOString(),
+                data_sources: ['bingx', 'coingecko', 'alternative_me', 'binance']
+            };
+            
+            const duration = Date.now() - startTime;
+            logPerformance('comprehensive_market_overview', duration, { 
+                data_sources: comprehensiveData.data_sources 
+            });
+            
+            return comprehensiveData;
+        } catch (error) {
+            console.error('Error getting comprehensive market overview:', error);
+            return this.getDefaultComprehensiveMarketOverview();
+        }
+    }
+
+    /**
      * Get market metrics
      */
     async getMarketMetrics() {
@@ -455,6 +509,25 @@ class MarketService {
         return {
             coins: coins
         };
+    }
+
+    /**
+     * Get all coins data (currently limited to specific 15 coins)
+     */
+    async getAllCoinsData() {
+        try {
+            // Список ваших 15 монет
+            const targetCoins = [
+                'bitcoin', 'ethereum', 'solana', 'ripple', 'binancecoin', 
+                'dogecoin', 'sui', 'chainlink', 'aave', 'pepe', 
+                'dogwifhat', 'litecoin', 'cardano', 'optimism', 'aptos'
+            ];
+            
+            return await this.getSpecificCoins(targetCoins);
+        } catch (error) {
+            console.error('Error getting all coins data:', error);
+            return { coins: [] };
+        }
     }
 
     /**
@@ -667,6 +740,27 @@ class MarketService {
             losers_24h: 0,
             last_update: new Date().toISOString(),
             data_sources: []
+        };
+    }
+
+    /**
+     * Get default comprehensive market overview
+     */
+    getDefaultComprehensiveMarketOverview() {
+        return {
+            market_cap: 0,
+            market_cap_formatted: '---',
+            volume_24h: 0,
+            volume_formatted: '---',
+            fear_greed: '---',
+            altseason: '---',
+            btc_dominance: '---',
+            eth_dominance: '---',
+            total_liquidations_24h: '---',
+            long_short_ratio: '---',
+            long_short_accounts_percentage: '---',
+            last_update: new Date().toISOString(),
+            data_sources: ['fallback']
         };
     }
 

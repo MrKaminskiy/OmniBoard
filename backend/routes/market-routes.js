@@ -6,13 +6,13 @@ const { logBusinessEvent, logBusinessError } = require('../middleware/logger');
 
 /**
  * GET /api/v1/market/overview
- * Get market overview data
+ * Get comprehensive market overview with all metrics
  */
 router.get('/overview', async (req, res, next) => {
     try {
         logBusinessEvent('market_overview_requested', { timestamp: new Date().toISOString() });
         
-        const data = await marketService.getMarketOverview();
+        const data = await marketService.getComprehensiveMarketOverview();
         
         logBusinessEvent('market_overview_retrieved', { 
             dataPoints: Object.keys(data).length,
@@ -250,6 +250,32 @@ router.get('/btc-dominance', async (req, res, next) => {
         });
     } catch (error) {
         logBusinessError('btc_dominance_error', error, { endpoint: '/btc-dominance' });
+        next(error);
+    }
+});
+
+/**
+ * GET /api/v1/market/coins
+ * Get all coins data (currently limited to specific 15 coins)
+ */
+router.get('/coins', async (req, res, next) => {
+    try {
+        logBusinessEvent('all_coins_requested', { timestamp: new Date().toISOString() });
+        
+        const data = await marketService.getAllCoinsData();
+        
+        logBusinessEvent('all_coins_retrieved', { 
+            count: data.coins?.length || 0,
+            timestamp: new Date().toISOString()
+        });
+        
+        res.json({
+            status: 'ok',
+            data,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        logBusinessError('all_coins_error', error, { endpoint: '/coins' });
         next(error);
     }
 });

@@ -108,6 +108,28 @@ class ApiClient {
   }
 
   async getTickers(): Promise<ApiResponse<{ coins: Coin[] }>> {
+    try {
+      // Теперь используем новый endpoint /api/v1/market/coins
+      console.log('Fetching all coins data from /api/v1/market/coins...');
+      const response = await this.request<ApiResponse<{ coins: Coin[] }>>('/api/v1/market/coins');
+      
+      console.log('Coins response:', response);
+      
+      if (response.data.coins && response.data.coins.length > 0) {
+        console.log(`Received ${response.data.coins.length} coins with real data`);
+        return response;
+      } else {
+        console.log('No real data received, using fallback');
+        // Fallback на захардкоженные данные
+        return this.getFallbackCoins();
+      }
+    } catch (error) {
+      console.error('Error fetching coins data, using fallback:', error);
+      return this.getFallbackCoins();
+    }
+  }
+
+  private getFallbackCoins(): ApiResponse<{ coins: Coin[] }> {
     // Захардкоженные 15 монет с мок-данными
     const hardcodedCoins: Coin[] = [
       { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
@@ -127,62 +149,6 @@ class ApiClient {
       { id: 'aptos', symbol: 'APT', name: 'Aptos', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/26455/large/aptos_round.png' }
     ];
 
-    try {
-      // Пытаемся получить реальные данные через существующий endpoint
-      console.log('Attempting to fetch real data from market overview...');
-      const overviewResponse = await this.getMarketOverview();
-      console.log('Market overview response:', overviewResponse);
-      
-      // Также пробуем получить данные через top-gainers
-      console.log('Attempting to fetch data from top-gainers...');
-      const gainersResponse = await this.getTopGainers(15);
-      console.log('Top gainers response:', gainersResponse);
-      
-      // Если получили данные из top-gainers, используем их
-      if (gainersResponse.data.coins && gainersResponse.data.coins.length > 0) {
-        console.log('Real data received from top-gainers, updating coins...');
-        const updatedCoins = hardcodedCoins.map(hardcodedCoin => {
-          const realData = gainersResponse.data.coins.find(coin => 
-            coin.symbol === hardcodedCoin.symbol || 
-            coin.symbol === hardcodedCoin.symbol + '-USDT'
-          );
-          console.log(`Looking for ${hardcodedCoin.symbol}, found:`, realData);
-          if (realData && realData.price > 0) {
-            console.log(`Updating ${hardcodedCoin.symbol} with real data:`, {
-              price: realData.price,
-              price_change_24h: realData.price_change_24h,
-              volume_24h: realData.volume_24h
-            });
-            return {
-              ...hardcodedCoin,
-              price: realData.price,
-              price_change_24h: realData.price_change_24h,
-              volume_24h: realData.volume_24h
-            };
-          }
-          console.log(`No real data for ${hardcodedCoin.symbol}, keeping hardcoded`);
-          return hardcodedCoin;
-        });
-        
-        console.log('Final updated coins:', updatedCoins.map(coin => ({
-          symbol: coin.symbol,
-          price: coin.price,
-          price_change_24h: coin.price_change_24h
-        })));
-        
-        return {
-          status: 'ok' as const,
-          data: { coins: updatedCoins },
-          timestamp: new Date().toISOString()
-        };
-      } else {
-        console.log('No real data received from top-gainers');
-      }
-    } catch (error) {
-      console.error('Error fetching real data, using hardcoded:', error);
-    }
-
-    // Возвращаем захардкоженные данные если API не работает
     return {
       status: 'ok' as const,
       data: { coins: hardcodedCoins },
