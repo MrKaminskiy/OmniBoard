@@ -353,12 +353,16 @@ class MarketService {
     async getMarketOverview() {
         const cached = cacheService.get('market-overview');
         if (cached) {
+            console.log('📋 Returning cached market overview data');
             return cached;
         }
 
+        console.log('🔄 No cached data, updating market data...');
         // If no cached data, try to get fresh data
         await this.updateMarketData();
-        return cacheService.get('market-overview') || this.getDefaultMarketOverview();
+        const freshData = cacheService.get('market-overview') || this.getDefaultMarketOverview();
+        console.log('🆕 Fresh market overview data:', freshData);
+        return freshData;
     }
 
     /**
@@ -367,6 +371,7 @@ class MarketService {
     async getComprehensiveMarketOverview() {
         try {
             const startTime = Date.now();
+            console.log('🔄 Starting comprehensive market overview...');
             
             // Получаем все данные параллельно
             const [marketOverview, btcDominance, fearGreed, altseason, liquidations, longShortRatio] = await Promise.allSettled([
@@ -377,6 +382,13 @@ class MarketService {
                 this.getLiquidations(),
                 this.getLongShortRatio()
             ]);
+            
+            console.log('📊 Market overview result:', marketOverview.status, marketOverview.value);
+            console.log('🏆 BTC dominance result:', btcDominance.status, btcDominance.value);
+            console.log('😨 Fear & Greed result:', fearGreed.status, fearGreed.value);
+            console.log('🌙 Altseason result:', altseason.status, altseason.value);
+            console.log('💧 Liquidations result:', liquidations.status, liquidations.value);
+            console.log('⚖️ Long/Short result:', longShortRatio.status, longShortRatio.value);
             
             const comprehensiveData = {
                 // Основные метрики рынка
@@ -403,6 +415,8 @@ class MarketService {
                 data_sources: ['bingx', 'coingecko', 'alternative_me', 'binance']
             };
             
+            console.log('🎯 Final comprehensive data:', comprehensiveData);
+            
             const duration = Date.now() - startTime;
             logPerformance('comprehensive_market_overview', duration, { 
                 data_sources: comprehensiveData.data_sources 
@@ -410,7 +424,7 @@ class MarketService {
             
             return comprehensiveData;
         } catch (error) {
-            console.error('Error getting comprehensive market overview:', error);
+            console.error('❌ Error getting comprehensive market overview:', error);
             return this.getDefaultComprehensiveMarketOverview();
         }
     }

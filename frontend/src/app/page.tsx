@@ -12,7 +12,11 @@ export default function MarketOverview() {
   const fetchMarketData = useCallback(async () => {
     try {
       setError(null);
+      console.log('Fetching market overview data...');
       const response = await apiClient.getMarketOverview();
+      console.log('Market overview response:', response);
+      console.log('Market data structure:', response.data);
+      console.log('Available fields:', Object.keys(response.data || {}));
       setMarketData(response.data);
     } catch (err) {
       setError('Failed to fetch market data');
