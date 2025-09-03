@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { apiClient } from '@/lib/api';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { apiClient, type MarketOverview, type Ticker } from '@/lib/api';
 import SkeletonCard from '@/components/SkeletonCard';
 
 export default function MarketOverview() {
-  const [marketData, setMarketData] = useState<any>(null);
-  const [tickers, setTickers] = useState<any[]>([]);
+  const [marketData, setMarketData] = useState<MarketOverview | null>(null);
+  const [tickers, setTickers] = useState<Ticker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

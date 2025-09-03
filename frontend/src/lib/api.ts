@@ -14,6 +14,8 @@ export interface MarketOverview {
   losers_24h: number;
   last_update: string;
   data_sources: string[];
+  fear_greed?: string;
+  altseason?: string;
 }
 
 export interface Ticker {
@@ -79,12 +81,12 @@ class ApiClient {
     return this.request<ApiResponse<MarketOverview>>('/api/v1/market/overview');
   }
 
-  async getTickers(limit: number = 15): Promise<ApiResponse<Ticker[]>> {
+  async getTickers(): Promise<ApiResponse<Ticker[]>> {
     // Используем coins endpoint вместо tickers
     return this.request<ApiResponse<Ticker[]>>('/api/v1/coins/details?symbol=BTC-USDT');
   }
 
-  async getSignals(limit: number = 50): Promise<ApiResponse<Signal[]>> {
+  async getSignals(): Promise<ApiResponse<Signal[]>> {
     // Пока используем заглушку
     return Promise.resolve({
       status: 'ok' as const,

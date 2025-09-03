@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.md
+tests/
+.git/
+.gitignore
+README.md
+FRONTEND_*.md
+RAILWAY_*.md
+API_DOCUMENTATION.md
