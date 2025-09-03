@@ -18,7 +18,9 @@ export interface MarketOverview {
   altseason?: string;
   // Новые поля из comprehensive overview
   btc_dominance?: string;
+  btc_dominance_change_24h?: number;
   eth_dominance?: string;
+  eth_dominance_change_24h?: number;
   usdt_dominance?: string;
   total_liquidations_24h?: string;
   liquidations_data_source?: string;

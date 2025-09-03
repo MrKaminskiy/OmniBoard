@@ -267,7 +267,13 @@ export default function MarketOverview() {
                   Market Cap
                 </div>
               </div>
-              <div className="h1 mb-3">{formatMarketCap(marketData?.market_cap || 0)}</div>
+              <div className="h1 mb-2">{formatMarketCap(marketData?.market_cap || 0)}</div>
+              <div className="d-flex align-items-center mb-2">
+                <span className={`badge ${marketData?.market_cap_change_24h && marketData.market_cap_change_24h !== 0 ? (marketData.market_cap_change_24h > 0 ? 'bg-success' : 'bg-danger') : 'bg-secondary'} me-2`}>
+                  {marketData?.market_cap_change_24h && marketData.market_cap_change_24h !== 0 ? `${marketData.market_cap_change_24h > 0 ? '+' : ''}${marketData.market_cap_change_24h.toFixed(2)}%` : '---'}
+                </span>
+                <span className="text-muted small">24h</span>
+              </div>
               <div className="text-muted">Общая капитализация рынка</div>
             </div>
           </div>
@@ -282,7 +288,13 @@ export default function MarketOverview() {
                   24h Volume
                 </div>
               </div>
-              <div className="h1 mb-3">{formatVolume(marketData?.volume_24h || 0)}</div>
+              <div className="h1 mb-2">{formatVolume(marketData?.volume_24h || 0)}</div>
+              <div className="d-flex align-items-center mb-2">
+                <span className={`badge ${marketData?.volume_change_24h && marketData.volume_change_24h !== 0 ? (marketData.volume_change_24h > 0 ? 'bg-success' : 'bg-danger') : 'bg-secondary'} me-2`}>
+                  {marketData?.volume_change_24h && marketData.volume_change_24h !== 0 ? `${marketData.volume_change_24h > 0 ? '+' : ''}${marketData.volume_change_24h.toFixed(2)}%` : '---'}
+                </span>
+                <span className="text-muted small">24h</span>
+              </div>
               <div className="text-muted">Объем торгов за 24 часа</div>
             </div>
           </div>
@@ -361,6 +373,12 @@ export default function MarketOverview() {
                   <div>
                     <div className="text-muted small">Bitcoin</div>
                     <div className="h3 mb-0">{formatDominance(marketData?.btc_dominance || '')}</div>
+                    <div className="d-flex align-items-center">
+                      <span className={`badge ${marketData?.btc_dominance_change_24h && marketData.btc_dominance_change_24h !== 0 ? (marketData.btc_dominance_change_24h > 0 ? 'bg-success' : 'bg-danger') : 'bg-secondary'} me-2`} style={{ fontSize: '10px' }}>
+                        {marketData?.btc_dominance_change_24h && marketData.btc_dominance_change_24h !== 0 ? `${marketData.btc_dominance_change_24h > 0 ? '+' : ''}${marketData.btc_dominance_change_24h.toFixed(1)}%` : '---'}
+                      </span>
+                      <span className="text-muted small" style={{ fontSize: '10px' }}>24h</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -374,6 +392,12 @@ export default function MarketOverview() {
                   <div>
                     <div className="text-muted small">Ethereum</div>
                     <div className="h3 mb-0">{formatDominance(marketData?.eth_dominance || '')}</div>
+                    <div className="d-flex align-items-center">
+                      <span className={`badge ${marketData?.eth_dominance_change_24h && marketData.eth_dominance_change_24h !== 0 ? (marketData.eth_dominance_change_24h > 0 ? 'bg-success' : 'bg-danger') : 'bg-secondary'} me-2`} style={{ fontSize: '10px' }}>
+                        {marketData?.eth_dominance_change_24h && marketData.eth_dominance_change_24h !== 0 ? `${marketData.eth_dominance_change_24h > 0 ? '+' : ''}${marketData.eth_dominance_change_24h.toFixed(1)}%` : '---'}
+                      </span>
+                      <span className="text-muted small" style={{ fontSize: '10px' }}>24h</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -488,9 +512,9 @@ export default function MarketOverview() {
                       <td className="font-weight-medium">{formatPrice(coin.price)}</td>
                       <td>
                         {coin.price_change_24h === 0 ? (
-                          <span className="badge bg-secondary">---</span>
+                          <span className="badge badge-outline text-secondary">---</span>
                         ) : (
-                          <span className={`badge bg-${coin.price_change_24h >= 0 ? 'success' : 'danger'}`}>
+                          <span className={`badge badge-outline ${coin.price_change_24h >= 0 ? 'text-success' : 'text-danger'}`}>
                             {formatPriceChange(coin.price_change_24h)}
                           </span>
                         )}
@@ -501,7 +525,7 @@ export default function MarketOverview() {
                         {coin.rsi_1d === 0 ? (
                           <span className="text-muted">---</span>
                         ) : (
-                          <span className={`badge bg-${coin.rsi_1d > 70 ? 'danger' : coin.rsi_1d < 30 ? 'success' : 'secondary'}`}>
+                          <span className={`badge badge-outline ${coin.rsi_1d > 70 ? 'text-danger' : coin.rsi_1d < 30 ? 'text-success' : 'text-secondary'}`}>
                             {coin.rsi_1d.toFixed(1)}
                           </span>
                         )}

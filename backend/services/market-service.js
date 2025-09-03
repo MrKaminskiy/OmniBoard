@@ -394,8 +394,10 @@ class MarketService {
                 // Основные метрики рынка
                 market_cap: marketOverview.status === 'fulfilled' ? marketOverview.value.market_cap : 0,
                 market_cap_formatted: marketOverview.status === 'fulfilled' ? marketOverview.value.market_cap_formatted : '---',
+                market_cap_change_24h: marketOverview.status === 'fulfilled' ? marketOverview.value.market_cap_change_24h : 0,
                 volume_24h: marketOverview.status === 'fulfilled' ? marketOverview.value.volume_24h : 0,
                 volume_formatted: marketOverview.status === 'fulfilled' ? marketOverview.value.volume_formatted : '---',
+                volume_change_24h: marketOverview.status === 'fulfilled' ? marketOverview.value.volume_change_24h : 0,
                 
                 // Индексы
                 fear_greed: fearGreed.status === 'fulfilled' ? fearGreed.value.value : '---',
@@ -403,7 +405,9 @@ class MarketService {
                 
                 // Доминирование
                 btc_dominance: btcDominance.status === 'fulfilled' ? btcDominance.value.value : '---',
+                btc_dominance_change_24h: btcDominance.status === 'fulfilled' ? btcDominance.value.change_24h : 0,
                 eth_dominance: btcDominance.status === 'fulfilled' ? btcDominance.value.eth : '---',
+                eth_dominance_change_24h: btcDominance.status === 'fulfilled' ? btcDominance.value.eth_change_24h : 0,
                 
                 // Ликвидации и лонг/шорт
                 total_liquidations_24h: liquidations.status === 'fulfilled' ? liquidations.value.value : '---',
@@ -845,12 +849,16 @@ class MarketService {
         return {
             market_cap: 0,
             market_cap_formatted: '---',
+            market_cap_change_24h: 0,
             volume_24h: 0,
             volume_formatted: '---',
+            volume_change_24h: 0,
             fear_greed: '---',
             altseason: '---',
             btc_dominance: '---',
+            btc_dominance_change_24h: 0,
             eth_dominance: '---',
+            eth_dominance_change_24h: 0,
             total_liquidations_24h: '---',
             liquidations_data_source: 'fallback',
             long_short_ratio: '---',
