@@ -128,18 +128,25 @@ class ApiClient {
     ];
 
     try {
-      // Пытаемся получить реальные данные через BingX API
-      console.log('Attempting to fetch real data from BingX API...');
-      const response = await this.getSpecificCoins(['bitcoin', 'ethereum', 'solana', 'ripple', 'binancecoin', 'dogecoin', 'sui', 'chainlink', 'aave', 'pepe', 'dogwifhat', 'litecoin', 'cardano', 'optimism', 'aptos']);
+      // Пытаемся получить реальные данные через существующий endpoint
+      console.log('Attempting to fetch real data from market overview...');
+      const overviewResponse = await this.getMarketOverview();
+      console.log('Market overview response:', overviewResponse);
       
-      console.log('BingX API response:', response);
+      // Также пробуем получить данные через top-gainers
+      console.log('Attempting to fetch data from top-gainers...');
+      const gainersResponse = await this.getTopGainers(15);
+      console.log('Top gainers response:', gainersResponse);
       
-      // Если получили данные, объединяем с захардкоженными
-      if (response.data.coins && response.data.coins.length > 0) {
-        console.log('Real data received, updating coins...');
+      // Если получили данные из top-gainers, используем их
+      if (gainersResponse.data.coins && gainersResponse.data.coins.length > 0) {
+        console.log('Real data received from top-gainers, updating coins...');
         const updatedCoins = hardcodedCoins.map(hardcodedCoin => {
-          const realData = response.data.coins.find(coin => coin.id === hardcodedCoin.id);
-          console.log(`Looking for ${hardcodedCoin.id}, found:`, realData);
+          const realData = gainersResponse.data.coins.find(coin => 
+            coin.symbol === hardcodedCoin.symbol || 
+            coin.symbol === hardcodedCoin.symbol + '-USDT'
+          );
+          console.log(`Looking for ${hardcodedCoin.symbol}, found:`, realData);
           if (realData && realData.price > 0) {
             console.log(`Updating ${hardcodedCoin.symbol} with real data:`, {
               price: realData.price,
@@ -169,10 +176,10 @@ class ApiClient {
           timestamp: new Date().toISOString()
         };
       } else {
-        console.log('No real data received from BingX API');
+        console.log('No real data received from top-gainers');
       }
     } catch (error) {
-      console.error('Error fetching real data from BingX, using hardcoded:', error);
+      console.error('Error fetching real data, using hardcoded:', error);
     }
 
     // Возвращаем захардкоженные данные если API не работает
