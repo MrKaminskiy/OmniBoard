@@ -1,14 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Basic styles */
+/* Базовые стили для Tabler UI */
 body {
-  font-family: inherit;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Simple dark theme */
-.theme-dark {
-  background-color: #1e1e1e;
-  color: #ffffff;
+/* Темная тема по умолчанию */
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--tblr-bg-surface);
+  color: var(--tblr-body-color);
+}
+
+/* Убираем лишние отступы */
+* {
+  box-sizing: border-box;
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function PublicMedia() {
   const [loading, setLoading] = useState(false);
@@ -14,48 +13,74 @@ export default function PublicMedia() {
   }, []);
 
   if (loading) {
-    return <LoadingSpinner text="Загружаем медиа ленту..." />;
+    return (
+      <div className="container-xl">
+        <div className="page-header d-print-none">
+          <div className="container-xl">
+            <div className="row g-2 align-items-center">
+              <div className="col">
+                <h2 className="page-title">Public Media</h2>
+                <p className="text-muted">Загружаем медиа ленту...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="text-center py-12">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3 text-muted">Загружаем медиа ленту...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="container-xl">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">💬 Public Media</h1>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Анализируйте настроения криптовалютного рынка через социальные сети, новости и мнения экспертов
-        </p>
+      <div className="page-header d-print-none">
+        <div className="container-xl">
+          <div className="row g-2 align-items-center">
+            <div className="col">
+              <h2 className="page-title">💬 Public Media</h2>
+              <p className="text-muted">Анализируйте настроения криптовалютного рынка через социальные сети, новости и мнения экспертов</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="row">
         {/* Main Feed */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="col-lg-8">
           {/* Featured Post */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-semibold">CN</span>
+          <div className="card mb-4">
+            <div className="card-body">
+              <div className="d-flex align-items-center mb-3">
+                <div className="avatar avatar-sm me-3">
+                  <span className="avatar-initials bg-primary">CN</span>
+                </div>
+                <div>
+                  <h4 className="font-weight-medium mb-0">Crypto News</h4>
+                  <p className="text-muted mb-0">2 часа назад</p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-semibold text-gray-900">Crypto News</h4>
-                <p className="text-sm text-gray-500">2 часа назад</p>
+              <h3 className="card-title mb-3">
+                Bitcoin достиг нового максимума: что дальше?
+              </h3>
+              <p className="text-muted mb-3">
+                Bitcoin показал впечатляющий рост на 15% за последние 24 часа, достигнув уровня $45,000. 
+                Эксперты связывают это с институциональным спросом и позитивными новостями о регуляторных решениях.
+              </p>
+              <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center text-muted">
+                  <span className="me-3">📈 156 лайков</span>
+                  <span className="me-3">💬 23 комментария</span>
+                  <span>🔄 45 репостов</span>
+                </div>
+                <span className="text-primary font-weight-medium">#Bitcoin #Crypto</span>
               </div>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Bitcoin достиг нового максимума: что дальше?
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Bitcoin показал впечатляющий рост на 15% за последние 24 часа, достигнув уровня $45,000. 
-              Эксперты связывают это с институциональным спросом и позитивными новостями о регуляторных решениях.
-            </p>
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-4 text-sm text-gray-500">
-                <span>📈 156 лайков</span>
-                <span>💬 23 комментария</span>
-                <span>🔄 45 репостов</span>
-              </div>
-              <span className="text-blue-600 font-medium">#Bitcoin #Crypto</span>
             </div>
           </div>
 
@@ -86,26 +111,28 @@ export default function PublicMedia() {
               comments: 31
             }
           ].map((post, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-sm border p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <span className="text-gray-600 font-semibold">{post.author.charAt(0)}</span>
+            <div key={index} className="card mb-3">
+              <div className="card-body">
+                <div className="d-flex align-items-center mb-3">
+                  <div className="avatar avatar-sm me-3">
+                    <span className="avatar-initials bg-secondary">{post.author.charAt(0)}</span>
+                  </div>
+                  <div>
+                    <h4 className="font-weight-medium mb-0">{post.author}</h4>
+                    <p className="text-muted mb-0">{post.time}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">{post.author}</h4>
-                  <p className="text-sm text-gray-500">{post.time}</p>
-                </div>
-              </div>
-              <p className="text-gray-600 mb-4">{post.content}</p>
-              <div className="flex items-center justify-between">
-                <div className="flex space-x-4 text-sm text-gray-500">
-                  <span>📈 {post.likes} лайков</span>
-                  <span>💬 {post.comments} комментариев</span>
-                </div>
-                <div className="flex space-x-2">
-                  {post.tags.map((tag, tagIndex) => (
-                    <span key={tagIndex} className="text-blue-600 font-medium">{tag}</span>
-                  ))}
+                <p className="text-muted mb-3">{post.content}</p>
+                <div className="d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center text-muted">
+                    <span className="me-3">📈 {post.likes} лайков</span>
+                    <span>💬 {post.comments} комментариев</span>
+                  </div>
+                  <div className="d-flex align-items-center">
+                    {post.tags.map((tag, tagIndex) => (
+                      <span key={tagIndex} className="text-primary font-weight-medium me-2">{tag}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -113,132 +140,154 @@ export default function PublicMedia() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="col-lg-4">
           {/* Trending Topics */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">🔥 Trending Topics</h3>
-            <div className="space-y-3">
-              {[
-                { topic: "Bitcoin ETF", mentions: "2.4K", change: "+15%" },
-                { topic: "Ethereum Merge", mentions: "1.8K", change: "+8%" },
-                { topic: "DeFi Summer", mentions: "1.2K", change: "+22%" },
-                { topic: "NFT Market", mentions: "956", change: "-5%" },
-                { topic: "Regulation", mentions: "789", change: "+12%" }
-              ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="font-medium text-gray-900">#{item.topic}</span>
-                  <div className="text-right">
-                    <div className="text-sm font-medium">{item.mentions}</div>
-                    <div className={`text-xs ${item.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                      {item.change}
+          <div className="card mb-4">
+            <div className="card-body">
+              <h3 className="card-title">🔥 Trending Topics</h3>
+              <div className="list-group list-group-flush">
+                {[
+                  { topic: "Bitcoin ETF", mentions: "2.4K", change: "+15%" },
+                  { topic: "Ethereum Merge", mentions: "1.8K", change: "+8%" },
+                  { topic: "DeFi Summer", mentions: "1.2K", change: "+22%" },
+                  { topic: "NFT Market", mentions: "956", change: "-5%" },
+                  { topic: "Regulation", mentions: "789", change: "+12%" }
+                ].map((item, index) => (
+                  <div key={index} className="list-group-item d-flex align-items-center justify-content-between px-0">
+                    <span className="font-weight-medium">#{item.topic}</span>
+                    <div className="text-end">
+                      <div className="text-sm font-weight-medium">{item.mentions}</div>
+                      <div className={`text-xs ${item.change.startsWith('+') ? 'text-success' : 'text-danger'}`}>
+                        {item.change}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Sentiment Overview */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">📊 Market Sentiment</h3>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Bitcoin</span>
-                  <span className="text-sm text-green-600 font-semibold">75% Bullish</span>
+          <div className="card mb-4">
+            <div className="card-body">
+              <h3 className="card-title">📊 Market Sentiment</h3>
+              <div className="space-y-3">
+                <div>
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <span className="text-sm font-weight-medium">Bitcoin</span>
+                    <span className="text-sm text-success font-weight-medium">75% Bullish</span>
+                  </div>
+                  <div className="progress">
+                    <div className="progress-bar bg-success" style={{ width: '75%' }}></div>
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+                <div>
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <span className="text-sm font-weight-medium">Ethereum</span>
+                    <span className="text-sm text-primary font-weight-medium">68% Bullish</span>
+                  </div>
+                  <div className="progress">
+                    <div className="progress-bar bg-primary" style={{ width: '68%' }}></div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Ethereum</span>
-                  <span className="text-sm text-blue-600 font-semibold">68% Bullish</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '68%' }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Altcoins</span>
-                  <span className="text-sm text-yellow-600 font-semibold">52% Neutral</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '52%' }}></div>
+                <div>
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <span className="text-sm font-weight-medium">Altcoins</span>
+                    <span className="text-sm text-warning font-weight-medium">52% Neutral</span>
+                  </div>
+                  <div className="progress">
+                    <div className="progress-bar bg-warning" style={{ width: '52%' }}></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Top Influencers */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">👑 Top Influencers</h3>
-            <div className="space-y-3">
-              {[
-                { name: "CryptoWhale", followers: "2.1M", sentiment: "Bullish" },
-                { name: "TradingGuru", followers: "1.8M", sentiment: "Neutral" },
-                { name: "DeFiExpert", followers: "1.5M", sentiment: "Bullish" },
-                { name: "NFTCollector", followers: "1.2M", sentiment: "Bearish" }
-              ].map((influencer, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-gray-900">{influencer.name}</div>
-                    <div className="text-sm text-gray-500">{influencer.followers} followers</div>
+          <div className="card">
+            <div className="card-body">
+              <h3 className="card-title">👑 Top Influencers</h3>
+              <div className="list-group list-group-flush">
+                {[
+                  { name: "CryptoWhale", followers: "2.1M", sentiment: "Bullish" },
+                  { name: "TradingGuru", followers: "1.8M", sentiment: "Neutral" },
+                  { name: "DeFiExpert", followers: "1.5M", sentiment: "Bullish" },
+                  { name: "NFTCollector", followers: "1.2M", sentiment: "Bearish" }
+                ].map((influencer, index) => (
+                  <div key={index} className="list-group-item d-flex align-items-center justify-content-between px-0">
+                    <div>
+                      <div className="font-weight-medium">{influencer.name}</div>
+                      <div className="text-muted text-sm">{influencer.followers} followers</div>
+                    </div>
+                    <span className={`badge bg-${influencer.sentiment === 'Bullish' ? 'success' : influencer.sentiment === 'Bearish' ? 'danger' : 'secondary'}`}>
+                      {influencer.sentiment}
+                    </span>
                   </div>
-                  <span className={`text-sm font-medium px-2 py-1 rounded ${
-                    influencer.sentiment === 'Bullish' ? 'bg-green-100 text-green-800' :
-                    influencer.sentiment === 'Bearish' ? 'bg-red-100 text-red-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {influencer.sentiment}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Coming Soon Section */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-8 text-center">
-        <div className="text-6xl mb-4">🚀</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Функционал в разработке</h2>
-        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-          Мы создаем мощную платформу для анализа настроений рынка с интеграцией Twitter, Reddit, 
-          Telegram и других социальных сетей.
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-2">🔍 AI Анализ</h4>
-            <p className="text-sm text-gray-600">Машинное обучение для анализа настроений</p>
-          </div>
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-2">📱 Real-time</h4>
-            <p className="text-sm text-gray-600">Мгновенные уведомления о важных событиях</p>
-          </div>
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-2">📊 Аналитика</h4>
-            <p className="text-sm text-gray-600">Детальные отчеты и графики</p>
+      <div className="card bg-purple-lt">
+        <div className="card-body text-center">
+          <div className="display-1 mb-4">🚀</div>
+          <h2 className="card-title">Функционал в разработке</h2>
+          <p className="text-muted mb-4">
+            Мы создаем мощную платформу для анализа настроений рынка с интеграцией Twitter, Reddit, 
+            Telegram и других социальных сетей.
+          </p>
+          
+          <div className="row g-3">
+            <div className="col-md-4">
+              <div className="card">
+                <div className="card-body">
+                  <h4 className="card-title">🔍 AI Анализ</h4>
+                  <p className="text-muted">Машинное обучение для анализа настроений</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="card">
+                <div className="card-body">
+                  <h4 className="card-title">📱 Real-time</h4>
+                  <p className="text-muted">Мгновенные уведомления о важных событиях</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="card">
+                <div className="card-body">
+                  <h4 className="card-title">📊 Аналитика</h4>
+                  <p className="text-muted">Детальные отчеты и графики</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Newsletter Signup */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">Получайте уведомления о запуске</h3>
-        <p className="text-gray-600 mb-4">Будьте первыми, кто попробует новый Media Analytics</p>
-        <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-          <input
-            type="email"
-            placeholder="Ваш email"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg transition-colors">
-            Подписаться
-          </button>
+      <div className="card">
+        <div className="card-body text-center">
+          <h3 className="card-title">Получайте уведомления о запуске</h3>
+          <p className="text-muted mb-4">Будьте первыми, кто попробует новый Media Analytics</p>
+          <div className="row g-3 justify-content-center">
+            <div className="col-md-6">
+              <input
+                type="email"
+                placeholder="Ваш email"
+                className="form-control"
+              />
+            </div>
+            <div className="col-md-auto">
+              <button className="btn btn-purple">
+                Подписаться
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

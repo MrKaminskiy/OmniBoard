@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function TradingJournal() {
   const [loading, setLoading] = useState(false);
@@ -14,139 +13,211 @@ export default function TradingJournal() {
   }, []);
 
   if (loading) {
-    return <LoadingSpinner text="Загружаем дневник торговли..." />;
+    return (
+      <div className="container-xl">
+        <div className="page-header d-print-none">
+          <div className="container-xl">
+            <div className="row g-2 align-items-center">
+              <div className="col">
+                <h2 className="page-title">Trading Journal</h2>
+                <p className="text-muted">Загружаем дневник торговли...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="text-center py-12">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3 text-muted">Загружаем дневник торговли...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="container-xl">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">📈 Trading Journal</h1>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Ведите детальный учет всех ваших торговых операций, анализируйте результаты и улучшайте стратегии
-        </p>
+      <div className="page-header d-print-none">
+        <div className="container-xl">
+          <div className="row g-2 align-items-center">
+            <div className="col">
+              <h2 className="page-title">📈 Trading Journal</h2>
+              <p className="text-muted">Ведите детальный учет всех ваших торговых операций, анализируйте результаты и улучшайте стратегии</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
-          <div className="text-3xl font-bold text-green-600 mb-2">+24.5%</div>
-          <h3 className="text-sm font-medium text-gray-500">Общий ROI</h3>
+      <div className="row row-cards mb-4">
+        <div className="col-sm-6 col-lg-3">
+          <div className="card text-center">
+            <div className="card-body">
+              <div className="h1 text-success mb-2">+24.5%</div>
+              <h3 className="subheader">Общий ROI</h3>
+            </div>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
-          <div className="text-3xl font-bold text-blue-600 mb-2">156</div>
-          <h3 className="text-sm font-medium text-gray-500">Всего сделок</h3>
+        <div className="col-sm-6 col-lg-3">
+          <div className="card text-center">
+            <div className="card-body">
+              <div className="h1 text-primary mb-2">156</div>
+              <h3 className="subheader">Всего сделок</h3>
+            </div>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
-          <div className="text-3xl font-bold text-green-600 mb-2">68%</div>
-          <h3 className="text-sm font-medium text-gray-500">Успешных сделок</h3>
+        <div className="col-sm-6 col-lg-3">
+          <div className="card text-center">
+            <div className="card-body">
+              <div className="h1 text-success mb-2">68%</div>
+              <h3 className="subheader">Успешных сделок</h3>
+            </div>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
-          <div className="text-3xl font-bold text-purple-600 mb-2">$12.4K</div>
-          <h3 className="text-sm font-medium text-gray-500">Общая прибыль</h3>
+        <div className="col-sm-6 col-lg-3">
+          <div className="card text-center">
+            <div className="card-body">
+              <div className="h1 text-purple mb-2">$12.4K</div>
+              <h3 className="subheader">Общая прибыль</h3>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <div className="text-4xl mb-4">📝</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-3">Детальная запись сделок</h3>
-          <ul className="space-y-2 text-gray-600">
-            <li>• Дата и время входа/выхода</li>
-            <li>• Цена входа и выхода</li>
-            <li>• Размер позиции и риск</li>
-            <li>• Причина входа и выхода</li>
-            <li>• Эмоциональное состояние</li>
-          </ul>
+      <div className="row row-cards mb-4">
+        <div className="col-sm-6">
+          <div className="card">
+            <div className="card-body">
+              <div className="display-4 mb-3">📝</div>
+              <h3 className="card-title">Детальная запись сделок</h3>
+              <ul className="list-unstyled">
+                <li className="mb-2">• Дата и время входа/выхода</li>
+                <li className="mb-2">• Цена входа и выхода</li>
+                <li className="mb-2">• Размер позиции и риск</li>
+                <li className="mb-2">• Причина входа и выхода</li>
+                <li>• Эмоциональное состояние</li>
+              </ul>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <div className="text-4xl mb-4">📊</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-3">Аналитика и отчеты</h3>
-          <ul className="space-y-2 text-gray-600">
-            <li>• Графики доходности</li>
-            <li>• Анализ по монетам</li>
-            <li>• Статистика по времени</li>
-            <li>• Анализ ошибок</li>
-            <li>• Сравнение стратегий</li>
-          </ul>
+        <div className="col-sm-6">
+          <div className="card">
+            <div className="card-body">
+              <div className="display-4 mb-3">📊</div>
+              <h3 className="card-title">Аналитика и отчеты</h3>
+              <ul className="list-unstyled">
+                <li className="mb-2">• Графики доходности</li>
+                <li className="mb-2">• Анализ по монетам</li>
+                <li className="mb-2">• Статистика по времени</li>
+                <li className="mb-2">• Анализ ошибок</li>
+                <li>• Сравнение стратегий</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Coming Soon Section */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-8 text-center">
-        <div className="text-6xl mb-4">🚀</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Функционал в разработке</h2>
-        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-          Мы создаем мощный инструмент для профессиональных трейдеров с интеграцией бирж, 
-          автоматическим импортом сделок и продвинутой аналитикой.
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-2">🔗 Интеграция бирж</h4>
-            <p className="text-sm text-gray-600">Binance, Coinbase, Kraken</p>
-          </div>
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-2">📱 Мобильное приложение</h4>
-            <p className="text-sm text-gray-600">iOS и Android</p>
-          </div>
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-2">🤖 Автоимпорт</h4>
-            <p className="text-sm text-gray-600">Автоматический импорт сделок</p>
+      <div className="card bg-success-lt">
+        <div className="card-body text-center">
+          <div className="display-1 mb-4">🚀</div>
+          <h2 className="card-title">Функционал в разработке</h2>
+          <p className="text-muted mb-4">
+            Мы создаем мощный инструмент для профессиональных трейдеров с интеграцией бирж, 
+            автоматическим импортом сделок и продвинутой аналитикой.
+          </p>
+          
+          <div className="row g-3">
+            <div className="col-md-4">
+              <div className="card">
+                <div className="card-body">
+                  <h4 className="card-title">🔗 Интеграция бирж</h4>
+                  <p className="text-muted">Binance, Coinbase, Kraken</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="card">
+                <div className="card-body">
+                  <h4 className="card-title">📱 Мобильное приложение</h4>
+                  <p className="text-muted">iOS и Android</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="card">
+                <div className="card-body">
+                  <h4 className="card-title">🤖 Автоимпорт</h4>
+                  <p className="text-muted">Автоматический импорт сделок</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Sample Journal Entry */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Пример записи в дневнике</h3>
-        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="font-medium">BTC/USDT</span>
-            <span className="text-green-600 font-semibold">+$450</span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="text-gray-500">Вход:</span>
-              <span className="ml-2 font-medium">$42,500</span>
+      <div className="card">
+        <div className="card-body">
+          <h3 className="card-title">Пример записи в дневнике</h3>
+          <div className="card bg-light">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <span className="font-weight-medium">BTC/USDT</span>
+                <span className="badge bg-success">+$450</span>
+              </div>
+              <div className="row g-3 mb-3">
+                <div className="col-md-3">
+                  <span className="text-muted">Вход:</span>
+                  <span className="ms-2 font-weight-medium">$42,500</span>
+                </div>
+                <div className="col-md-3">
+                  <span className="text-muted">Выход:</span>
+                  <span className="ms-2 font-weight-medium">$43,200</span>
+                </div>
+                <div className="col-md-3">
+                  <span className="text-muted">Размер:</span>
+                  <span className="ms-2 font-weight-medium">0.1 BTC</span>
+                </div>
+                <div className="col-md-3">
+                  <span className="text-muted">Длительность:</span>
+                  <span className="ms-2 font-weight-medium">2ч 15м</span>
+                </div>
+              </div>
+              <div className="text-muted mb-2">
+                <strong>Причина входа:</strong> Пробой уровня сопротивления $42,300, объем выше среднего
+              </div>
+              <div className="text-muted">
+                <strong>Причина выхода:</strong> Достижение целевого уровня $43,200, RSI перекуплен
+              </div>
             </div>
-            <div>
-              <span className="text-gray-500">Выход:</span>
-              <span className="ml-2 font-medium">$43,200</span>
-            </div>
-            <div>
-              <span className="text-gray-500">Размер:</span>
-              <span className="ml-2 font-medium">0.1 BTC</span>
-            </div>
-            <div>
-              <span className="text-gray-500">Длительность:</span>
-              <span className="ml-2 font-medium">2ч 15м</span>
-            </div>
-          </div>
-          <div className="text-sm text-gray-600">
-            <strong>Причина входа:</strong> Пробой уровня сопротивления $42,300, объем выше среднего
-          </div>
-          <div className="text-sm text-gray-600">
-            <strong>Причина выхода:</strong> Достижение целевого уровня $43,200, RSI перекуплен
           </div>
         </div>
       </div>
 
       {/* Newsletter Signup */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">Получайте уведомления о запуске</h3>
-        <p className="text-gray-600 mb-4">Будьте первыми, кто попробует новый Trading Journal</p>
-        <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-          <input
-            type="email"
-            placeholder="Ваш email"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors">
-            Подписаться
-          </button>
+      <div className="card">
+        <div className="card-body text-center">
+          <h3 className="card-title">Получайте уведомления о запуске</h3>
+          <p className="text-muted mb-4">Будьте первыми, кто попробует новый Trading Journal</p>
+          <div className="row g-3 justify-content-center">
+            <div className="col-md-6">
+              <input
+                type="email"
+                placeholder="Ваш email"
+                className="form-control"
+              />
+            </div>
+            <div className="col-md-auto">
+              <button className="btn btn-success">
+                Подписаться
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

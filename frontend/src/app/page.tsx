@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient, type MarketOverview, type Ticker } from '@/lib/api';
-import SkeletonCard from '@/components/SkeletonCard';
 
 export default function MarketOverview() {
   const [marketData, setMarketData] = useState<MarketOverview | null>(null);
@@ -59,36 +58,45 @@ export default function MarketOverview() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Overview</h1>
-          <p className="text-gray-600">Загружаем актуальные данные рынка...</p>
+      <div className="container-xl">
+        <div className="page-header d-print-none">
+          <div className="container-xl">
+            <div className="row g-2 align-items-center">
+              <div className="col">
+                <h2 className="page-title">Market Overview</h2>
+                <p className="text-muted">Загружаем актуальные данные рынка...</p>
+              </div>
+            </div>
+          </div>
         </div>
         
         {/* Skeleton для KPI карточек */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="row row-cards mb-4">
           {[...Array(4)].map((_, i) => (
-            <SkeletonCard key={i} />
+            <div key={i} className="col-sm-6 col-lg-3">
+              <div className="card">
+                <div className="card-body">
+                  <div className="placeholder-glow">
+                    <div className="placeholder col-8 mb-2"></div>
+                    <div className="placeholder col-6"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
         
         {/* Skeleton для таблицы */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="p-6 border-b">
-            <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">Top Cryptocurrencies</h3>
           </div>
-          <div className="p-6">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center justify-between py-3 border-b last:border-b-0">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                  <div className="h-4 bg-gray-200 rounded w-20"></div>
-                </div>
-                <div className="h-4 bg-gray-200 rounded w-16"></div>
-                <div className="h-4 bg-gray-200 rounded w-20"></div>
-                <div className="h-4 bg-gray-200 rounded w-16"></div>
-              </div>
-            ))}
+          <div className="card-body">
+            <div className="placeholder-glow">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="placeholder col-12 mb-2"></div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -97,93 +105,133 @@ export default function MarketOverview() {
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <div className="text-red-500 text-6xl mb-4">⚠️</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Ошибка загрузки</h2>
-        <p className="text-gray-600 mb-4">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
-        >
-          Попробовать снова
-        </button>
+      <div className="container-xl">
+        <div className="alert alert-danger" role="alert">
+          <h4 className="alert-title">Ошибка загрузки</h4>
+          <p>{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="btn btn-primary"
+          >
+            Попробовать снова
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Overview</h1>
-        <p className="text-gray-600">Актуальные данные криптовалютного рынка</p>
+    <div className="container-xl">
+      {/* Header */}
+      <div className="page-header d-print-none">
+        <div className="container-xl">
+          <div className="row g-2 align-items-center">
+            <div className="col">
+              <h2 className="page-title">Market Overview</h2>
+              <p className="text-muted">Актуальные данные криптовалютного рынка</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Market Cap</h3>
-          <p className="text-2xl font-bold text-gray-900">
-            {marketData?.market_cap_formatted || '---'}
-          </p>
-          <p className="text-sm text-gray-600 mt-1">Общая капитализация рынка</p>
+      <div className="row row-cards mb-4">
+        <div className="col-sm-6 col-lg-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <div className="subheader">Market Cap</div>
+              </div>
+              <div className="h1 mb-3">{marketData?.market_cap_formatted || '---'}</div>
+              <div className="text-muted">Общая капитализация рынка</div>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">24h Volume</h3>
-          <p className="text-2xl font-bold text-gray-900">
-            {marketData?.volume_formatted || '---'}
-          </p>
-          <p className="text-sm text-gray-600 mt-1">Объем торгов за 24 часа</p>
+        <div className="col-sm-6 col-lg-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <div className="subheader">24h Volume</div>
+              </div>
+              <div className="h1 mb-3">{marketData?.volume_formatted || '---'}</div>
+              <div className="text-muted">Объем торгов за 24 часа</div>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Fear & Greed</h3>
-          <p className="text-2xl font-bold text-gray-900">
-            {marketData?.fear_greed || '75/100'}
-          </p>
-          <p className="text-sm text-gray-600 mt-1">Индекс страха и жадности</p>
+        <div className="col-sm-6 col-lg-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <div className="subheader">Fear & Greed</div>
+              </div>
+              <div className="h1 mb-3">{marketData?.fear_greed || '75/100'}</div>
+              <div className="text-muted">Индекс страха и жадности</div>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Altseason</h3>
-          <p className="text-2xl font-bold text-gray-900">
-            {marketData?.altseason || '65/100'}
-          </p>
-          <p className="text-sm text-gray-600 mt-1">Индекс альткоин сезона</p>
+        <div className="col-sm-6 col-lg-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <div className="subheader">Altseason</div>
+              </div>
+              <div className="h1 mb-3">{marketData?.altseason || '65/100'}</div>
+              <div className="text-muted">Индекс альткоин сезона</div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Tickers Table */}
-      <div className="bg-white rounded-lg shadow-sm border">
-        <div className="p-6 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">Top Cryptocurrencies</h2>
+      <div className="card">
+        <div className="card-header">
+          <h3 className="card-title">Top Cryptocurrencies</h3>
         </div>
-        <div className="p-6">
+        <div className="card-body">
           {tickers.length > 0 ? (
-            <div className="space-y-3">
-              {tickers.map((ticker, index) => (
-                <div key={index} className="flex items-center justify-between py-3 border-b last:border-b-0">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium">
-                      {ticker.symbol?.charAt(0) || '?'}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{ticker.symbol || '---'}</p>
-                      <p className="text-sm text-gray-500">{ticker.name || '---'}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-gray-900">${ticker.price || '---'}</p>
-                    <p className={`text-sm ${ticker.priceChangePercent24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {ticker.priceChangePercent24h >= 0 ? '+' : ''}{ticker.priceChangePercent24h || '---'}%
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="table-responsive">
+              <table className="table table-vcenter">
+                <thead>
+                  <tr>
+                    <th>Coin</th>
+                    <th>Price</th>
+                    <th>24h Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tickers.map((ticker, index) => (
+                    <tr key={index}>
+                      <td>
+                        <div className="d-flex align-items-center">
+                          <span className="avatar avatar-sm me-2">
+                            <span className="avatar-initials bg-primary">
+                              {ticker.symbol?.charAt(0) || '?'}
+                            </span>
+                          </span>
+                          <div>
+                            <div className="font-weight-medium">{ticker.symbol || '---'}</div>
+                            <div className="text-muted">{ticker.name || '---'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>${ticker.price || '---'}</td>
+                      <td>
+                        <span className={`badge bg-${ticker.priceChangePercent24h >= 0 ? 'success' : 'danger'}`}>
+                          {ticker.priceChangePercent24h >= 0 ? '+' : ''}{ticker.priceChangePercent24h || '---'}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              Нет данных для отображения
+            <div className="text-center text-muted py-4">
+              <i className="ti ti-coins ti-3x mb-3"></i>
+              <p>Нет данных для отображения</p>
             </div>
           )}
         </div>
