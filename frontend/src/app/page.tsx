@@ -23,7 +23,9 @@ export default function MarketOverview() {
   const fetchCoins = useCallback(async () => {
     try {
       setError(null);
-      const response = await apiClient.getTopGainers(15);
+      console.log('Fetching coins data...');
+      const response = await apiClient.getTickers();
+      console.log('Coins response:', response);
       setCoins(response.data.coins || []);
     } catch (err) {
       setError('Failed to fetch coins data');
