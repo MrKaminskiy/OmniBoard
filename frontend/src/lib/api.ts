@@ -16,6 +16,12 @@ export interface MarketOverview {
   data_sources: string[];
   fear_greed?: string;
   altseason?: string;
+  // Новые поля из comprehensive overview
+  btc_dominance?: string;
+  eth_dominance?: string;
+  total_liquidations_24h?: string;
+  long_short_ratio?: string;
+  long_short_accounts_percentage?: string;
 }
 
 export interface Coin {

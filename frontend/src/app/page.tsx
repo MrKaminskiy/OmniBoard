@@ -90,7 +90,7 @@ export default function MarketOverview() {
         
         {/* Skeleton для KPI карточек */}
         <div className="row row-cards mb-4">
-          {[...Array(4)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <div key={i} className="col-sm-6 col-lg-3">
               <div className="card">
                 <div className="card-body">
@@ -192,7 +192,10 @@ export default function MarketOverview() {
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center">
-                <div className="subheader">Market Cap</div>
+                <div className="subheader">
+                  <i className="ti ti-chart-line me-2"></i>
+                  Market Cap
+                </div>
               </div>
               <div className="h1 mb-3">{marketData?.market_cap_formatted || '---'}</div>
               <div className="text-muted">Общая капитализация рынка</div>
@@ -204,7 +207,10 @@ export default function MarketOverview() {
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center">
-                <div className="subheader">24h Volume</div>
+                <div className="subheader">
+                  <i className="ti ti-activity me-2"></i>
+                  24h Volume
+                </div>
               </div>
               <div className="h1 mb-3">{marketData?.volume_formatted || '---'}</div>
               <div className="text-muted">Объем торгов за 24 часа</div>
@@ -216,7 +222,10 @@ export default function MarketOverview() {
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center">
-                <div className="subheader">Fear & Greed</div>
+                <div className="subheader">
+                  <i className="ti ti-mood-smile me-2"></i>
+                  Fear & Greed
+                </div>
               </div>
               <div className="h1 mb-3">{marketData?.fear_greed || '---'}</div>
               <div className="text-muted">Индекс страха и жадности</div>
@@ -228,10 +237,73 @@ export default function MarketOverview() {
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center">
-                <div className="subheader">Altseason</div>
+                <div className="subheader">
+                  <i className="ti ti-moon me-2"></i>
+                  Altseason
+                </div>
               </div>
               <div className="h1 mb-3">{marketData?.altseason || '---'}</div>
               <div className="text-muted">Индекс альткоин сезона</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-sm-6 col-lg-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <div className="subheader">
+                  <i className="ti ti-bitcoin me-2"></i>
+                  BTC Dominance
+                </div>
+              </div>
+              <div className="h1 mb-3">{marketData?.btc_dominance || '---'}</div>
+              <div className="text-muted">Доминирование Bitcoin</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-sm-6 col-lg-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <div className="subheader">
+                  <i className="ti ti-currency-ethereum me-2"></i>
+                  ETH Dominance
+                </div>
+              </div>
+              <div className="h1 mb-3">{marketData?.eth_dominance || '---'}</div>
+              <div className="text-muted">Доминирование Ethereum</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-sm-6 col-lg-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <div className="subheader">
+                  <i className="ti ti-trash me-2"></i>
+                  24h Liquidations
+                </div>
+              </div>
+              <div className="h1 mb-3">{marketData?.total_liquidations_24h || '---'}</div>
+              <div className="text-muted">Общие ликвидации за 24ч</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-sm-6 col-lg-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <div className="subheader">
+                  <i className="ti ti-scale me-2"></i>
+                  Long/Short Ratio
+                </div>
+              </div>
+              <div className="h1 mb-3">{marketData?.long_short_ratio || '---'}</div>
+              <div className="text-muted">Соотношение лонг/шорт</div>
             </div>
           </div>
         </div>
