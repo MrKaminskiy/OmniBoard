@@ -3,6 +3,7 @@
   "description": "OmniBoard - Crypto Trading Dashboard",
   "homepage": "https://omniboard.io",
   "scripts": {
+    "start": "cd backend && npm start",
     "dev": "cd frontend && npm run dev",
     "backend:dev": "cd backend && npm run dev",
     "backend:start": "cd backend && npm start",
