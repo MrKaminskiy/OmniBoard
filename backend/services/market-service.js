@@ -550,22 +550,24 @@ class MarketService {
     async getSpecificCoins(coinIds = []) {
         try {
             // Преобразуем coinIds в символы для BingX API
+            // Создаем маппинг CoinGecko ID -> BingX Symbol
+            // BingX использует другие символы, попробуем без -USDT
             const symbolMap = {
-                'bitcoin': 'BTC-USDT',
-                'ethereum': 'ETH-USDT',
-                'solana': 'SOL-USDT',
-                'ripple': 'XRP-USDT',
-                'binancecoin': 'BNB-USDT',
-                'dogecoin': 'DOGE-USDT',
-                'sui': 'SUI-USDT',
-                'chainlink': 'LINK-USDT',
-                'aave': 'AAVE-USDT',
-                'pepe': 'PEPE-USDT',
-                'dogwifhat': 'WIF-USDT',
-                'litecoin': 'LTC-USDT',
-                'cardano': 'ADA-USDT',
-                'optimism': 'OP-USDT',
-                'aptos': 'APT-USDT'
+                'bitcoin': 'BTC',
+                'ethereum': 'ETH',
+                'solana': 'SOL',
+                'ripple': 'XRP',
+                'binancecoin': 'BNB',
+                'dogecoin': 'DOGE',
+                'sui': 'SUI',
+                'chainlink': 'LINK',
+                'aave': 'AAVE',
+                'pepe': 'PEPE',
+                'dogwifhat': 'WIF',
+                'litecoin': 'LTC',
+                'cardano': 'ADA',
+                'optimism': 'OP',
+                'aptos': 'APT'
             };
 
             const symbols = coinIds.map(id => symbolMap[id] || `${id.toUpperCase()}-USDT`);
@@ -586,7 +588,8 @@ class MarketService {
             
             const coinsData = validTickers.map((ticker, index) => {
                 const coinId = coinIds[index] || 'unknown';
-                const cleanSymbol = ticker.symbol.replace('-USDT', '');
+                // Теперь символ уже без -USDT, используем как есть
+                const cleanSymbol = ticker.symbol;
                 
                 return {
                     id: coinId,
@@ -761,6 +764,46 @@ class MarketService {
             last_update: new Date().toISOString(),
             data_sources: []
         };
+    }
+
+    /**
+     * Get liquidations data (placeholder)
+     */
+    async getLiquidations() {
+        try {
+            // Пока возвращаем заглушку, позже можно подключить реальный API
+            return {
+                value: '---',
+                timestamp: new Date().toISOString()
+            };
+        } catch (error) {
+            console.error('Error getting liquidations:', error);
+            return {
+                value: '---',
+                timestamp: new Date().toISOString()
+            };
+        }
+    }
+
+    /**
+     * Get long/short ratio (placeholder)
+     */
+    async getLongShortRatio() {
+        try {
+            // Пока возвращаем заглушку, позже можно подключить Binance API
+            return {
+                value: '---',
+                accountsPercentage: '---',
+                timestamp: new Date().toISOString()
+            };
+        } catch (error) {
+            console.error('Error getting long/short ratio:', error);
+            return {
+                value: '---',
+                accountsPercentage: '---',
+                timestamp: new Date().toISOString()
+            };
+        }
     }
 
     /**
