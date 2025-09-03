@@ -446,6 +446,60 @@ class MarketService {
     }
 
     /**
+     * Get specific coins by their IDs
+     */
+    async getSpecificCoins(coinIds = []) {
+        try {
+            const coinsData = [];
+            
+            for (const coinId of coinIds) {
+                try {
+                    const coinData = await coinGeckoService.getCoinData(coinId);
+                    if (coinData) {
+                        const transformedCoin = {
+                            id: coinData.id,
+                            symbol: coinData.symbol,
+                            name: coinData.name,
+                            price: coinData.market_data?.current_price?.usd || 0,
+                            price_change_24h: coinData.market_data?.price_change_percentage_24h || 0,
+                            market_cap: coinData.market_data?.market_cap?.usd || 0,
+                            volume_24h: coinData.market_data?.total_volume?.usd || 0,
+                            market_cap_rank: coinData.market_data?.market_cap_rank || null,
+                            image: coinData.image?.large || null,
+                            last_update: coinData.last_updated || new Date().toISOString()
+                        };
+                        coinsData.push(transformedCoin);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching data for ${coinId}:`, error);
+                    // Добавляем заглушку для монеты, если не удалось получить данные
+                    coinsData.push({
+                        id: coinId,
+                        symbol: coinId.toUpperCase(),
+                        name: coinId.charAt(0).toUpperCase() + coinId.slice(1),
+                        price: 0,
+                        price_change_24h: 0,
+                        market_cap: 0,
+                        volume_24h: 0,
+                        market_cap_rank: null,
+                        image: null,
+                        last_update: new Date().toISOString()
+                    });
+                }
+            }
+            
+            return {
+                coins: coinsData
+            };
+        } catch (error) {
+            console.error('Error in getSpecificCoins:', error);
+            return {
+                coins: []
+            };
+        }
+    }
+
+    /**
      * Transform ticker to coin format
      */
     transformTickerToCoin(ticker) {

@@ -93,6 +93,11 @@ class ApiClient {
     return this.request<ApiResponse<MarketOverview>>('/api/v1/market/overview');
   }
 
+  async getSpecificCoins(coinIds: string[]): Promise<ApiResponse<{ coins: Coin[] }>> {
+    const coinsParam = coinIds.join(',');
+    return this.request<ApiResponse<{ coins: Coin[] }>>(`/api/v1/market/specific-coins?coins=${coinsParam}`);
+  }
+
   async getTopGainers(limit: number = 10): Promise<ApiResponse<{ coins: Coin[] }>> {
     return this.request<ApiResponse<{ coins: Coin[] }>>(`/api/v1/market/top-gainers?limit=${limit}`);
   }
@@ -102,8 +107,9 @@ class ApiClient {
   }
 
   async getTickers(): Promise<ApiResponse<{ coins: Coin[] }>> {
-    // Используем top-gainers для получения списка монет
-    return this.getTopGainers(15);
+    // Используем новый endpoint для получения конкретных монет
+    const specificCoins = ['bitcoin', 'ethereum', 'solana', 'ripple', 'binancecoin', 'dogecoin', 'sui', 'chainlink', 'aave', 'pepe', 'dogwifhat', 'litecoin', 'cardano', 'optimism', 'aptos'];
+    return this.getSpecificCoins(specificCoins);
   }
 
   async getSignals(): Promise<ApiResponse<Signal[]>> {

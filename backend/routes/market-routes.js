@@ -254,4 +254,46 @@ router.get('/btc-dominance', async (req, res, next) => {
     }
 });
 
+/**
+ * GET /api/v1/market/specific-coins
+ * Get data for specific coins
+ */
+router.get('/specific-coins', async (req, res, next) => {
+    try {
+        const { coins } = req.query;
+        
+        if (!coins) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Coins parameter is required (comma-separated list)',
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        const coinIds = coins.split(',').map(id => id.trim());
+        logBusinessEvent('specific_coins_requested', { 
+            coinIds, 
+            count: coinIds.length,
+            timestamp: new Date().toISOString() 
+        });
+        
+        const data = await marketService.getSpecificCoins(coinIds);
+        
+        logBusinessEvent('specific_coins_retrieved', { 
+            requested: coinIds.length,
+            returned: data.coins?.length || 0,
+            timestamp: new Date().toISOString()
+        });
+        
+        res.json({
+            status: 'ok',
+            data,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        logBusinessError('specific_coins_error', error, { endpoint: '/specific-coins' });
+        next(error);
+    }
+});
+
 module.exports = router;
