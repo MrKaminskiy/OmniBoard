@@ -18,6 +18,18 @@ export interface MarketOverview {
   altseason?: string;
 }
 
+export interface Coin {
+  id: string;
+  symbol: string;
+  name: string;
+  price: number;
+  priceChangePercent: number;
+  volume24h: number;
+  marketCap: number;
+  marketCapRank: number;
+  image?: string;
+}
+
 export interface Ticker {
   symbol: string;
   name: string;
@@ -81,9 +93,21 @@ class ApiClient {
     return this.request<ApiResponse<MarketOverview>>('/api/v1/market/overview');
   }
 
-  async getTickers(): Promise<ApiResponse<Ticker[]>> {
-    // Используем coins endpoint вместо tickers
-    return this.request<ApiResponse<Ticker[]>>('/api/v1/coins/details?symbol=BTC-USDT');
+  async getCoinsList(limit: number = 15): Promise<ApiResponse<{ coins: Coin[] }>> {
+    return this.request<ApiResponse<{ coins: Coin[] }>>(`/api/v1/market/coins?limit=${limit}`);
+  }
+
+  async getTopGainers(limit: number = 10): Promise<ApiResponse<{ coins: Coin[] }>> {
+    return this.request<ApiResponse<{ coins: Coin[] }>>(`/api/v1/market/top-gainers?limit=${limit}`);
+  }
+
+  async getTopLosers(limit: number = 10): Promise<ApiResponse<{ coins: Coin[] }>> {
+    return this.request<ApiResponse<{ coins: Coin[] }>>(`/api/v1/market/top-losers?limit=${limit}`);
+  }
+
+  async getTickers(): Promise<ApiResponse<{ coins: Coin[] }>> {
+    // Используем coins endpoint для получения списка монет
+    return this.getCoinsList(15);
   }
 
   async getSignals(): Promise<ApiResponse<Signal[]>> {

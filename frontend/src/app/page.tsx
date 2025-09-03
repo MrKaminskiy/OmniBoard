@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { apiClient, type MarketOverview, type Ticker } from '@/lib/api';
+import { apiClient, type MarketOverview, type Coin } from '@/lib/api';
 
 export default function MarketOverview() {
   const [marketData, setMarketData] = useState<MarketOverview | null>(null);
-  const [tickers, setTickers] = useState<Ticker[]>([]);
+  const [coins, setCoins] = useState<Coin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,14 +20,14 @@ export default function MarketOverview() {
     }
   }, []);
 
-  const fetchTickers = useCallback(async () => {
+  const fetchCoins = useCallback(async () => {
     try {
       setError(null);
-      const response = await apiClient.getTickers();
-      setTickers(response.data);
+      const response = await apiClient.getCoinsList(15);
+      setCoins(response.data.coins || []);
     } catch (err) {
-      setError('Failed to fetch tickers');
-      console.error('Error fetching tickers:', err);
+      setError('Failed to fetch coins data');
+      console.error('Error fetching coins:', err);
     }
   }, []);
 
@@ -35,7 +35,7 @@ export default function MarketOverview() {
     const loadData = async () => {
       setLoading(true);
       try {
-        await Promise.all([fetchMarketData(), fetchTickers()]);
+        await Promise.all([fetchMarketData(), fetchCoins()]);
       } catch (err) {
         console.error('Error loading data:', err);
       } finally {
@@ -44,17 +44,17 @@ export default function MarketOverview() {
     };
 
     loadData();
-  }, [fetchMarketData, fetchTickers]);
+  }, [fetchMarketData, fetchCoins]);
 
   // Polling каждые 30 секунд
   useEffect(() => {
     const interval = setInterval(() => {
       fetchMarketData();
-      fetchTickers();
+      fetchCoins();
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [fetchMarketData, fetchTickers]);
+  }, [fetchMarketData, fetchCoins]);
 
   if (loading) {
     return (
@@ -120,6 +120,32 @@ export default function MarketOverview() {
     );
   }
 
+  const formatPrice = (price: number): string => {
+    if (price >= 1) {
+      return `$${price.toFixed(2)}`;
+    } else if (price >= 0.01) {
+      return `$${price.toFixed(4)}`;
+    } else {
+      return `$${price.toFixed(6)}`;
+    }
+  };
+
+  const formatMarketCap = (marketCap: number): string => {
+    if (marketCap >= 1e12) return `$${(marketCap / 1e12).toFixed(2)}T`;
+    if (marketCap >= 1e9) return `$${(marketCap / 1e9).toFixed(2)}B`;
+    if (marketCap >= 1e6) return `$${(marketCap / 1e6).toFixed(2)}M`;
+    if (marketCap >= 1e3) return `$${(marketCap / 1e3).toFixed(2)}K`;
+    return `$${marketCap.toFixed(2)}`;
+  };
+
+  const formatVolume = (volume: number): string => {
+    if (volume >= 1e12) return `$${(volume / 1e12).toFixed(2)}T`;
+    if (volume >= 1e9) return `$${(volume / 1e9).toFixed(2)}B`;
+    if (volume >= 1e6) return `$${(volume / 1e6).toFixed(2)}M`;
+    if (volume >= 1e3) return `$${(volume / 1e3).toFixed(2)}K`;
+    return `$${volume.toFixed(2)}`;
+  };
+
   return (
     <div className="container-xl">
       {/* Header */}
@@ -164,10 +190,10 @@ export default function MarketOverview() {
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center">
-                <div className="subheader">Fear & Greed</div>
+                <div className="subheader">Active Coins</div>
               </div>
-              <div className="h1 mb-3">{marketData?.fear_greed || '75/100'}</div>
-              <div className="text-muted">Индекс страха и жадности</div>
+              <div className="h1 mb-3">{marketData?.active_coins || '---'}</div>
+              <div className="text-muted">Активных монет</div>
             </div>
           </div>
         </div>
@@ -176,53 +202,61 @@ export default function MarketOverview() {
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center">
-                <div className="subheader">Altseason</div>
+                <div className="subheader">24h Gainers</div>
               </div>
-              <div className="h1 mb-3">{marketData?.altseason || '65/100'}</div>
-              <div className="text-muted">Индекс альткоин сезона</div>
+              <div className="h1 mb-3">{marketData?.gainers_24h || '---'}</div>
+              <div className="text-muted">Растущих монет</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tickers Table */}
+      {/* Coins Table */}
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title">Top Cryptocurrencies</h3>
+          <h3 className="card-title">Top 15 Cryptocurrencies</h3>
         </div>
         <div className="card-body">
-          {tickers.length > 0 ? (
+          {coins.length > 0 ? (
             <div className="table-responsive">
               <table className="table table-vcenter">
                 <thead>
                   <tr>
+                    <th>Rank</th>
                     <th>Coin</th>
                     <th>Price</th>
                     <th>24h Change</th>
+                    <th>24h Volume</th>
+                    <th>Market Cap</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {tickers.map((ticker, index) => (
-                    <tr key={index}>
+                  {coins.map((coin, index) => (
+                    <tr key={coin.id}>
+                      <td>
+                        <span className="badge bg-secondary">#{coin.marketCapRank || index + 1}</span>
+                      </td>
                       <td>
                         <div className="d-flex align-items-center">
                           <span className="avatar avatar-sm me-2">
                             <span className="avatar-initials bg-primary">
-                              {ticker.symbol?.charAt(0) || '?'}
+                              {coin.symbol.charAt(0)}
                             </span>
                           </span>
                           <div>
-                            <div className="font-weight-medium">{ticker.symbol || '---'}</div>
-                            <div className="text-muted">{ticker.name || '---'}</div>
+                            <div className="font-weight-medium">{coin.symbol}</div>
+                            <div className="text-muted">{coin.name}</div>
                           </div>
                         </div>
                       </td>
-                      <td>${ticker.price || '---'}</td>
+                      <td className="font-weight-medium">{formatPrice(coin.price)}</td>
                       <td>
-                        <span className={`badge bg-${ticker.priceChangePercent24h >= 0 ? 'success' : 'danger'}`}>
-                          {ticker.priceChangePercent24h >= 0 ? '+' : ''}{ticker.priceChangePercent24h || '---'}%
+                        <span className={`badge bg-${coin.priceChangePercent >= 0 ? 'success' : 'danger'}`}>
+                          {coin.priceChangePercent >= 0 ? '+' : ''}{coin.priceChangePercent.toFixed(2)}%
                         </span>
                       </td>
+                      <td>{formatVolume(coin.volume24h)}</td>
+                      <td>{formatMarketCap(coin.marketCap)}</td>
                     </tr>
                   ))}
                 </tbody>
