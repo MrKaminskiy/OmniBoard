@@ -412,9 +412,12 @@ class MarketService {
                 // Ликвидации и лонг/шорт
                 total_liquidations_24h: liquidations.status === 'fulfilled' ? liquidations.value.value : '---',
                 liquidations_data_source: liquidations.status === 'fulfilled' ? liquidations.value.dataSource : 'error',
-                long_short_ratio: longShortRatio.status === 'fulfilled' ? longShortRatio.value.value : '---',
-                long_short_accounts_percentage: longShortRatio.status === 'fulfilled' ? longShortRatio.value.accountsPercentage : '---',
-                long_short_data_source: longShortRatio.status === 'fulfilled' ? longShortRatio.value.dataSource : 'error',
+                long_short_ratio: longShortRatio.status === 'fulfilled' ? longShortRatio.value.binance.value : '---',
+                long_short_accounts_percentage: longShortRatio.status === 'fulfilled' ? longShortRatio.value.binance.accountsPercentage : '---',
+                long_short_data_source: longShortRatio.status === 'fulfilled' ? longShortRatio.value.binance.dataSource : 'error',
+                okx_long_short_ratio: longShortRatio.status === 'fulfilled' ? longShortRatio.value.okx.value : '---',
+                okx_long_short_accounts_percentage: longShortRatio.status === 'fulfilled' ? longShortRatio.value.okx.accountsPercentage : '---',
+                okx_long_short_data_source: longShortRatio.status === 'fulfilled' ? longShortRatio.value.okx.dataSource : 'error',
                 
                 // Временные метки
                 last_update: new Date().toISOString(),
@@ -813,32 +816,83 @@ class MarketService {
         }
     }
 
-    /**
-     * Get long/short ratio from Binance via BingX service
+        /**
+     * Get long/short ratio from Binance and OKX via BingX service
      */
     async getLongShortRatio() {
         try {
             const bingxService = require('./bingx-service');
-            const longShortData = await bingxService.getLongShortRatio('BTCUSDT');
             
-                    return {
-            value: longShortData.longShortRatio.toFixed(2),
-            accountsPercentage: `${(longShortData.longAccount * 100).toFixed(1)}% / ${(longShortData.shortAccount * 100).toFixed(1)}%`,
-            timestamp: longShortData.timestamp,
-            longAccount: longShortData.longAccount,
-            shortAccount: longShortData.shortAccount,
-            dataSource: longShortData.dataSource || 'unknown'  // Передаем источник данных
-        };
+            // Получаем данные с обеих бирж параллельно
+            const [binanceData, okxData] = await Promise.allSettled([
+                bingxService.getLongShortRatio('BTCUSDT'),
+                bingxService.getOKXLongShortRatio('BTC-USDT')
+            ]);
+
+            const result = {
+                binance: {
+                    value: '---',
+                    accountsPercentage: '---',
+                    timestamp: new Date().toISOString(),
+                    longAccount: 0,
+                    shortAccount: 0,
+                    dataSource: 'error'
+                },
+                okx: {
+                    value: '---',
+                    accountsPercentage: '---',
+                    timestamp: new Date().toISOString(),
+                    longAccount: 0,
+                    shortAccount: 0,
+                    dataSource: 'error'
+                }
+            };
+
+            // Обрабатываем данные Binance
+            if (binanceData.status === 'fulfilled') {
+                result.binance = {
+                    value: binanceData.value.longShortRatio.toFixed(2),
+                    accountsPercentage: `${(binanceData.value.longAccount * 100).toFixed(1)}% / ${(binanceData.value.shortAccount * 100).toFixed(1)}%`,
+                    timestamp: binanceData.value.timestamp,
+                    longAccount: binanceData.value.longAccount,
+                    shortAccount: binanceData.value.shortAccount,
+                    dataSource: binanceData.value.dataSource || 'unknown'
+                };
+            }
+
+            // Обрабатываем данные OKX
+            if (okxData.status === 'fulfilled') {
+                result.okx = {
+                    value: okxData.value.longShortRatio.toFixed(2),
+                    accountsPercentage: `${(okxData.value.longAccount * 100).toFixed(1)}% / ${(okxData.value.shortAccount * 100).toFixed(1)}%`,
+                    timestamp: okxData.value.timestamp,
+                    longAccount: okxData.value.longAccount,
+                    shortAccount: okxData.value.shortAccount,
+                    dataSource: okxData.value.dataSource || 'unknown'
+                };
+            }
+
+            return result;
         } catch (error) {
             console.error('Error getting long/short ratio:', error);
-                    return {
-            value: '---',
-            accountsPercentage: '---',
-            timestamp: new Date().toISOString(),
-            longAccount: 0,
-            shortAccount: 0,
-            dataSource: 'error'  // Индикатор ошибки
-        };
+            return {
+                binance: {
+                    value: '---',
+                    accountsPercentage: '---',
+                    timestamp: new Date().toISOString(),
+                    longAccount: 0,
+                    shortAccount: 0,
+                    dataSource: 'error'
+                },
+                okx: {
+                    value: '---',
+                    accountsPercentage: '---',
+                    timestamp: new Date().toISOString(),
+                    longAccount: 0,
+                    shortAccount: 0,
+                    dataSource: 'error'
+                }
+            };
         }
     }
 
@@ -864,6 +918,9 @@ class MarketService {
             long_short_ratio: '---',
             long_short_accounts_percentage: '---',
             long_short_data_source: 'fallback',
+            okx_long_short_ratio: '---',
+            okx_long_short_accounts_percentage: '---',
+            okx_long_short_data_source: 'fallback',
             last_update: new Date().toISOString(),
             data_sources: ['fallback']
         };

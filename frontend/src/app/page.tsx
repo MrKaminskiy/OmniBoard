@@ -538,14 +538,47 @@ export default function MarketOverview() {
                   <i className="ti ti-scale me-2"></i>
                   Long/Short Ratio
                 </div>
+              </div>
+              
+              {/* Binance BTC/USDT */}
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div className="d-flex align-items-center">
+                  <div className="avatar avatar-sm me-3" style={{ backgroundColor: '#f0b90b' }}>
+                    <i className="ti ti-bitcoin text-white" style={{ fontSize: '16px' }}></i>
+                  </div>
+                  <div>
+                    <div className="text-muted small">Binance BTC/USDT</div>
+                    <div className="h3 mb-0">{marketData?.long_short_ratio || '---'}</div>
+                    <div className="text-muted small">{marketData?.long_short_accounts_percentage || '---'}</div>
+                  </div>
+                </div>
                 {marketData?.long_short_data_source && (
                   <span className={`badge ${getDataSourceBadgeClass(marketData.long_short_data_source)}`}>
                     {getDataSourceLabel(marketData.long_short_data_source)}
                   </span>
                 )}
               </div>
-              <div className="h1 mb-3">{marketData?.long_short_ratio || '---'}</div>
-              <div className="text-muted">Соотношение лонг/шорт</div>
+
+              {/* OKX BTC */}
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div className="d-flex align-items-center">
+                  <div className="avatar avatar-sm me-3" style={{ backgroundColor: '#000000' }}>
+                    <i className="ti ti-bitcoin text-white" style={{ fontSize: '16px' }}></i>
+                  </div>
+                  <div>
+                    <div className="text-muted small">OKX BTC</div>
+                    <div className="h3 mb-0">{marketData?.okx_long_short_ratio || '---'}</div>
+                    <div className="text-muted small">{marketData?.okx_long_short_accounts_percentage || '---'}</div>
+                  </div>
+                </div>
+                {marketData?.okx_long_short_data_source && (
+                  <span className={`badge ${getDataSourceBadgeClass(marketData.okx_long_short_data_source)}`}>
+                    {getDataSourceLabel(marketData.okx_long_short_data_source)}
+                  </span>
+                )}
+              </div>
+
+              <div className="text-muted small">Соотношение лонг/шорт</div>
             </div>
           </div>
         </div>

@@ -27,6 +27,9 @@ export interface MarketOverview {
   long_short_ratio?: string;
   long_short_accounts_percentage?: string;
   long_short_data_source?: string;
+  okx_long_short_ratio?: string;
+  okx_long_short_accounts_percentage?: string;
+  okx_long_short_data_source?: string;
 }
 
 export interface Coin {
