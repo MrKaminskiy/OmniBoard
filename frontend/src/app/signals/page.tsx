@@ -1,145 +1,102 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { apiClient, Signal } from '@/lib/api';
-import { usePolling } from '@/hooks/usePolling';
+import { useState, useEffect } from 'react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-export default function SignalsPage() {
-  const [signals, setSignals] = useState<Signal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchSignals = useCallback(async () => {
-    try {
-      const response = await apiClient.getSignals(50);
-      setSignals(response.data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch signals');
-      console.error('Error fetching signals:', err);
-    }
-  }, []);
-
-  // Polling every 30 seconds
-  usePolling(fetchSignals, 30000);
+export default function Signals() {
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchSignals();
-  }, [fetchSignals]);
+    // Имитация загрузки
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
-  const getSignalColor = (signal: string): string => {
-    switch (signal) {
-      case 'buy': return 'success';
-      case 'sell': return 'danger';
-      case 'hold': return 'warning';
-      default: return 'secondary';
-    }
-  };
-
-  const getSignalIcon = (signal: string): string => {
-    switch (signal) {
-      case 'buy': return 'ti-trending-up';
-      case 'sell': return 'ti-trending-down';
-      case 'hold': return 'ti-minus';
-      default: return 'ti-help';
-    }
-  };
-
-  const formatStrength = (strength: number): string => {
-    if (strength >= 80) return 'Very Strong';
-    if (strength >= 60) return 'Strong';
-    if (strength >= 40) return 'Moderate';
-    if (strength >= 20) return 'Weak';
-    return 'Very Weak';
-  };
-
-  if (error) {
-    return (
-      <div className="container-xl">
-        <div className="alert alert-danger" role="alert">
-          {error}
-        </div>
-      </div>
-    );
+  if (loading) {
+    return <LoadingSpinner text="Загружаем торговые сигналы..." />;
   }
 
   return (
-    <div className="container-xl">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="page-header d-print-none">
-        <div className="container-xl">
-          <div className="row g-2 align-items-center">
-            <div className="col">
-              <h2 className="page-title">TradingView Signals</h2>
-            </div>
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">📡 Trading Signals</h1>
+        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          Получайте актуальные торговые сигналы от профессиональных трейдеров и алгоритмических систем
+        </p>
+      </div>
+
+      {/* Features Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
+          <div className="text-4xl mb-4">🎯</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Точные сигналы</h3>
+          <p className="text-gray-600">
+            Сигналы основаны на техническом анализе, фундаментальных данных и машинном обучении
+          </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
+          <div className="text-4xl mb-4">⚡</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Real-time обновления</h3>
+          <p className="text-gray-600">
+            Получайте сигналы в реальном времени с push-уведомлениями
+          </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
+          <div className="text-4xl mb-4">📊</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Детальная аналитика</h3>
+          <p className="text-gray-600">
+            Каждый сигнал сопровождается подробным анализом и рекомендациями
+          </p>
+        </div>
+      </div>
+
+      {/* Coming Soon Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8 text-center">
+        <div className="text-6xl mb-4">🚀</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Функционал в разработке</h2>
+        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+          Мы работаем над интеграцией с TradingView, Binance, Coinbase и другими платформами для предоставления 
+          вам самых актуальных и точных торговых сигналов.
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-2">🔔 Уведомления</h4>
+            <p className="text-sm text-gray-600">Telegram, Email, Push</p>
+          </div>
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-2">📈 Фильтры</h4>
+            <p className="text-sm text-gray-600">По монетам, времени, силе сигнала</p>
+          </div>
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-2">📊 Статистика</h4>
+            <p className="text-sm text-gray-600">Успешность, ROI, история</p>
+          </div>
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-2">🤖 Автотрейдинг</h4>
+            <p className="text-sm text-gray-600">Автоматическое исполнение сигналов</p>
           </div>
         </div>
       </div>
 
-      {/* Signals Grid */}
-      <div className="row row-cards">
-        {loading ? (
-          // Skeleton loading
-          Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="col-sm-6 col-lg-4 col-xl-3">
-              <div className="card">
-                <div className="card-body">
-                  <div className="placeholder-glow">
-                    <div className="placeholder col-8 mb-2"></div>
-                    <div className="placeholder col-6 mb-2"></div>
-                    <div className="placeholder col-4"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          signals.map((signal) => (
-            <div key={signal.id} className="col-sm-6 col-lg-4 col-xl-3">
-              <div className="card">
-                <div className="card-body">
-                  <div className="d-flex align-items-center mb-3">
-                    <span className="avatar avatar-sm me-2">
-                      <span className="avatar-initials bg-primary">
-                        {signal.symbol.charAt(0)}
-                      </span>
-                    </span>
-                    <div>
-                      <div className="font-weight-medium">{signal.symbol}</div>
-                      <div className="text-muted">{signal.timeframe}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-3">
-                    <span className={`badge bg-${getSignalColor(signal.signal)}`}>
-                      <i className={`${getSignalIcon(signal.signal)} me-1`}></i>
-                      {signal.signal.toUpperCase()}
-                    </span>
-                  </div>
-                  
-                  <div className="mb-2">
-                    <div className="text-muted">Strength</div>
-                    <div className="font-weight-medium">{formatStrength(signal.strength)}</div>
-                  </div>
-                  
-                  <div className="mb-2">
-                    <div className="text-muted">Price</div>
-                    <div className="font-weight-medium">${signal.price.toFixed(2)}</div>
-                  </div>
-                  
-                  <div className="mb-2">
-                    <div className="text-muted">Source</div>
-                    <div className="font-weight-medium">{signal.source}</div>
-                  </div>
-                  
-                  <div className="text-muted small">
-                    {new Date(signal.timestamp).toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+      {/* Newsletter Signup */}
+      <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">Получайте уведомления о запуске</h3>
+        <p className="text-gray-600 mb-4">Будьте первыми, кто узнает о запуске торговых сигналов</p>
+        <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <input
+            type="email"
+            placeholder="Ваш email"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+            Подписаться
+          </button>
+        </div>
       </div>
     </div>
   );

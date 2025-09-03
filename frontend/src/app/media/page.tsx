@@ -1,295 +1,244 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { apiClient } from '@/lib/api';
-import { usePolling } from '@/hooks/usePolling';
+import { useState, useEffect } from 'react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-interface MediaPost {
-  id: string;
-  source: 'twitter' | 'telegram' | 'reddit';
-  handle: string;
-  text: string;
-  symbols: string[];
-  sentiment: 'positive' | 'negative' | 'neutral';
-  timestamp: string;
-  link: string;
-  engagement: number;
-}
-
-interface CoinMention {
-  symbol: string;
-  count: number;
-  sentiment: 'positive' | 'negative' | 'neutral';
-  change24h: number;
-}
-
-export default function MediaPage() {
-  const [posts, setPosts] = useState<MediaPost[]>([]);
-  const [topCoins, setTopCoins] = useState<CoinMention[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchMediaData = useCallback(async () => {
-    try {
-      // Пока используем заглушку
-      setPosts([
-        {
-          id: '1',
-          source: 'twitter',
-          handle: '@crypto_analyst',
-          text: 'Bitcoin showing strong support at $45K level. Accumulation phase continues. #BTC #crypto',
-          symbols: ['BTC'],
-          sentiment: 'positive',
-          timestamp: '2025-01-15T10:30:00Z',
-          link: 'https://twitter.com/crypto_analyst/status/123',
-          engagement: 1250
-        },
-        {
-          id: '2',
-          source: 'telegram',
-          handle: 'Crypto Signals Pro',
-          text: 'ETH/USDT: Strong bearish momentum. Support at $3,100. Consider short position. #ETH #trading',
-          symbols: ['ETH'],
-          sentiment: 'negative',
-          timestamp: '2025-01-15T09:15:00Z',
-          link: 'https://t.me/cryptosignals',
-          engagement: 890
-        },
-        {
-          id: '3',
-          source: 'reddit',
-          handle: 'r/cryptocurrency',
-          text: 'SOL ecosystem growing rapidly. New DeFi protocols launching daily. What\'s your favorite? #SOL #DeFi',
-          symbols: ['SOL'],
-          sentiment: 'positive',
-          timestamp: '2025-01-15T08:45:00Z',
-          link: 'https://reddit.com/r/cryptocurrency/comments/123',
-          engagement: 567
-        }
-      ]);
-      
-      setTopCoins([
-        { symbol: 'BTC', count: 1250, sentiment: 'positive', change24h: 5.2 },
-        { symbol: 'ETH', count: 890, sentiment: 'negative', change24h: -2.1 },
-        { symbol: 'SOL', count: 567, sentiment: 'positive', change24h: 8.7 },
-        { symbol: 'XRP', count: 432, sentiment: 'neutral', change24h: 1.3 },
-        { symbol: 'BNB', count: 398, sentiment: 'positive', change24h: 3.4 },
-        { symbol: 'DOGE', count: 345, sentiment: 'negative', change24h: -1.8 },
-        { symbol: 'ADA', count: 298, sentiment: 'neutral', change24h: 0.9 },
-        { symbol: 'DOT', count: 267, sentiment: 'positive', change24h: 4.2 },
-        { symbol: 'LINK', count: 234, sentiment: 'positive', change24h: 2.7 },
-        { symbol: 'MATIC', count: 198, sentiment: 'negative', change24h: -0.5 }
-      ]);
-      
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch media data');
-      console.error('Error fetching media data:', err);
-    }
-  }, []);
-
-  // Polling every 5 minutes
-  usePolling(fetchMediaData, 300000);
+export default function PublicMedia() {
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchMediaData();
-  }, [fetchMediaData]);
+    // Имитация загрузки
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
-  const getSourceIcon = (source: string): string => {
-    switch (source) {
-      case 'twitter': return 'ti ti-brand-twitter';
-      case 'telegram': return 'ti ti-brand-telegram';
-      case 'reddit': return 'ti ti-brand-reddit';
-      default: return 'ti ti-link';
-    }
-  };
-
-  const getSourceColor = (source: string): string => {
-    switch (source) {
-      case 'twitter': return 'primary';
-      case 'telegram': return 'info';
-      case 'reddit': return 'warning';
-      default: return 'secondary';
-    }
-  };
-
-  const getSentimentColor = (sentiment: string): string => {
-    switch (sentiment) {
-      case 'positive': return 'success';
-      case 'negative': return 'danger';
-      case 'neutral': return 'secondary';
-      default: return 'secondary';
-    }
-  };
-
-  const getSentimentIcon = (sentiment: string): string => {
-    switch (sentiment) {
-      case 'positive': return 'ti ti-mood-smile';
-      case 'negative': return 'ti ti-mood-sad';
-      case 'neutral': return 'ti ti-mood-neutral';
-      default: return 'ti ti-help';
-    }
-  };
-
-  const formatTime = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return `${diffDays}d ago`;
-  };
-
-  if (error) {
-    return (
-      <div className="container-xl">
-        <div className="alert alert-danger" role="alert">
-          {error}
-        </div>
-      </div>
-    );
+  if (loading) {
+    return <LoadingSpinner text="Загружаем медиа ленту..." />;
   }
 
   return (
-    <div className="container-xl">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="page-header d-print-none">
-        <div className="container-xl">
-          <div className="row g-2 align-items-center">
-            <div className="col">
-              <h2 className="page-title">Public Media</h2>
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">💬 Public Media</h1>
+        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          Анализируйте настроения криптовалютного рынка через социальные сети, новости и мнения экспертов
+        </p>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Feed */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Featured Post */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-semibold">CN</span>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Crypto News</h4>
+                <p className="text-sm text-gray-500">2 часа назад</p>
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              Bitcoin достиг нового максимума: что дальше?
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Bitcoin показал впечатляющий рост на 15% за последние 24 часа, достигнув уровня $45,000. 
+              Эксперты связывают это с институциональным спросом и позитивными новостями о регуляторных решениях.
+            </p>
+            <div className="flex items-center justify-between">
+              <div className="flex space-x-4 text-sm text-gray-500">
+                <span>📈 156 лайков</span>
+                <span>💬 23 комментария</span>
+                <span>🔄 45 репостов</span>
+              </div>
+              <span className="text-blue-600 font-medium">#Bitcoin #Crypto</span>
+            </div>
+          </div>
+
+          {/* Regular Posts */}
+          {[
+            {
+              author: "Trading Expert",
+              time: "4 часа назад",
+              content: "Ethereum показывает признаки разворота тренда. RSI на дневном графике указывает на перепроданность.",
+              tags: ["#Ethereum", "#TechnicalAnalysis"],
+              likes: 89,
+              comments: 12
+            },
+            {
+              author: "Crypto Analyst",
+              time: "6 часов назад",
+              content: "Анализ альткоинов: Solana и Cardano демонстрируют сильную корреляцию с Bitcoin. Внимание на уровни поддержки.",
+              tags: ["#Solana", "#Cardano", "#Altcoins"],
+              likes: 67,
+              comments: 8
+            },
+            {
+              author: "Market Researcher",
+              time: "8 часов назад",
+              content: "Институциональные инвесторы увеличивают позиции в DeFi токенах. Объем торгов вырос на 40%.",
+              tags: ["#DeFi", "#Institutional"],
+              likes: 134,
+              comments: 31
+            }
+          ].map((post, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-sm border p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                  <span className="text-gray-600 font-semibold">{post.author.charAt(0)}</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">{post.author}</h4>
+                  <p className="text-sm text-gray-500">{post.time}</p>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-4">{post.content}</p>
+              <div className="flex items-center justify-between">
+                <div className="flex space-x-4 text-sm text-gray-500">
+                  <span>📈 {post.likes} лайков</span>
+                  <span>💬 {post.comments} комментариев</span>
+                </div>
+                <div className="flex space-x-2">
+                  {post.tags.map((tag, tagIndex) => (
+                    <span key={tagIndex} className="text-blue-600 font-medium">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Trending Topics */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">🔥 Trending Topics</h3>
+            <div className="space-y-3">
+              {[
+                { topic: "Bitcoin ETF", mentions: "2.4K", change: "+15%" },
+                { topic: "Ethereum Merge", mentions: "1.8K", change: "+8%" },
+                { topic: "DeFi Summer", mentions: "1.2K", change: "+22%" },
+                { topic: "NFT Market", mentions: "956", change: "-5%" },
+                { topic: "Regulation", mentions: "789", change: "+12%" }
+              ].map((item, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="font-medium text-gray-900">#{item.topic}</span>
+                  <div className="text-right">
+                    <div className="text-sm font-medium">{item.mentions}</div>
+                    <div className={`text-xs ${item.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                      {item.change}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sentiment Overview */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">📊 Market Sentiment</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">Bitcoin</span>
+                  <span className="text-sm text-green-600 font-semibold">75% Bullish</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">Ethereum</span>
+                  <span className="text-sm text-blue-600 font-semibold">68% Bullish</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '68%' }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">Altcoins</span>
+                  <span className="text-sm text-yellow-600 font-semibold">52% Neutral</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '52%' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Top Influencers */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">👑 Top Influencers</h3>
+            <div className="space-y-3">
+              {[
+                { name: "CryptoWhale", followers: "2.1M", sentiment: "Bullish" },
+                { name: "TradingGuru", followers: "1.8M", sentiment: "Neutral" },
+                { name: "DeFiExpert", followers: "1.5M", sentiment: "Bullish" },
+                { name: "NFTCollector", followers: "1.2M", sentiment: "Bearish" }
+              ].map((influencer, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium text-gray-900">{influencer.name}</div>
+                    <div className="text-sm text-gray-500">{influencer.followers} followers</div>
+                  </div>
+                  <span className={`text-sm font-medium px-2 py-1 rounded ${
+                    influencer.sentiment === 'Bullish' ? 'bg-green-100 text-green-800' :
+                    influencer.sentiment === 'Bearish' ? 'bg-red-100 text-red-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {influencer.sentiment}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="row">
-        {/* Main Feed */}
-        <div className="col-lg-8">
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">Latest Posts</h3>
-            </div>
-            <div className="card-body">
-              {loading ? (
-                // Skeleton loading
-                Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="mb-4">
-                    <div className="placeholder-glow">
-                      <div className="placeholder col-8 mb-2"></div>
-                      <div className="placeholder col-12 mb-2"></div>
-                      <div className="placeholder col-6"></div>
-                    </div>
-                  </div>
-                ))
-              ) : posts.length > 0 ? (
-                posts.map((post) => (
-                  <div key={post.id} className="mb-4 pb-4 border-bottom">
-                    <div className="d-flex align-items-start">
-                      <div className="avatar avatar-sm me-3">
-                        <span className={`avatar-initials bg-${getSourceColor(post.source)}`}>
-                          <i className={getSourceIcon(post.source)}></i>
-                        </span>
-                      </div>
-                      <div className="flex-fill">
-                        <div className="d-flex align-items-center mb-2">
-                          <div className="font-weight-medium me-2">{post.handle}</div>
-                          <span className={`badge bg-${getSentimentColor(post.sentiment)}`}>
-                            <i className={`${getSentimentIcon(post.sentiment)} me-1`}></i>
-                            {post.sentiment}
-                          </span>
-                          <div className="text-muted ms-auto">
-                            {formatTime(post.timestamp)}
-                          </div>
-                        </div>
-                        <div className="mb-2">{post.text}</div>
-                        <div className="d-flex align-items-center justify-content-between">
-                          <div className="d-flex align-items-center">
-                            {post.symbols.map((symbol) => (
-                              <span key={symbol} className="badge bg-primary me-1">
-                                {symbol}
-                              </span>
-                            ))}
-                          </div>
-                          <div className="d-flex align-items-center">
-                            <span className="text-muted me-3">
-                              <i className="ti ti-eye me-1"></i>
-                              {post.engagement}
-                            </span>
-                            <a href={post.link} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary">
-                              <i className="ti ti-external-link me-1"></i>
-                              Open
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-muted py-4">
-                  <i className="ti ti-message-circle ti-3x mb-3"></i>
-                  <p>No posts available</p>
-                </div>
-              )}
-            </div>
+      {/* Coming Soon Section */}
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-8 text-center">
+        <div className="text-6xl mb-4">🚀</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Функционал в разработке</h2>
+        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+          Мы создаем мощную платформу для анализа настроений рынка с интеграцией Twitter, Reddit, 
+          Telegram и других социальных сетей.
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-2">🔍 AI Анализ</h4>
+            <p className="text-sm text-gray-600">Машинное обучение для анализа настроений</p>
+          </div>
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-2">📱 Real-time</h4>
+            <p className="text-sm text-gray-600">Мгновенные уведомления о важных событиях</p>
+          </div>
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-2">📊 Аналитика</h4>
+            <p className="text-sm text-gray-600">Детальные отчеты и графики</p>
           </div>
         </div>
+      </div>
 
-        {/* Sidebar */}
-        <div className="col-lg-4">
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">Top Coin Mentions</h3>
-            </div>
-            <div className="card-body">
-              {loading ? (
-                // Skeleton loading
-                <div className="placeholder-glow">
-                  <div className="placeholder col-12 mb-2"></div>
-                  <div className="placeholder col-12 mb-2"></div>
-                  <div className="placeholder col-12 mb-2"></div>
-                  <div className="placeholder col-12 mb-2"></div>
-                  <div className="placeholder col-12"></div>
-                </div>
-              ) : topCoins.length > 0 ? (
-                <div className="list-group list-group-flush">
-                  {topCoins.map((coin, index) => (
-                    <div key={coin.symbol} className="list-group-item px-0">
-                      <div className="d-flex align-items-center">
-                        <div className="me-3">
-                          <span className="badge bg-primary">{index + 1}</span>
-                        </div>
-                        <div className="flex-fill">
-                          <div className="font-weight-medium">{coin.symbol}</div>
-                          <div className="text-muted small">
-                            {coin.count} mentions
-                          </div>
-                        </div>
-                        <div className="text-end">
-                          <div className={`badge bg-${getSentimentColor(coin.sentiment)} mb-1`}>
-                            {coin.sentiment}
-                          </div>
-                          <div className={`small ${coin.change24h >= 0 ? 'text-success' : 'text-danger'}`}>
-                            {coin.change24h >= 0 ? '+' : ''}{coin.change24h}%
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center text-muted py-4">
-                  <i className="ti ti-trending-up ti-3x mb-3"></i>
-                  <p>No coin data available</p>
-                </div>
-              )}
-            </div>
-          </div>
+      {/* Newsletter Signup */}
+      <div className="bg-white rounded-lg shadow-sm border p-6 text-center">
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">Получайте уведомления о запуске</h3>
+        <p className="text-gray-600 mb-4">Будьте первыми, кто попробует новый Media Analytics</p>
+        <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <input
+            type="email"
+            placeholder="Ваш email"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <button className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg transition-colors">
+            Подписаться
+          </button>
         </div>
       </div>
     </div>
