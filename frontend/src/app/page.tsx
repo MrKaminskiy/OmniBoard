@@ -207,6 +207,36 @@ export default function MarketOverview() {
     return 'warning'; // Bitcoin Season
   };
 
+  const getDataSourceBadgeClass = (source: string): string => {
+    switch (source) {
+      case 'binance_futures':
+        return 'bg-success';
+      case 'mock_data':
+        return 'bg-warning';
+      case 'error':
+        return 'bg-danger';
+      case 'fallback':
+        return 'bg-secondary';
+      default:
+        return 'bg-info';
+    }
+  };
+
+  const getDataSourceLabel = (source: string): string => {
+    switch (source) {
+      case 'binance_futures':
+        return 'Binance';
+      case 'mock_data':
+        return 'Mock';
+      case 'error':
+        return 'Error';
+      case 'fallback':
+        return 'Fallback';
+      default:
+        return 'Unknown';
+    }
+  };
+
   const formatPriceChange = (change: number): string => {
     if (change === 0) return '---';
     return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
@@ -369,11 +399,16 @@ export default function MarketOverview() {
         <div className="col-sm-6 col-lg-3">
           <div className="card">
             <div className="card-body">
-              <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center justify-content-between">
                 <div className="subheader">
                   <i className="ti ti-trash me-2"></i>
                   24h Liquidations
                 </div>
+                {marketData?.liquidations_data_source && (
+                  <span className={`badge ${getDataSourceBadgeClass(marketData.liquidations_data_source)}`}>
+                    {getDataSourceLabel(marketData.liquidations_data_source)}
+                  </span>
+                )}
               </div>
               <div className="h1 mb-3">{marketData?.total_liquidations_24h || '---'}</div>
               <div className="text-muted">Общие ликвидации за 24ч</div>
@@ -384,11 +419,16 @@ export default function MarketOverview() {
         <div className="col-sm-6 col-lg-3">
           <div className="card">
             <div className="card-body">
-              <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center justify-content-between">
                 <div className="subheader">
                   <i className="ti ti-scale me-2"></i>
                   Long/Short Ratio
                 </div>
+                {marketData?.long_short_data_source && (
+                  <span className={`badge ${getDataSourceBadgeClass(marketData.long_short_data_source)}`}>
+                    {getDataSourceLabel(marketData.long_short_data_source)}
+                  </span>
+                )}
               </div>
               <div className="h1 mb-3">{marketData?.long_short_ratio || '---'}</div>
               <div className="text-muted">Соотношение лонг/шорт</div>

@@ -114,16 +114,17 @@ class BingXService {
                 }
             });
 
-            if (response.data && response.data.length > 0) {
-                const data = response.data[0];
-                return {
-                    symbol: data.symbol,
-                    longShortRatio: parseFloat(data.longShortRatio),
-                    longAccount: parseFloat(data.longAccount),
-                    shortAccount: parseFloat(data.shortAccount),
-                    timestamp: new Date(data.timestamp).toISOString()
-                };
-            }
+                    if (response.data && response.data.length > 0) {
+            const data = response.data[0];
+            return {
+                symbol: data.symbol,
+                longShortRatio: parseFloat(data.longShortRatio),
+                longAccount: parseFloat(data.longAccount),
+                shortAccount: parseFloat(data.shortAccount),
+                timestamp: new Date(data.timestamp).toISOString(),
+                dataSource: 'binance_futures'  // Индикатор источника
+            };
+        }
             
             throw new Error('No data received from Binance Futures API');
         } catch (error) {
@@ -142,7 +143,8 @@ class BingXService {
             longShortRatio: 1.46,
             longAccount: 0.59,
             shortAccount: 0.41,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            dataSource: 'mock_data'  // Индикатор mock данных
         };
     }
 

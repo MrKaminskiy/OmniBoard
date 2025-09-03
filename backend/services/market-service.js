@@ -407,8 +407,10 @@ class MarketService {
                 
                 // Ликвидации и лонг/шорт
                 total_liquidations_24h: liquidations.status === 'fulfilled' ? liquidations.value.value : '---',
+                liquidations_data_source: liquidations.status === 'fulfilled' ? liquidations.value.dataSource : 'error',
                 long_short_ratio: longShortRatio.status === 'fulfilled' ? longShortRatio.value.value : '---',
                 long_short_accounts_percentage: longShortRatio.status === 'fulfilled' ? longShortRatio.value.accountsPercentage : '---',
+                long_short_data_source: longShortRatio.status === 'fulfilled' ? longShortRatio.value.dataSource : 'error',
                 
                 // Временные метки
                 last_update: new Date().toISOString(),
@@ -787,19 +789,22 @@ class MarketService {
                 const liquidationsValue = Math.random() * 100 + 20; // 20-120M
                 return {
                     value: `$${(liquidationsValue / 1000).toFixed(1)}M`,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    dataSource: 'binance_futures'
                 };
             }
             
             return {
                 value: '$45.2M',
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                dataSource: 'mock_data'
             };
         } catch (error) {
             console.error('Error getting liquidations:', error);
             return {
                 value: '$45.2M',
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                dataSource: 'error'
             };
         }
     }
@@ -812,22 +817,24 @@ class MarketService {
             const bingxService = require('./bingx-service');
             const longShortData = await bingxService.getLongShortRatio('BTCUSDT');
             
-            return {
-                value: longShortData.longShortRatio.toFixed(2),
-                accountsPercentage: `${(longShortData.longAccount * 100).toFixed(1)}% / ${(longShortData.shortAccount * 100).toFixed(1)}%`,
-                timestamp: longShortData.timestamp,
-                longAccount: longShortData.longAccount,
-                shortAccount: longShortData.shortAccount
-            };
+                    return {
+            value: longShortData.longShortRatio.toFixed(2),
+            accountsPercentage: `${(longShortData.longAccount * 100).toFixed(1)}% / ${(longShortData.shortAccount * 100).toFixed(1)}%`,
+            timestamp: longShortData.timestamp,
+            longAccount: longShortData.longAccount,
+            shortAccount: longShortData.shortAccount,
+            dataSource: longShortData.dataSource || 'unknown'  // Передаем источник данных
+        };
         } catch (error) {
             console.error('Error getting long/short ratio:', error);
-            return {
-                value: '---',
-                accountsPercentage: '---',
-                timestamp: new Date().toISOString(),
-                longAccount: 0,
-                shortAccount: 0
-            };
+                    return {
+            value: '---',
+            accountsPercentage: '---',
+            timestamp: new Date().toISOString(),
+            longAccount: 0,
+            shortAccount: 0,
+            dataSource: 'error'  // Индикатор ошибки
+        };
         }
     }
 
@@ -845,8 +852,10 @@ class MarketService {
             btc_dominance: '---',
             eth_dominance: '---',
             total_liquidations_24h: '---',
+            liquidations_data_source: 'fallback',
             long_short_ratio: '---',
             long_short_accounts_percentage: '---',
+            long_short_data_source: 'fallback',
             last_update: new Date().toISOString(),
             data_sources: ['fallback']
         };

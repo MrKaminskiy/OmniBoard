@@ -21,8 +21,10 @@ export interface MarketOverview {
   eth_dominance?: string;
   usdt_dominance?: string;
   total_liquidations_24h?: string;
+  liquidations_data_source?: string;
   long_short_ratio?: string;
   long_short_accounts_percentage?: string;
+  long_short_data_source?: string;
 }
 
 export interface Coin {
