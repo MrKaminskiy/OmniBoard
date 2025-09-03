@@ -463,13 +463,12 @@ export default function MarketOverview() {
                   <div>
                     <div className="text-muted small">Bitcoin</div>
                     <div className="h3 mb-0">{formatDominance(marketData?.btc_dominance || '')}</div>
-                    <div className="d-flex align-items-center">
-                      <span className={`badge badge-outline ${marketData?.btc_dominance_change_24h && marketData.btc_dominance_change_24h !== 0 ? (marketData.btc_dominance_change_24h > 0 ? 'text-success' : 'text-danger') : 'text-secondary'} me-2`} style={{ fontSize: '10px' }}>
-                        {marketData?.btc_dominance_change_24h && marketData.btc_dominance_change_24h !== 0 ? `${marketData.btc_dominance_change_24h > 0 ? '+' : ''}${marketData.btc_dominance_change_24h.toFixed(1)}%` : '---'}
-                      </span>
-                      <span className="text-muted small" style={{ fontSize: '10px' }}>24h</span>
-                    </div>
                   </div>
+                </div>
+                <div className="text-end">
+                  <span className={`badge badge-outline ${marketData?.btc_dominance_change_24h && marketData.btc_dominance_change_24h !== 0 ? (marketData.btc_dominance_change_24h > 0 ? 'text-success' : 'text-danger') : 'text-secondary'}`} style={{ fontSize: '10px' }}>
+                    {marketData?.btc_dominance_change_24h && marketData.btc_dominance_change_24h !== 0 ? `${marketData.btc_dominance_change_24h > 0 ? '+' : ''}${marketData.btc_dominance_change_24h.toFixed(1)}%` : '---'}
+                  </span>
                 </div>
               </div>
 
@@ -482,13 +481,12 @@ export default function MarketOverview() {
                   <div>
                     <div className="text-muted small">Ethereum</div>
                     <div className="h3 mb-0">{formatDominance(marketData?.eth_dominance || '')}</div>
-                    <div className="d-flex align-items-center">
-                      <span className={`badge badge-outline ${marketData?.eth_dominance_change_24h && marketData.eth_dominance_change_24h !== 0 ? (marketData.eth_dominance_change_24h > 0 ? 'text-success' : 'text-danger') : 'text-secondary'} me-2`} style={{ fontSize: '10px' }}>
-                        {marketData?.eth_dominance_change_24h && marketData.eth_dominance_change_24h !== 0 ? `${marketData.eth_dominance_change_24h > 0 ? '+' : ''}${marketData.eth_dominance_change_24h.toFixed(1)}%` : '---'}
-                      </span>
-                      <span className="text-muted small" style={{ fontSize: '10px' }}>24h</span>
-                    </div>
                   </div>
+                </div>
+                <div className="text-end">
+                  <span className={`badge badge-outline ${marketData?.eth_dominance_change_24h && marketData.eth_dominance_change_24h !== 0 ? (marketData.eth_dominance_change_24h > 0 ? 'text-success' : 'text-danger') : 'text-secondary'}`} style={{ fontSize: '10px' }}>
+                    {marketData?.eth_dominance_change_24h && marketData.eth_dominance_change_24h !== 0 ? `${marketData.eth_dominance_change_24h > 0 ? '+' : ''}${marketData.eth_dominance_change_24h.toFixed(1)}%` : '---'}
+                  </span>
                 </div>
               </div>
 
@@ -548,7 +546,6 @@ export default function MarketOverview() {
                 </div>
                 <div className="text-end">
                   <div className="h4 mb-0">{marketData?.long_short_ratio || '---'}</div>
-                  <div className="text-muted small">{marketData?.long_short_accounts_percentage || '---'}</div>
                 </div>
               </div>
 
@@ -562,7 +559,6 @@ export default function MarketOverview() {
                 </div>
                 <div className="text-end">
                   <div className="h4 mb-0">{marketData?.okx_long_short_ratio || '---'}</div>
-                  <div className="text-muted small">{marketData?.okx_long_short_accounts_percentage || '---'}</div>
                 </div>
               </div>
 
