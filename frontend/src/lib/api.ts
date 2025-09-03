@@ -127,7 +127,36 @@ class ApiClient {
       { id: 'aptos', symbol: 'APT', name: 'Aptos', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/26455/large/aptos_round.png' }
     ];
 
-    // Просто возвращаем захардкоженные данные
+    try {
+      // Пытаемся получить реальные данные через BingX API
+      const response = await this.getSpecificCoins(['bitcoin', 'ethereum', 'solana', 'ripple', 'binancecoin', 'dogecoin', 'sui', 'chainlink', 'aave', 'pepe', 'dogwifhat', 'litecoin', 'cardano', 'optimism', 'aptos']);
+      
+      // Если получили данные, объединяем с захардкоженными
+      if (response.data.coins && response.data.coins.length > 0) {
+        const updatedCoins = hardcodedCoins.map(hardcodedCoin => {
+          const realData = response.data.coins.find(coin => coin.id === hardcodedCoin.id);
+          if (realData && realData.price > 0) {
+            return {
+              ...hardcodedCoin,
+              price: realData.price,
+              price_change_24h: realData.price_change_24h,
+              volume_24h: realData.volume_24h
+            };
+          }
+          return hardcodedCoin;
+        });
+        
+        return {
+          status: 'ok' as const,
+          data: { coins: updatedCoins },
+          timestamp: new Date().toISOString()
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching real data from BingX, using hardcoded:', error);
+    }
+
+    // Возвращаем захардкоженные данные если API не работает
     return {
       status: 'ok' as const,
       data: { coins: hardcodedCoins },

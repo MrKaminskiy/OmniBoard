@@ -200,10 +200,10 @@ export default function MarketOverview() {
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center">
-                <div className="subheader">Active Coins</div>
+                <div className="subheader">Fear & Greed</div>
               </div>
-              <div className="h1 mb-3">{marketData?.active_coins || '---'}</div>
-              <div className="text-muted">Активных монет</div>
+              <div className="h1 mb-3">{marketData?.fear_greed || '---'}</div>
+              <div className="text-muted">Индекс страха и жадности</div>
             </div>
           </div>
         </div>
@@ -212,10 +212,10 @@ export default function MarketOverview() {
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center">
-                <div className="subheader">24h Gainers</div>
+                <div className="subheader">Altseason</div>
               </div>
-              <div className="h1 mb-3">{marketData?.gainers_24h || '---'}</div>
-              <div className="text-muted">Растущих монет</div>
+              <div className="h1 mb-3">{marketData?.altseason || '---'}</div>
+              <div className="text-muted">Индекс альткоин сезона</div>
             </div>
           </div>
         </div>
