@@ -97,6 +97,9 @@ if (process.env.NODE_ENV === 'development') {
 // API Routes
 app.use('/api/v1', require('./routes'));
 
+// Liquidations Routes
+app.use('/api/v1/liquidations', require('./routes/liquidations-routes'));
+
 // 404 handler
 app.use(notFoundHandler);
 
@@ -121,6 +124,14 @@ const server = app.listen(PORT, () => {
     cacheService.init();
     marketService.init();
     
+    // Start liquidations service
+    const liquidationsService = require('./services/liquidations-service');
+    liquidationsService.start().then(() => {
+        console.log('✅ Liquidations service started');
+    }).catch(error => {
+        console.error('❌ Failed to start liquidations service:', error);
+    });
+    
     console.log('✅ Services initialized successfully');
 });
 
@@ -135,6 +146,10 @@ const gracefulShutdown = (signal) => {
         // Останавливаем сервисы
         cacheService.stop();
         marketService.stop();
+        
+        // Останавливаем сервис ликвидаций
+        const liquidationsService = require('./services/liquidations-service');
+        liquidationsService.stop();
         
         console.log('✅ Graceful shutdown completed');
         process.exit(0);

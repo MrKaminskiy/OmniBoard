@@ -776,42 +776,36 @@ class MarketService {
     }
 
     /**
-     * Get liquidations data from Binance
+     * Get liquidations data from Liquidations Service
      */
     async getLiquidations() {
         try {
-            const bingxService = require('./bingx-service');
-            // Получаем данные о ликвидациях через Binance Futures API
-            const response = await axios.get('https://fapi.binance.com/futures/data/globalLongShortAccountRatio', {
-                params: {
-                    symbol: 'BTCUSDT',
-                    period: '5m',
-                    limit: 1
-                },
-                timeout: 10000
-            });
-
-            if (response.data && response.data.length > 0) {
-                // Примерные данные о ликвидациях (Binance не предоставляет точные данные бесплатно)
-                const liquidationsValue = Math.random() * 100 + 20; // 20-120M
-                return {
-                    value: `$${(liquidationsValue / 1000).toFixed(1)}M`,
-                    timestamp: new Date().toISOString(),
-                    dataSource: 'binance_futures'
-                };
-            }
+            const liquidationsService = require('./liquidations-service');
+            
+            // Получаем агрегированные данные о ликвидациях
+            const liquidationsData = liquidationsService.getAggregatedData();
             
             return {
-                value: '$45.2M',
-                timestamp: new Date().toISOString(),
-                dataSource: 'mock_data'
+                value: liquidationsData.total_formatted,
+                timestamp: liquidationsData.last_update,
+                dataSource: 'liquidations_service',
+                total: liquidationsData.total_24h,
+                longs: liquidationsData.longs_24h,
+                shorts: liquidationsData.shorts_24h,
+                exchanges: liquidationsData.exchanges
             };
         } catch (error) {
-            console.error('Error getting liquidations:', error);
+            console.error('Error getting liquidations from service:', error);
+            
+            // Fallback к mock данным
             return {
                 value: '$45.2M',
                 timestamp: new Date().toISOString(),
-                dataSource: 'error'
+                dataSource: 'fallback',
+                total: 45200000,
+                longs: 25000000,
+                shorts: 20200000,
+                exchanges: {}
             };
         }
     }
