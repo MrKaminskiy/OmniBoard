@@ -232,23 +232,33 @@ export default function MarketOverview() {
               <table className="table table-vcenter">
                 <thead>
                   <tr>
-                    <th>Rank</th>
                     <th>Coin</th>
                     <th>Price</th>
                     <th>24h Change</th>
                     <th>24h Volume</th>
                     <th>Market Cap</th>
+                    <th>RSI 1D</th>
+                    <th>Liquidations 24h</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {coins.map((coin, index) => (
+                  {coins.map((coin) => (
                     <tr key={coin.id}>
                       <td>
-                        <span className="badge bg-secondary">#{coin.market_cap_rank || index + 1}</span>
-                      </td>
-                      <td>
                         <div className="d-flex align-items-center">
-                          <span className="avatar avatar-sm me-2">
+                          <img 
+                            src={coin.image} 
+                            alt={coin.symbol}
+                            className="avatar avatar-sm me-2"
+                            style={{ width: '32px', height: '32px', borderRadius: '50%' }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const fallback = target.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'block';
+                            }}
+                          />
+                          <span className="avatar avatar-sm me-2" style={{ display: 'none' }}>
                             <span className="avatar-initials bg-primary">
                               {coin.symbol.charAt(0)}
                             </span>
@@ -271,6 +281,22 @@ export default function MarketOverview() {
                       </td>
                       <td>{formatVolume(coin.volume_24h)}</td>
                       <td>{formatMarketCap(coin.market_cap)}</td>
+                      <td>
+                        {coin.rsi_1d === 0 ? (
+                          <span className="text-muted">---</span>
+                        ) : (
+                          <span className={`badge bg-${coin.rsi_1d > 70 ? 'danger' : coin.rsi_1d < 30 ? 'success' : 'secondary'}`}>
+                            {coin.rsi_1d.toFixed(1)}
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        {coin.liquidations_24h === 0 ? (
+                          <span className="text-muted">---</span>
+                        ) : (
+                          <span className="text-muted">{formatVolume(coin.liquidations_24h)}</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -26,8 +26,9 @@ export interface Coin {
   price_change_24h: number;
   market_cap: number;
   volume_24h: number;
-  market_cap_rank: number;
-  image?: string;
+  rsi_1d: number;
+  liquidations_24h: number;
+  image: string;
 }
 
 export interface Ticker {
@@ -109,21 +110,21 @@ class ApiClient {
   async getTickers(): Promise<ApiResponse<{ coins: Coin[] }>> {
     // Захардкоженные 15 монет с мок-данными
     const hardcodedCoins: Coin[] = [
-      { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 1, image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
-      { id: 'ethereum', symbol: 'ETH', name: 'Ethereum', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 2, image: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' },
-      { id: 'solana', symbol: 'SOL', name: 'Solana', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 3, image: 'https://assets.coingecko.com/coins/images/4128/large/solana.png' },
-      { id: 'ripple', symbol: 'XRP', name: 'XRP', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 4, image: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png' },
-      { id: 'binancecoin', symbol: 'BNB', name: 'BNB', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 5, image: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png' },
-      { id: 'dogecoin', symbol: 'DOGE', name: 'Dogecoin', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 6, image: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png' },
-      { id: 'sui', symbol: 'SUI', name: 'Sui', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 7, image: 'https://assets.coingecko.com/coins/images/26375/large/sui_asset.jpeg' },
-      { id: 'chainlink', symbol: 'LINK', name: 'Chainlink', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 8, image: 'https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png' },
-      { id: 'aave', symbol: 'AAVE', name: 'Aave', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 9, image: 'https://assets.coingecko.com/coins/images/12645/large/AAVE.png' },
-      { id: 'pepe', symbol: 'PEPE', name: 'Pepe', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 10, image: 'https://assets.coingecko.com/coins/images/29850/large/pepe-token.jpeg' },
-      { id: 'dogwifhat', symbol: 'WIF', name: 'Dogwifhat', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 11, image: 'https://assets.coingecko.com/coins/images/33566/large/dogwifhat.jpg' },
-      { id: 'litecoin', symbol: 'LTC', name: 'Litecoin', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 12, image: 'https://assets.coingecko.com/coins/images/2/large/litecoin.png' },
-      { id: 'cardano', symbol: 'ADA', name: 'Cardano', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 13, image: 'https://assets.coingecko.com/coins/images/975/large/cardano.png' },
-      { id: 'optimism', symbol: 'OP', name: 'Optimism', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 14, image: 'https://assets.coingecko.com/coins/images/25244/large/Optimism.png' },
-      { id: 'aptos', symbol: 'APT', name: 'Aptos', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, market_cap_rank: 15, image: 'https://assets.coingecko.com/coins/images/26455/large/aptos_round.png' }
+      { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
+      { id: 'ethereum', symbol: 'ETH', name: 'Ethereum', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' },
+      { id: 'solana', symbol: 'SOL', name: 'Solana', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/4128/large/solana.png' },
+      { id: 'ripple', symbol: 'XRP', name: 'XRP', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png' },
+      { id: 'binancecoin', symbol: 'BNB', name: 'BNB', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png' },
+      { id: 'dogecoin', symbol: 'DOGE', name: 'Dogecoin', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png' },
+      { id: 'sui', symbol: 'SUI', name: 'Sui', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/26375/large/sui_asset.jpeg' },
+      { id: 'chainlink', symbol: 'LINK', name: 'Chainlink', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png' },
+      { id: 'aave', symbol: 'AAVE', name: 'Aave', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/12645/large/AAVE.png' },
+      { id: 'pepe', symbol: 'PEPE', name: 'Pepe', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/29850/large/pepe-token.jpeg' },
+      { id: 'dogwifhat', symbol: 'WIF', name: 'Dogwifhat', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/33566/large/dogwifhat.jpg' },
+      { id: 'litecoin', symbol: 'LTC', name: 'Litecoin', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/2/large/litecoin.png' },
+      { id: 'cardano', symbol: 'ADA', name: 'Cardano', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/975/large/cardano.png' },
+      { id: 'optimism', symbol: 'OP', name: 'Optimism', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/25244/large/Optimism.png' },
+      { id: 'aptos', symbol: 'APT', name: 'Aptos', price: 0, price_change_24h: 0, market_cap: 0, volume_24h: 0, rsi_1d: 0, liquidations_24h: 0, image: 'https://assets.coingecko.com/coins/images/26455/large/aptos_round.png' }
     ];
 
     // Просто возвращаем захардкоженные данные
