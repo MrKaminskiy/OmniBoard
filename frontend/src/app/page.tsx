@@ -167,6 +167,39 @@ export default function MarketOverview() {
     return `$${volume.toFixed(2)}`;
   };
 
+  const formatDominance = (dominance: string): string => {
+    if (!dominance || dominance === '---') return '---';
+    return `${dominance}%`;
+  };
+
+  const getFearGreedColor = (value: string): string => {
+    if (!value || value === '---') return 'secondary';
+    const num = parseFloat(value);
+    if (num >= 75) return 'success'; // Extreme Greed
+    if (num >= 60) return 'info'; // Greed
+    if (num >= 40) return 'warning'; // Neutral
+    if (num >= 25) return 'danger'; // Fear
+    return 'dark'; // Extreme Fear
+  };
+
+  const getFearGreedLabel = (value: string): string => {
+    if (!value || value === '---') return '---';
+    const num = parseFloat(value);
+    if (num >= 75) return 'Extreme Greed';
+    if (num >= 60) return 'Greed';
+    if (num >= 40) return 'Neutral';
+    if (num >= 25) return 'Fear';
+    return 'Extreme Fear';
+  };
+
+  const getAltseasonColor = (value: string): string => {
+    if (!value || value === '---') return 'secondary';
+    const num = parseFloat(value);
+    if (num >= 75) return 'success'; // Strong Altseason
+    if (num >= 50) return 'info'; // Altseason
+    return 'warning'; // Bitcoin Season
+  };
+
   const formatPriceChange = (change: number): string => {
     if (change === 0) return '---';
     return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
@@ -197,7 +230,7 @@ export default function MarketOverview() {
                   Market Cap
                 </div>
               </div>
-              <div className="h1 mb-3">{marketData?.market_cap_formatted || '---'}</div>
+              <div className="h1 mb-3">{formatMarketCap(marketData?.market_cap || 0)}</div>
               <div className="text-muted">Общая капитализация рынка</div>
             </div>
           </div>
@@ -212,7 +245,7 @@ export default function MarketOverview() {
                   24h Volume
                 </div>
               </div>
-              <div className="h1 mb-3">{marketData?.volume_formatted || '---'}</div>
+              <div className="h1 mb-3">{formatVolume(marketData?.volume_24h || 0)}</div>
               <div className="text-muted">Объем торгов за 24 часа</div>
             </div>
           </div>
@@ -227,8 +260,20 @@ export default function MarketOverview() {
                   Fear & Greed
                 </div>
               </div>
-              <div className="h1 mb-3">{marketData?.fear_greed || '---'}</div>
-              <div className="text-muted">Индекс страха и жадности</div>
+              <div className="h1 mb-2">{marketData?.fear_greed || '---'}</div>
+              <div className="text-muted mb-2">{getFearGreedLabel(marketData?.fear_greed || '')}</div>
+              <div className="progress mb-2" style={{ height: '8px' }}>
+                <div 
+                  className={`progress-bar bg-${getFearGreedColor(marketData?.fear_greed || '')}`}
+                  style={{ 
+                    width: `${marketData?.fear_greed && marketData.fear_greed !== '---' ? parseFloat(marketData.fear_greed) : 0}%` 
+                  }}
+                ></div>
+              </div>
+              <div className="d-flex justify-content-between small text-muted">
+                <span>Fear</span>
+                <span>Greed</span>
+              </div>
             </div>
           </div>
         </div>
@@ -242,8 +287,20 @@ export default function MarketOverview() {
                   Altseason
                 </div>
               </div>
-              <div className="h1 mb-3">{marketData?.altseason || '---'}</div>
-              <div className="text-muted">Индекс альткоин сезона</div>
+              <div className="h1 mb-2">{marketData?.altseason || '---'}</div>
+              <div className="text-muted mb-2">Индекс альткоин сезона</div>
+              <div className="progress mb-2" style={{ height: '8px' }}>
+                <div 
+                  className={`progress-bar bg-${getAltseasonColor(marketData?.altseason || '')}`}
+                  style={{ 
+                    width: `${marketData?.altseason && marketData.altseason !== '---' ? parseFloat(marketData.altseason) : 0}%` 
+                  }}
+                ></div>
+              </div>
+              <div className="d-flex justify-content-between small text-muted">
+                <span>Bitcoin</span>
+                <span>Altcoin</span>
+              </div>
             </div>
           </div>
         </div>
@@ -253,27 +310,23 @@ export default function MarketOverview() {
             <div className="card-body">
               <div className="d-flex align-items-center">
                 <div className="subheader">
-                  <i className="ti ti-bitcoin me-2"></i>
-                  BTC Dominance
+                  <i className="ti ti-chart-pie me-2"></i>
+                  Market Dominance
                 </div>
               </div>
-              <div className="h1 mb-3">{marketData?.btc_dominance || '---'}</div>
-              <div className="text-muted">Доминирование Bitcoin</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-sm-6 col-lg-3">
-          <div className="card">
-            <div className="card-body">
-              <div className="d-flex align-items-center">
-                <div className="subheader">
-                  <i className="ti ti-currency-ethereum me-2"></i>
-                  ETH Dominance
+              <div className="d-flex align-items-center mb-2">
+                <div className="avatar avatar-sm me-2" style={{ backgroundColor: '#f7931a' }}>
+                  <span className="avatar-initials text-white">₿</span>
                 </div>
+                <div className="h3 mb-0">{formatDominance(marketData?.btc_dominance || '')}</div>
               </div>
-              <div className="h1 mb-3">{marketData?.eth_dominance || '---'}</div>
-              <div className="text-muted">Доминирование Ethereum</div>
+              <div className="d-flex align-items-center mb-3">
+                <div className="avatar avatar-sm me-2" style={{ backgroundColor: '#627eea' }}>
+                  <span className="avatar-initials text-white">Ξ</span>
+                </div>
+                <div className="h3 mb-0">{formatDominance(marketData?.eth_dominance || '')}</div>
+              </div>
+              <div className="text-muted">Рыночное доминирование</div>
             </div>
           </div>
         </div>
@@ -401,3 +454,4 @@ export default function MarketOverview() {
     </div>
   );
 }
+
