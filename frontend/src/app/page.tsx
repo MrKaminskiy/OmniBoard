@@ -179,15 +179,7 @@ export default function MarketOverview() {
   return `${num.toFixed(1)}%`;
 };
 
-  const getFearGreedColor = (value: string): string => {
-    if (!value || value === '---') return 'secondary';
-    const num = parseFloat(value);
-    if (num >= 75) return 'success'; // Extreme Greed
-    if (num >= 60) return 'info'; // Greed
-    if (num >= 40) return 'warning'; // Neutral
-    if (num >= 25) return 'danger'; // Fear
-    return 'dark'; // Extreme Fear
-  };
+
 
   const getFearGreedLabel = (value: string): string => {
     if (!value || value === '---') return '---';
@@ -199,13 +191,7 @@ export default function MarketOverview() {
     return 'Extreme Fear';
   };
 
-  const getAltseasonColor = (value: string): string => {
-    if (!value || value === '---') return 'secondary';
-    const num = parseFloat(value);
-    if (num >= 75) return 'success'; // Strong Altseason
-    if (num >= 50) return 'info'; // Altseason
-    return 'warning'; // Bitcoin Season
-  };
+
 
   const getDataSourceBadgeClass = (source: string): string => {
     switch (source) {
@@ -311,14 +297,61 @@ export default function MarketOverview() {
               </div>
               <div className="h1 mb-2">{marketData?.fear_greed || '---'}</div>
               <div className="text-muted mb-2">{getFearGreedLabel(marketData?.fear_greed || '')}</div>
-              <div className="progress mb-2" style={{ height: '8px' }}>
-                <div 
-                  className={`progress-bar bg-${getFearGreedColor(marketData?.fear_greed || '')}`}
-                  style={{ 
-                    width: `${marketData?.fear_greed && marketData.fear_greed !== '---' ? parseFloat(marketData.fear_greed) : 0}%` 
-                  }}
-                ></div>
+              
+              {/* Сегментированная полоса Fear & Greed */}
+              <div className="position-relative mb-2" style={{ height: '12px', backgroundColor: '#f1f3f4', borderRadius: '6px', overflow: 'hidden' }}>
+                {/* Fear зона (красная) */}
+                <div className="position-absolute" style={{ 
+                  left: '0', 
+                  top: '0', 
+                  width: '25%', 
+                  height: '100%', 
+                  backgroundColor: '#dc3545' 
+                }}></div>
+                
+                {/* Extreme Fear зона (темно-красная) */}
+                <div className="position-absolute" style={{ 
+                  left: '25%', 
+                  top: '0', 
+                  width: '25%', 
+                  height: '100%', 
+                  backgroundColor: '#6f42c1' 
+                }}></div>
+                
+                {/* Neutral зона (желтая) */}
+                <div className="position-absolute" style={{ 
+                  left: '50%', 
+                  top: '0', 
+                  width: '25%', 
+                  height: '100%', 
+                  backgroundColor: '#ffc107' 
+                }}></div>
+                
+                {/* Greed зона (зеленая) */}
+                <div className="position-absolute" style={{ 
+                  left: '75%', 
+                  top: '0', 
+                  width: '25%', 
+                  height: '100%', 
+                  backgroundColor: '#28a745' 
+                }}></div>
+                
+                {/* Точка-индикатор */}
+                {marketData?.fear_greed && marketData.fear_greed !== '---' && (
+                  <div className="position-absolute" style={{
+                    left: `${parseFloat(marketData.fear_greed)}%`,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '16px',
+                    height: '16px',
+                    backgroundColor: '#fff',
+                    border: '2px solid #000',
+                    borderRadius: '50%',
+                    zIndex: 10
+                  }}></div>
+                )}
               </div>
+              
               <div className="d-flex justify-content-between small text-muted">
                 <span>Fear</span>
                 <span>Greed</span>
@@ -338,14 +371,52 @@ export default function MarketOverview() {
               </div>
               <div className="h1 mb-2">{marketData?.altseason || '---'}</div>
               <div className="text-muted mb-2">Индекс альткоин сезона</div>
-              <div className="progress mb-2" style={{ height: '8px' }}>
-                <div 
-                  className={`progress-bar bg-${getAltseasonColor(marketData?.altseason || '')}`}
-                  style={{ 
-                    width: `${marketData?.altseason && marketData.altseason !== '---' ? parseFloat(marketData.altseason) : 0}%` 
-                  }}
-                ></div>
+              
+              {/* Сегментированная полоса Altseason */}
+              <div className="position-relative mb-2" style={{ height: '12px', backgroundColor: '#f1f3f4', borderRadius: '6px', overflow: 'hidden' }}>
+                {/* Bitcoin Season зона (оранжевая) */}
+                <div className="position-absolute" style={{ 
+                  left: '0', 
+                  top: '0', 
+                  width: '33.33%', 
+                  height: '100%', 
+                  backgroundColor: '#fd7e14' 
+                }}></div>
+                
+                {/* Neutral зона (светло-серая) */}
+                <div className="position-absolute" style={{ 
+                  left: '33.33%', 
+                  top: '0', 
+                  width: '33.34%', 
+                  height: '100%', 
+                  backgroundColor: '#e9ecef' 
+                }}></div>
+                
+                {/* Altcoin Season зона (синяя) */}
+                <div className="position-absolute" style={{ 
+                  left: '66.67%', 
+                  top: '0', 
+                  width: '33.33%', 
+                  height: '100%', 
+                  backgroundColor: '#007bff' 
+                }}></div>
+                
+                {/* Точка-индикатор */}
+                {marketData?.altseason && marketData.altseason !== '---' && (
+                  <div className="position-absolute" style={{
+                    left: `${parseFloat(marketData.altseason)}%`,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '16px',
+                    height: '16px',
+                    backgroundColor: '#fff',
+                    border: '2px solid #000',
+                    borderRadius: '50%',
+                    zIndex: 10
+                  }}></div>
+                )}
               </div>
+              
               <div className="d-flex justify-content-between small text-muted">
                 <span>Bitcoin</span>
                 <span>Altcoin</span>
