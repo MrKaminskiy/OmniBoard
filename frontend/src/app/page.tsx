@@ -210,15 +210,15 @@ export default function MarketOverview() {
   const getDataSourceBadgeClass = (source: string): string => {
     switch (source) {
       case 'binance_futures':
-        return 'bg-success';
+        return 'badge-outline text-success';
       case 'mock_data':
-        return 'bg-warning';
+        return 'badge-outline text-warning';
       case 'error':
-        return 'bg-danger';
+        return 'badge-outline text-danger';
       case 'fallback':
-        return 'bg-secondary';
+        return 'badge-outline text-secondary';
       default:
-        return 'bg-info';
+        return 'badge-outline text-info';
     }
   };
 
