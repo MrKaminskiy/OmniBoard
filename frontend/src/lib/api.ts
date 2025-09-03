@@ -129,13 +129,23 @@ class ApiClient {
 
     try {
       // Пытаемся получить реальные данные через BingX API
+      console.log('Attempting to fetch real data from BingX API...');
       const response = await this.getSpecificCoins(['bitcoin', 'ethereum', 'solana', 'ripple', 'binancecoin', 'dogecoin', 'sui', 'chainlink', 'aave', 'pepe', 'dogwifhat', 'litecoin', 'cardano', 'optimism', 'aptos']);
+      
+      console.log('BingX API response:', response);
       
       // Если получили данные, объединяем с захардкоженными
       if (response.data.coins && response.data.coins.length > 0) {
+        console.log('Real data received, updating coins...');
         const updatedCoins = hardcodedCoins.map(hardcodedCoin => {
           const realData = response.data.coins.find(coin => coin.id === hardcodedCoin.id);
+          console.log(`Looking for ${hardcodedCoin.id}, found:`, realData);
           if (realData && realData.price > 0) {
+            console.log(`Updating ${hardcodedCoin.symbol} with real data:`, {
+              price: realData.price,
+              price_change_24h: realData.price_change_24h,
+              volume_24h: realData.volume_24h
+            });
             return {
               ...hardcodedCoin,
               price: realData.price,
@@ -143,14 +153,23 @@ class ApiClient {
               volume_24h: realData.volume_24h
             };
           }
+          console.log(`No real data for ${hardcodedCoin.symbol}, keeping hardcoded`);
           return hardcodedCoin;
         });
+        
+        console.log('Final updated coins:', updatedCoins.map(coin => ({
+          symbol: coin.symbol,
+          price: coin.price,
+          price_change_24h: coin.price_change_24h
+        })));
         
         return {
           status: 'ok' as const,
           data: { coins: updatedCoins },
           timestamp: new Date().toISOString()
         };
+      } else {
+        console.log('No real data received from BingX API');
       }
     } catch (error) {
       console.error('Error fetching real data from BingX, using hardcoded:', error);

@@ -26,6 +26,18 @@ export default function MarketOverview() {
       console.log('Fetching coins data...');
       const response = await apiClient.getTickers();
       console.log('Coins response:', response);
+      console.log('Coins array:', response.data.coins);
+      
+      if (response.data.coins && response.data.coins.length > 0) {
+        console.log('First coin details:', response.data.coins[0]);
+        console.log('All coins prices:', response.data.coins.map(coin => ({
+          symbol: coin.symbol,
+          price: coin.price,
+          price_change_24h: coin.price_change_24h,
+          volume_24h: coin.volume_24h
+        })));
+      }
+      
       setCoins(response.data.coins || []);
     } catch (err) {
       setError('Failed to fetch coins data');
