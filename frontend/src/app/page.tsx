@@ -17,6 +17,11 @@ export default function MarketOverview() {
       console.log('Market overview response:', response);
       console.log('Market data structure:', response.data);
       console.log('Available fields:', Object.keys(response.data || {}));
+      console.log('Dominance values:', {
+        btc: response.data?.btc_dominance,
+        eth: response.data?.eth_dominance,
+        usdt: response.data?.usdt_dominance
+      });
       setMarketData(response.data);
     } catch (err) {
       setError('Failed to fetch market data');
@@ -168,9 +173,11 @@ export default function MarketOverview() {
   };
 
   const formatDominance = (dominance: string): string => {
-    if (!dominance || dominance === '---') return '---';
-    return `${dominance}%`;
-  };
+  if (!dominance || dominance === '---') return '---';
+  const num = parseFloat(dominance);
+  if (isNaN(num)) return '---';
+  return `${num.toFixed(1)}%`;
+};
 
   const getFearGreedColor = (value: string): string => {
     if (!value || value === '---') return 'secondary';
@@ -337,6 +344,19 @@ export default function MarketOverview() {
                   <div>
                     <div className="text-muted small">Ethereum</div>
                     <div className="h3 mb-0">{formatDominance(marketData?.eth_dominance || '')}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* USDT Dominance */}
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div className="d-flex align-items-center">
+                  <div className="avatar avatar-sm me-3" style={{ backgroundColor: '#26a17b' }}>
+                    <i className="ti ti-currency-dollar text-white" style={{ fontSize: '16px' }}></i>
+                  </div>
+                  <div>
+                    <div className="text-muted small">USDT</div>
+                    <div className="h3 mb-0">{formatDominance(marketData?.usdt_dominance || '')}</div>
                   </div>
                 </div>
               </div>

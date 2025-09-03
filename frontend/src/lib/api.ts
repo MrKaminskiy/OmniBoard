@@ -19,6 +19,7 @@ export interface MarketOverview {
   // Новые поля из comprehensive overview
   btc_dominance?: string;
   eth_dominance?: string;
+  usdt_dominance?: string;
   total_liquidations_24h?: string;
   long_short_ratio?: string;
   long_short_accounts_percentage?: string;
