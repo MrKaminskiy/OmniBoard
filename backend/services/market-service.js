@@ -385,8 +385,12 @@ class MarketService {
             .sort((a, b) => b.priceChangePercent - a.priceChangePercent)
             .slice(0, limit);
 
+        const coins = gainers
+            .map(ticker => this.transformTickerToCoin(ticker))
+            .filter(coin => coin !== null); // Фильтруем null значения
+
         return {
-            coins: gainers.map(ticker => this.transformTickerToCoin(ticker))
+            coins: coins
         };
     }
 
@@ -400,8 +404,12 @@ class MarketService {
             .sort((a, b) => a.priceChangePercent - b.priceChangePercent)
             .slice(0, limit);
 
+        const coins = losers
+            .map(ticker => this.transformTickerToCoin(ticker))
+            .filter(coin => coin !== null); // Фильтруем null значения
+
         return {
-            coins: losers.map(ticker => this.transformTickerToCoin(ticker))
+            coins: coins
         };
     }
 
@@ -440,8 +448,12 @@ class MarketService {
         const tickers = cacheService.get('top-tickers') || [];
         const paginatedTickers = tickers.slice(offset, offset + limit);
         
+        const coins = paginatedTickers
+            .map(ticker => this.transformTickerToCoin(ticker))
+            .filter(coin => coin !== null); // Фильтруем null значения
+        
         return {
-            coins: paginatedTickers.map(ticker => this.transformTickerToCoin(ticker))
+            coins: coins
         };
     }
 
@@ -474,21 +486,65 @@ class MarketService {
             // Получаем данные через BingX API
             const tickers = await bingXService.getMultipleTickers(symbols);
             
-            const coinsData = tickers.map((ticker, index) => {
+            // Фильтруем только валидные тикеры
+            const validTickers = tickers.filter(ticker => 
+                ticker && 
+                ticker.symbol && 
+                typeof ticker.symbol === 'string' &&
+                ticker.lastPrice && 
+                ticker.lastPrice > 0
+            );
+            
+            console.log(`BingX returned ${tickers.length} tickers, ${validTickers.length} are valid`);
+            
+            const coinsData = validTickers.map((ticker, index) => {
                 const coinId = coinIds[index] || 'unknown';
+                const cleanSymbol = ticker.symbol.replace('-USDT', '');
+                
                 return {
                     id: coinId,
-                    symbol: ticker.symbol.replace('-USDT', ''),
-                    name: this.getCoinName(ticker.symbol.replace('-USDT', '')),
+                    symbol: cleanSymbol,
+                    name: this.getCoinName(cleanSymbol),
                     price: ticker.lastPrice || 0,
                     price_change_24h: ticker.priceChangePercent || 0,
-                    market_cap: 0, // BingX не предоставляет market cap, оставляем 0
+                    market_cap: 0, // BingX не предоставляет market cap
                     volume_24h: ticker.quoteVolume || 0,
-                    market_cap_rank: null, // BingX не предоставляет rank, оставляем null
-                    image: this.getCoinImage(ticker.symbol.replace('-USDT', '')),
+                    market_cap_rank: null, // BingX не предоставляет rank
+                    image: this.getCoinImage(cleanSymbol),
                     last_update: new Date().toISOString()
                 };
             });
+            
+            // Если BingX не дал данных, пробуем CoinGecko
+            if (coinsData.length === 0) {
+                console.log('No data from BingX, trying CoinGecko...');
+                try {
+                    const coinGeckoData = await this.getCoinGeckoData();
+                    if (coinGeckoData?.topCoins) {
+                        const filteredCoins = coinGeckoData.topCoins.filter(coin => 
+                            coinIds.includes(coin.id)
+                        );
+                        
+                        const fallbackCoins = filteredCoins.map(coin => ({
+                            id: coin.id,
+                            symbol: coin.symbol.toUpperCase(),
+                            name: coin.name,
+                            price: coin.current_price || 0,
+                            price_change_24h: coin.price_change_percentage_24h || 0,
+                            market_cap: coin.market_cap || 0,
+                            volume_24h: coin.total_volume || 0,
+                            market_cap_rank: coin.market_cap_rank || null,
+                            image: coin.image || this.getCoinImage(coin.symbol.toUpperCase()),
+                            last_update: new Date().toISOString()
+                        }));
+                        
+                        console.log(`CoinGecko fallback returned ${fallbackCoins.length} coins`);
+                        return { coins: fallbackCoins };
+                    }
+                } catch (fallbackError) {
+                    console.error('CoinGecko fallback also failed:', fallbackError);
+                }
+            }
             
             return {
                 coins: coinsData
@@ -553,10 +609,18 @@ class MarketService {
      * Transform ticker to coin format
      */
     transformTickerToCoin(ticker) {
+        // Проверяем валидность тикера
+        if (!ticker || !ticker.symbol || typeof ticker.symbol !== 'string') {
+            console.warn('Invalid ticker in transformTickerToCoin:', ticker);
+            return null;
+        }
+        
+        const cleanSymbol = ticker.symbol.replace('-USDT', '');
+        
         return {
-            id: ticker.symbol.toLowerCase().replace('-usdt', ''),
-            symbol: ticker.symbol.replace('-USDT', ''),
-            name: ticker.symbol.replace('-USDT', ''),
+            id: cleanSymbol.toLowerCase(),
+            symbol: cleanSymbol,
+            name: cleanSymbol,
             price: ticker.lastPrice || 0,
             price_change_24h: ticker.priceChangePercent || 0,
             market_cap: ticker.marketCap || (ticker.lastPrice || 0) * (ticker.volume || 0) * 1000,
@@ -570,7 +634,7 @@ class MarketService {
             atl_change: ticker.atlChange || null,
             open_interest: 0,
             funding_rate: 0,
-            image: ticker.image || `https://assets.coingecko.com/coins/images/1/large/bitcoin.png`,
+            image: ticker.image || this.getCoinImage(cleanSymbol),
             source: ticker.source || 'unknown',
             last_update: ticker.lastUpdate || new Date().toISOString()
         };
