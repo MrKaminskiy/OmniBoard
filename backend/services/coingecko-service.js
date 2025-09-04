@@ -245,12 +245,129 @@ class CoinGeckoService {
     }
 
     /**
-     * Получение Fear & Greed Index (симуляция, так как CoinGecko не предоставляет)
+     * Получение Fear & Greed Index от alternative.me API
      */
     async getFearGreedIndex() {
-        // В реальности нужно будет интегрировать с альтернативным API
-        // Пока возвращаем симуляцию на основе рыночных данных
         try {
+            // Пробуем получить данные от alternative.me (основной источник)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            
+            const response = await fetch('https://api.alternative.me/fng/', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'User-Agent': 'OmniBoard/1.0'
+                },
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            if (data && data.data && data.data.length > 0) {
+                const latestData = data.data[0];
+                const value = parseInt(latestData.value);
+                
+                // Определяем статус на основе значения
+                let status;
+                if (value >= 76) {
+                    status = 'Extreme Greed';
+                } else if (value >= 56) {
+                    status = 'Greed';
+                } else if (value >= 46) {
+                    status = 'Neutral';
+                } else if (value >= 26) {
+                    status = 'Fear';
+                } else {
+                    status = 'Extreme Fear';
+                }
+                
+                logBusinessEvent('fear_greed_index_retrieved', {
+                    value,
+                    status,
+                    source: 'alternative.me',
+                    timestamp: new Date().toISOString()
+                });
+                
+                return { 
+                    value, 
+                    status, 
+                    last_updated: new Date().toISOString(),
+                    source: 'alternative.me'
+                };
+            } else {
+                throw new Error('Invalid response format from alternative.me');
+            }
+        } catch (error) {
+            logBusinessError('fear_greed_index_alternative_me_error', error);
+            
+            // Fallback: пробуем Coinglass API
+            try {
+                const coinglassController = new AbortController();
+                const coinglassTimeoutId = setTimeout(() => coinglassController.abort(), 10000);
+                
+                const coinglassResponse = await fetch('https://open-api.coinglass.com/public/v2/fear_greed_index', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'User-Agent': 'OmniBoard/1.0'
+                    },
+                    signal: coinglassController.signal
+                });
+                
+                clearTimeout(coinglassTimeoutId);
+
+                if (coinglassResponse.ok) {
+                    const coinglassData = await coinglassResponse.json();
+                    
+                    if (coinglassData && coinglassData.data && coinglassData.data.length > 0) {
+                        const latestData = coinglassData.data[0];
+                        const value = parseInt(latestData.value);
+                        
+                        let status;
+                        if (value >= 76) {
+                            status = 'Extreme Greed';
+                        } else if (value >= 56) {
+                            status = 'Greed';
+                        } else if (value >= 46) {
+                            status = 'Neutral';
+                        } else if (value >= 26) {
+                            status = 'Fear';
+                        } else {
+                            status = 'Extreme Fear';
+                        }
+                        
+                        logBusinessEvent('fear_greed_index_retrieved', {
+                            value,
+                            status,
+                            source: 'coinglass',
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        return { 
+                            value, 
+                            status, 
+                            last_updated: new Date().toISOString(),
+                            source: 'coinglass'
+                        };
+                    }
+                }
+            } catch (coinglassError) {
+                logBusinessError('fear_greed_index_coinglass_error', coinglassError);
+            }
+            
+            // Последний fallback: симуляция на основе рыночных данных
+            logBusinessEvent('fear_greed_index_fallback_simulation', { 
+                reason: 'both_apis_failed',
+                timestamp: new Date().toISOString()
+            });
+            
             const globalData = await this.getGlobalMarketData();
             const marketChange = globalData.market_cap_change_24h || 0;
             
@@ -272,10 +389,12 @@ class CoinGeckoService {
                 status = 'Extreme Fear';
             }
             
-            return { value, status, last_updated: new Date().toISOString() };
-        } catch (error) {
-            logBusinessError('fear_greed_index_error', error);
-            return { value: 50, status: 'Neutral', last_updated: new Date().toISOString() };
+            return { 
+                value, 
+                status, 
+                last_updated: new Date().toISOString(),
+                source: 'simulation_fallback'
+            };
         }
     }
 

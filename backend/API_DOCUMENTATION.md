@@ -166,16 +166,22 @@ const getMarketOverview = async () => {
 
 **GET** `/api/v1/market/fear-greed`
 
-Индекс страха и жадности рынка.
+Индекс страха и жадности рынка. Получается из реальных источников данных.
+
+**Источники данных (в порядке приоритета):**
+1. **alternative.me** - основной источник (официальный Fear & Greed Index)
+2. **Coinglass** - резервный источник
+3. **Симуляция** - fallback на основе рыночных данных
 
 **Response:**
 ```json
 {
   "status": "ok",
   "data": {
-    "value": 50,
+    "value": 52,
     "status": "Neutral",
-    "last_updated": "2025-09-01T12:41:07.162Z"
+    "last_updated": "2025-09-01T12:41:07.162Z",
+    "source": "alternative.me"
   },
   "timestamp": "2025-09-01T12:41:28.683Z"
 }
