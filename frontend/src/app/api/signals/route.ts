@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // import { createClient } from '@/lib/supabase-server'
 
 const CTSS_API_URL = process.env.NEXT_PUBLIC_CTSS_API_URL || 'https://ctss-production.up.railway.app'
-// Используем API ключ для OmniBoard из терминала
-const CTSS_API_KEY = 'sh3WPGHqnRAujaEwUQ3N0b5JfAyfn_AjJb0fzB4KCcg'
+const CTSS_API_KEY = process.env.CTSS_API_KEY
 
 // Функция для преобразования данных CTSS в формат OmniBoard
 function transformCTSSSignal(ctssSignal: any) {
@@ -78,6 +77,15 @@ export async function GET(request: NextRequest) {
   try {
     console.log('📋 Request URL:', request.url)
     console.log('🔑 CTSS API URL:', CTSS_API_URL)
+    console.log('🔑 CTSS API Key available:', !!CTSS_API_KEY)
+    
+    if (!CTSS_API_KEY) {
+      console.error('❌ CTSS_API_KEY environment variable is not set')
+      return NextResponse.json({ 
+        error: 'CTSS API key not configured. Please check environment variables.' 
+      }, { status: 500 });
+    }
+    
     console.log('🔑 CTSS API Key (first 10 chars):', CTSS_API_KEY.substring(0, 10) + '...')
 
     // Временно отключаем проверку авторизации для тестирования
