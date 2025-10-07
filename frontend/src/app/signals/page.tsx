@@ -83,6 +83,8 @@ export default function Signals() {
         return <span className="badge bg-danger">SL достигнут</span>;
       case 'CLOSED':
         return <span className="badge bg-secondary">Закрыт</span>;
+      case 'CANCELLED':
+        return <span className="badge bg-warning text-dark">Отменен</span>;
       default:
         return <span className="badge bg-secondary">{status}</span>;
     }
@@ -285,6 +287,15 @@ export default function Signals() {
                                 <div className="h4 mb-0 text-primary">
                                   {signal.current_price ? formatPrice(signal.current_price) : '---'}
                                 </div>
+                                {signal.price_change_percent && (
+                                  <div className={`small ${
+                                    signal.price_change_percent.startsWith('+') 
+                                      ? 'text-success' 
+                                      : 'text-danger'
+                                  }`}>
+                                    {signal.price_change_percent}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>

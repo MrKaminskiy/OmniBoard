@@ -18,6 +18,15 @@ async function getCurrentPrice(symbol: string): Promise<number | null> {
   }
 }
 
+// Функция для расчета процентного изменения
+function calculatePriceChange(entryPrice: number, currentPrice: number): string {
+  if (!entryPrice || !currentPrice) return '';
+  
+  const change = ((currentPrice - entryPrice) / entryPrice) * 100;
+  const sign = change >= 0 ? '+' : '';
+  return `${sign}${change.toFixed(2)}%`;
+}
+
 // Функция для преобразования данных CTSS в формат OmniBoard
 function transformCTSSSignal(ctssSignal: any) {
   console.log('🔄 Transforming signal:', ctssSignal.id, ctssSignal.parsed_pair)
@@ -65,7 +74,8 @@ function transformCTSSSignal(ctssSignal: any) {
     stop_loss: ctssSignal.parsed_stop_loss ? parseFloat(ctssSignal.parsed_stop_loss) : undefined,
     tp_levels: tpLevels,
     current_price: undefined, // Будет заполнено позже
-    status: status as 'ACTIVE' | 'TP_HIT' | 'SL_HIT' | 'CLOSED',
+    price_change_percent: undefined, // Будет рассчитано позже
+    status: status as 'ACTIVE' | 'TP_HIT' | 'SL_HIT' | 'CLOSED' | 'CANCELLED',
     confidence: undefined, // Убираем общий confidence, так как он у каждого TP
     raw_data: {
       channel_id: ctssSignal.channel_id,
@@ -86,38 +96,46 @@ function transformCTSSSignal(ctssSignal: any) {
   return transformed;
 }
 
-// Функция для группировки сигналов по паре и таймфрейму
-function groupSignals(signals: any[]) {
+// Функция для группировки сигналов по парам и обработки отмены
+function groupSignalsByPair(signals: any[]) {
   const groups = new Map();
   
   signals.forEach(signal => {
-    const key = `${signal.pair}_${signal.timeframe}`;
+    const pairKey = signal.pair;
     
-    if (!groups.has(key)) {
-      groups.set(key, {
-        ...signal,
-        duplicates: []
-      });
-    } else {
-      // Если это дубликат (тот же hash), добавляем в duplicates
-      const existing = groups.get(key);
-      if (existing.raw_data.hash === signal.raw_data.hash) {
-        existing.duplicates.push(signal);
-      } else {
-        // Если другой hash, но та же пара - это обновление сигнала
-        // Оставляем более новый
-        if (new Date(signal.created_at) > new Date(existing.created_at)) {
-          existing.duplicates.push(existing);
-          Object.assign(existing, signal);
-          existing.duplicates = [];
-        } else {
-          existing.duplicates.push(signal);
-        }
-      }
+    if (!groups.has(pairKey)) {
+      groups.set(pairKey, []);
     }
+    
+    groups.get(pairKey).push(signal);
   });
   
-  return Array.from(groups.values());
+  // Обрабатываем отмену сигналов (LONG → SHORT на том же ТФ)
+  groups.forEach((pairSignals, pair) => {
+    // Сортируем по времени создания (новые сверху)
+    pairSignals.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    
+    const activeSignals = new Map(); // timeframe -> signal
+    
+    pairSignals.forEach((signal: any) => {
+      const tfKey = signal.timeframe;
+      
+      if (activeSignals.has(tfKey)) {
+        const existingSignal = activeSignals.get(tfKey);
+        
+        // Если направление отличается, отменяем старый сигнал
+        if (existingSignal.direction !== signal.direction) {
+          existingSignal.status = 'CANCELLED';
+          console.log(`🚫 Cancelled signal ${existingSignal.id} (${existingSignal.direction}) due to opposite ${signal.direction}`);
+        }
+      }
+      
+      // Добавляем/обновляем активный сигнал для этого ТФ
+      activeSignals.set(tfKey, signal);
+    });
+  });
+  
+  return groups;
 }
 
 export async function GET(request: NextRequest) {
@@ -139,7 +157,7 @@ export async function GET(request: NextRequest) {
 
     // Получаем параметры запроса
     const { searchParams } = new URL(request.url)
-    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100)
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100) // По умолчанию 20
     const offset = parseInt(searchParams.get('offset') || '0')
     const pair = searchParams.get('pair')
     const status = searchParams.get('status')
@@ -206,15 +224,15 @@ export async function GET(request: NextRequest) {
     // Преобразуем данные CTSS в формат OmniBoard
     const transformedSignals = ctssData.data.map(transformCTSSSignal);
 
-    console.log('🔄 Grouping signals...')
+    console.log('🔄 Grouping signals by pair...')
     
-    // Группируем сигналы по паре и таймфрейму
-    const groupedSignals = groupSignals(transformedSignals);
+    // Группируем сигналы по парам
+    const groupedSignals = groupSignalsByPair(transformedSignals);
 
     console.log('💰 Fetching current prices...')
     
     // Получаем текущие цены для уникальных пар
-    const uniquePairs = [...new Set(groupedSignals.map(s => s.pair))];
+    const uniquePairs = [...new Set(transformedSignals.map(s => s.pair))];
     const pricePromises = uniquePairs.map(async (pair) => {
       const price = await getCurrentPrice(pair);
       return { pair, price };
@@ -223,33 +241,39 @@ export async function GET(request: NextRequest) {
     const prices = await Promise.all(pricePromises);
     const priceMap = new Map(prices.map(p => [p.pair, p.price]));
     
-    // Добавляем текущие цены к сигналам
-    groupedSignals.forEach(signal => {
+    // Добавляем текущие цены и процентные изменения
+    transformedSignals.forEach(signal => {
       signal.current_price = priceMap.get(signal.pair) || null;
+      if (signal.entry_price && signal.current_price) {
+        signal.price_change_percent = calculatePriceChange(signal.entry_price, signal.current_price);
+      }
     });
 
-    console.log('✅ Transformation completed:', {
+    console.log('✅ Processing completed:', {
       originalCount: ctssData.data.length,
       transformedCount: transformedSignals.length,
-      groupedCount: groupedSignals.length,
-      firstTransformed: groupedSignals[0] ? {
-        id: groupedSignals[0].id,
-        pair: groupedSignals[0].pair,
-        direction: groupedSignals[0].direction,
-        tpLevelsCount: groupedSignals[0].tp_levels.length,
-        currentPrice: groupedSignals[0].current_price
+      groupedPairs: groupedSignals.size,
+      firstTransformed: transformedSignals[0] ? {
+        id: transformedSignals[0].id,
+        pair: transformedSignals[0].pair,
+        direction: transformedSignals[0].direction,
+        tpLevelsCount: transformedSignals[0].tp_levels.length,
+        currentPrice: transformedSignals[0].current_price,
+        priceChange: transformedSignals[0].price_change_percent
       } : null
     })
 
     const response = {
       success: true,
-      data: groupedSignals,
-      count: groupedSignals.length
+      data: transformedSignals,
+      groupedByPair: Object.fromEntries(groupedSignals),
+      count: transformedSignals.length
     };
 
     console.log('🚀 Returning response:', {
       success: response.success,
       dataLength: response.data.length,
+      groupedPairs: Object.keys(response.groupedByPair).length,
       count: response.count
     })
 

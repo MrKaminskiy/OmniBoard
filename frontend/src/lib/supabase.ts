@@ -43,7 +43,8 @@ export interface Signal {
     confidence?: number
   }>
   current_price?: number
-  status: 'ACTIVE' | 'TP_HIT' | 'SL_HIT' | 'CLOSED'
+  price_change_percent?: string
+  status: 'ACTIVE' | 'TP_HIT' | 'SL_HIT' | 'CLOSED' | 'CANCELLED'
   confidence?: number
   raw_data?: any
   metadata?: any
