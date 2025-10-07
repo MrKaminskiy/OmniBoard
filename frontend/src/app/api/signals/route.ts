@@ -5,6 +5,66 @@ const CTSS_API_URL = process.env.NEXT_PUBLIC_CTSS_API_URL || 'https://ctss-produ
 // Используем API ключ для OmniBoard из терминала
 const CTSS_API_KEY = 'sh3WPGHqnRAujaEwUQ3N0b5JfAyfn_AjJb0fzB4KCcg'
 
+// Функция для преобразования данных CTSS в формат OmniBoard
+function transformCTSSSignal(ctssSignal: any) {
+  // Парсим TP levels из строки JSON
+  let tpLevels = [];
+  try {
+    if (ctssSignal.parsed_tp_levels) {
+      const parsed = JSON.parse(ctssSignal.parsed_tp_levels);
+      tpLevels = parsed.map((tp: any, index: number) => ({
+        level: index + 1,
+        price: parseFloat(tp.price),
+        hit: tp.status === 'HIT',
+        hit_at: tp.status === 'HIT' ? tp.hit_at : undefined
+      }));
+    }
+  } catch (error) {
+    console.error('Error parsing TP levels:', error);
+  }
+
+  // Определяем статус сигнала на основе TP levels
+  let status = 'ACTIVE';
+  if (tpLevels.length > 0) {
+    const allHit = tpLevels.every((tp: any) => tp.hit);
+    const someHit = tpLevels.some((tp: any) => tp.hit);
+    
+    if (allHit) {
+      status = 'TP_HIT';
+    } else if (someHit) {
+      status = 'ACTIVE'; // Частично выполнен
+    }
+  }
+
+  return {
+    id: ctssSignal.id.toString(),
+    source: 'telegram' as const,
+    pair: ctssSignal.parsed_pair || 'UNKNOWN',
+    timeframe: ctssSignal.parsed_timeframe,
+    direction: ctssSignal.parsed_direction as 'LONG' | 'SHORT',
+    entry_price: ctssSignal.parsed_entry_price ? parseFloat(ctssSignal.parsed_entry_price) : undefined,
+    dca_price: ctssSignal.parsed_dca_price ? parseFloat(ctssSignal.parsed_dca_price) : undefined,
+    stop_loss: ctssSignal.parsed_stop_loss ? parseFloat(ctssSignal.parsed_stop_loss) : undefined,
+    tp_levels: tpLevels,
+    current_price: undefined, // Будет добавлено позже через price monitor
+    status: status as 'ACTIVE' | 'TP_HIT' | 'SL_HIT' | 'CLOSED',
+    confidence: ctssSignal.confidence ? parseFloat(ctssSignal.confidence) : undefined,
+    raw_data: {
+      channel_id: ctssSignal.channel_id,
+      message_id: ctssSignal.message_id,
+      raw_text: ctssSignal.raw_text,
+      hash: ctssSignal.hash
+    },
+    metadata: {
+      ts: ctssSignal.ts,
+      channel_id: ctssSignal.channel_id,
+      message_id: ctssSignal.message_id
+    },
+    created_at: ctssSignal.created_at,
+    updated_at: ctssSignal.updated_at
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Временно отключаем проверку авторизации для тестирования
@@ -73,9 +133,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: errorData.error || 'Failed to fetch signals from CTSS' }, { status: ctssResponse.status });
     }
 
-    const data = await ctssResponse.json();
-    console.log('API: Successfully fetched signals:', data.data?.length || 0)
-    return NextResponse.json({ success: true, data: data.data, count: data.count });
+    const ctssData = await ctssResponse.json();
+    console.log('API: Successfully fetched signals from CTSS:', ctssData.data?.length || 0)
+
+    // Преобразуем данные CTSS в формат OmniBoard
+    const transformedSignals = ctssData.data.map(transformCTSSSignal);
+
+    return NextResponse.json({ 
+      success: true, 
+      data: transformedSignals, 
+      count: ctssData.count 
+    });
 
   } catch (error: any) {
     console.error('Error in /api/signals:', error);
