@@ -218,7 +218,7 @@ function groupSignalsByPair(signals: any[]) {
   return groups;
 }
 
-// Функция для удаления дубликатов сигналов (по паре + таймфрейм + направление)
+// Функция для удаления дубликатов сигналов (по паре + таймфрейм + направление + entry_price)
 function removeDuplicateSignals(signals: any[]) {
   const seen = new Map();
   const unique = [];
@@ -228,8 +228,8 @@ function removeDuplicateSignals(signals: any[]) {
   console.log(`🔍 Starting deduplication of ${signals.length} signals...`);
   
   for (const signal of signals) {
-    // Создаем уникальный ключ по паре, таймфрейму и направлению
-    const key = `${signal.pair}-${signal.timeframe}-${signal.direction}`;
+    // Создаем уникальный ключ по паре, таймфрейму, направлению и entry_price
+    const key = `${signal.pair}-${signal.timeframe}-${signal.direction}-${signal.entry_price || 'null'}`;
     
     if (!seen.has(key)) {
       seen.set(key, signal);
@@ -362,18 +362,20 @@ export async function GET(request: NextRequest) {
     );
     
     console.log(`🔄 Sorted ${transformedSignals.length} signals by creation time`);
-    console.log('📊 All signals after transformation and sorting:', {
-      count: sortedSignals.length,
-      pairs: [...new Set(sortedSignals.map(s => s.pair))].slice(0, 10),
-      statuses: [...new Set(sortedSignals.map(s => s.status))],
-      directions: [...new Set(sortedSignals.map(s => s.direction))],
+    
+    // Применяем дедупликацию с улучшенной логикой
+    const uniqueSignals = removeDuplicateSignals(sortedSignals);
+    
+    console.log('📊 Signals after deduplication:', {
+      count: uniqueSignals.length,
+      pairs: [...new Set(uniqueSignals.map(s => s.pair))].slice(0, 10),
+      statuses: [...new Set(uniqueSignals.map(s => s.status))],
+      directions: [...new Set(uniqueSignals.map(s => s.direction))],
       timeRange: {
-        newest: sortedSignals[0]?.created_at,
-        oldest: sortedSignals[sortedSignals.length - 1]?.created_at
+        newest: uniqueSignals[0]?.created_at,
+        oldest: uniqueSignals[uniqueSignals.length - 1]?.created_at
       }
     });
-    
-    const uniqueSignals = sortedSignals;
 
     console.log('🔄 Grouping signals by pair...')
     
