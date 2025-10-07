@@ -293,8 +293,14 @@ export async function GET(request: NextRequest) {
       firstSignal: ctssData.data?.[0] ? {
         id: ctssData.data[0].id,
         pair: ctssData.data[0].parsed_pair,
-        direction: ctssData.data[0].parsed_direction
-      } : null
+        direction: ctssData.data[0].parsed_direction,
+        status: ctssData.data[0].status
+      } : null,
+      lastSignal: ctssData.data?.[ctssData.data.length - 1] ? {
+        id: ctssData.data[ctssData.data.length - 1].id,
+        pair: ctssData.data[ctssData.data.length - 1].parsed_pair
+      } : null,
+      allPairs: ctssData.data?.map(s => s.parsed_pair).slice(0, 10) || []
     })
 
     if (!ctssData.data || !Array.isArray(ctssData.data)) {
@@ -310,6 +316,12 @@ export async function GET(request: NextRequest) {
     // Удаляем дубликаты сигналов
     const uniqueSignals = removeDuplicateSignals(transformedSignals);
     console.log(`🔄 Removed duplicates: ${transformedSignals.length} → ${uniqueSignals.length}`);
+    console.log('📊 Unique signals after deduplication:', {
+      count: uniqueSignals.length,
+      pairs: [...new Set(uniqueSignals.map(s => s.pair))].slice(0, 10),
+      statuses: [...new Set(uniqueSignals.map(s => s.status))],
+      directions: [...new Set(uniqueSignals.map(s => s.direction))]
+    });
 
     console.log('🔄 Grouping signals by pair...')
     
@@ -338,33 +350,41 @@ export async function GET(request: NextRequest) {
 
     // Применяем фильтры на нашей стороне
     let filteredSignals = uniqueSignals;
+    console.log('🔍 Applying filters:', { pair, status, direction, timeframe });
+    console.log('📊 Before filtering:', { count: filteredSignals.length });
     
     if (pair) {
       filteredSignals = filteredSignals.filter(signal => 
         signal.pair.toLowerCase().includes(pair.toLowerCase())
       );
+      console.log(`🔍 After pair filter (${pair}):`, { count: filteredSignals.length });
     }
     
     if (status) {
       filteredSignals = filteredSignals.filter(signal => 
         signal.status === status
       );
+      console.log(`🔍 After status filter (${status}):`, { count: filteredSignals.length });
     }
     
     if (direction) {
       filteredSignals = filteredSignals.filter(signal => 
         signal.direction === direction
       );
+      console.log(`🔍 After direction filter (${direction}):`, { count: filteredSignals.length });
     }
     
     if (timeframe) {
       filteredSignals = filteredSignals.filter(signal => 
         signal.timeframe === timeframe
       );
+      console.log(`🔍 After timeframe filter (${timeframe}):`, { count: filteredSignals.length });
     }
 
     // Применяем пагинацию после фильтрации
+    console.log('📄 Applying pagination:', { offset, limit, totalFiltered: filteredSignals.length });
     const paginatedSignals = filteredSignals.slice(offset, offset + limit);
+    console.log('📄 After pagination:', { returned: paginatedSignals.length, hasMore: offset + limit < filteredSignals.length });
 
     console.log('✅ Processing completed:', {
       originalCount: ctssData.data.length,
