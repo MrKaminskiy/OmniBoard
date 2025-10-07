@@ -101,15 +101,40 @@ function transformCTSSSignal(ctssSignal: any) {
     console.error('❌ Error parsing TP levels:', error, 'Raw data:', ctssSignal.parsed_tp_levels)
   }
 
-  // Определяем статус сигнала на основе TP levels
+  // Маппинг статусов из CTSS в OmniBoard
   let status = 'ACTIVE';
+  
+  // Сначала проверяем статус из CTSS
+  if (ctssSignal.status) {
+    switch (ctssSignal.status) {
+      case 'SIGNAL_CREATED':
+      case 'SIGNAL_ACTIVE':
+      case 'SIGNAL_DCA':
+        status = 'ACTIVE';
+        break;
+      case 'SIGNAL_CLOSED':
+      case 'SIGNAL_TP_HIT':
+        status = 'CLOSED';
+        break;
+      case 'SIGNAL_SL_HIT':
+        status = 'SL_HIT';
+        break;
+      case 'SIGNAL_CANCELLED':
+        status = 'CANCELLED';
+        break;
+      default:
+        status = 'ACTIVE';
+    }
+  }
+  
+  // Дополнительно проверяем TP levels для более точного статуса
   if (tpLevels.length > 0) {
     const allHit = tpLevels.every((tp: any) => tp.hit);
     const someHit = tpLevels.some((tp: any) => tp.hit);
     
     if (allHit) {
       status = 'CLOSED'; // Все TP достигнуты = сигнал закрыт
-    } else if (someHit) {
+    } else if (someHit && status === 'ACTIVE') {
       status = 'ACTIVE'; // Частично выполнен
     }
   }
