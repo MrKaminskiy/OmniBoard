@@ -189,9 +189,8 @@ export default function Signals() {
               >
                 <option value="">Все</option>
                 <option value="ACTIVE">Активные</option>
-                <option value="TP_HIT">TP достигнут</option>
-                <option value="SL_HIT">SL достигнут</option>
                 <option value="CLOSED">Закрытые</option>
+                <option value="CANCELLED">Отмененные</option>
               </select>
             </div>
             <div className="col-md-3">
@@ -251,18 +250,21 @@ export default function Signals() {
         <div className="row row-cards">
           {signals.map((signal) => (
             <div key={signal.id} className="col-md-6 col-lg-4">
-              <div className={`card border-start ${
-                signal.direction === 'LONG' ? 'border-success border-3' : 'border-danger border-3'
-              }`}>
+              <div className="card" style={{
+                borderLeft: `1px solid ${signal.direction === 'LONG' ? '#28a745' : '#dc3545'}`,
+                borderLeftWidth: '2px'
+              }}>
                 <div className="card-header bg-transparent">
-                  <h3 className="card-title d-flex align-items-center">
-                    <span className="fw-bold me-2">{signal.pair}</span>
-                    <span className={`badge ${signal.direction === 'LONG' ? 'bg-success-lt' : 'bg-danger-lt'}`}>
-                      {signal.direction}
-                    </span>
-                  </h3>
-                  <div className="text-muted small">
-                    {signal.timeframe || '---'}
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h3 className="card-title mb-0">
+                      <span className="fw-bold me-2">{signal.pair}</span>
+                      <span className={`badge ${signal.direction === 'LONG' ? 'bg-success-lt' : 'bg-danger-lt'}`}>
+                        {signal.direction}
+                      </span>
+                    </h3>
+                    <div className="text-muted small">
+                      {signal.timeframe || '---'}
+                    </div>
                   </div>
                 </div>
                 
