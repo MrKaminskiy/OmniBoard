@@ -1,16 +1,76 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import type { Signal } from '@/lib/supabase';
 
 export default function Signals() {
-  const [loading, setLoading] = useState(false);
+  const [signals, setSignals] = useState<Signal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    pair: '',
+    status: '',
+    direction: '',
+    timeframe: '',
+  });
+
+  const fetchSignals = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params = new URLSearchParams();
+      if (filters.pair) params.set('pair', filters.pair);
+      if (filters.status) params.set('status', filters.status);
+      if (filters.direction) params.set('direction', filters.direction);
+      if (filters.timeframe) params.set('timeframe', filters.timeframe);
+      
+      const response = await fetch(`/api/signals?${params.toString()}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch signals');
+      }
+      
+      setSignals(data.data || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch signals');
+      console.error('Error fetching signals:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Имитация загрузки
-    setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    fetchSignals();
+  }, [filters]);
+
+  const formatPrice = (price: number | null | undefined): string => {
+    if (!price) return '---';
+    if (price >= 1) return `$${price.toFixed(2)}`;
+    if (price >= 0.01) return `$${price.toFixed(4)}`;
+    return `$${price.toFixed(6)}`;
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'ACTIVE':
+        return <span className="badge bg-success">Активен</span>;
+      case 'TP_HIT':
+        return <span className="badge bg-info">TP достигнут</span>;
+      case 'SL_HIT':
+        return <span className="badge bg-danger">SL достигнут</span>;
+      case 'CLOSED':
+        return <span className="badge bg-secondary">Закрыт</span>;
+      default:
+        return <span className="badge bg-secondary">{status}</span>;
+    }
+  };
+
+  const getDirectionIcon = (direction: string) => {
+    return direction === 'LONG' ? '📈' : '📉';
+  };
 
   if (loading) {
     return (
@@ -36,6 +96,30 @@ export default function Signals() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="container-xl">
+        <div className="page-header d-print-none">
+          <div className="container-xl">
+            <div className="row g-2 align-items-center">
+              <div className="col">
+                <h2 className="page-title">Trading Signals</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="alert alert-danger" role="alert">
+          <h4 className="alert-title">Ошибка загрузки сигналов</h4>
+          <p>{error}</p>
+          <button onClick={fetchSignals} className="btn btn-primary">
+            Попробовать снова
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container-xl">
       {/* Header */}
@@ -44,119 +128,198 @@ export default function Signals() {
           <div className="row g-2 align-items-center">
             <div className="col">
               <h2 className="page-title">📡 Trading Signals</h2>
-              <p className="text-muted">Получайте актуальные торговые сигналы от профессиональных трейдеров и алгоритмических систем</p>
+              <p className="text-muted">Актуальные торговые сигналы из Telegram каналов</p>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Features Grid */}
-      <div className="row row-cards mb-4">
-        <div className="col-sm-6 col-lg-4">
-          <div className="card text-center">
-            <div className="card-body">
-              <div className="display-4 mb-3">🎯</div>
-              <h3 className="card-title">Точные сигналы</h3>
-              <p className="text-muted">
-                Сигналы основаны на техническом анализе, фундаментальных данных и машинном обучении
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-sm-6 col-lg-4">
-          <div className="card text-center">
-            <div className="card-body">
-              <div className="display-4 mb-3">⚡</div>
-              <h3 className="card-title">Real-time обновления</h3>
-              <p className="text-muted">
-                Получайте сигналы в реальном времени с push-уведомлениями
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-sm-6 col-lg-4">
-          <div className="card text-center">
-            <div className="card-body">
-              <div className="display-4 mb-3">📊</div>
-              <h3 className="card-title">Детальная аналитика</h3>
-              <p className="text-muted">
-                Каждый сигнал сопровождается подробным анализом и рекомендациями
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Coming Soon Section */}
-      <div className="card bg-primary-lt">
-        <div className="card-body text-center">
-          <div className="display-1 mb-4">🚀</div>
-          <h2 className="card-title">Функционал в разработке</h2>
-          <p className="text-muted mb-4">
-            Мы работаем над интеграцией с TradingView, Binance, Coinbase и другими платформами для предоставления 
-            вам самых актуальных и точных торговых сигналов.
-          </p>
-          
-          <div className="row g-3">
-            <div className="col-md-6">
-              <div className="card">
-                <div className="card-body">
-                  <h4 className="card-title">🔔 Уведомления</h4>
-                  <p className="text-muted">Telegram, Email, Push</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="card">
-                <div className="card-body">
-                  <h4 className="card-title">📈 Фильтры</h4>
-                  <p className="text-muted">По монетам, времени, силе сигнала</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="card">
-                <div className="card-body">
-                  <h4 className="card-title">📊 Статистика</h4>
-                  <p className="text-muted">Успешность, ROI, история</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="card">
-                <div className="card-body">
-                  <h4 className="card-title">🤖 Автотрейдинг</h4>
-                  <p className="text-muted">Автоматическое исполнение сигналов</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Newsletter Signup */}
-      <div className="card">
-        <div className="card-body text-center">
-          <h3 className="card-title">Получайте уведомления о запуске</h3>
-          <p className="text-muted mb-4">Будьте первыми, кто узнает о запуске торговых сигналов</p>
-          <div className="row g-3 justify-content-center">
-            <div className="col-md-6">
-              <input
-                type="email"
-                placeholder="Ваш email"
-                className="form-control"
-              />
-            </div>
-            <div className="col-md-auto">
-              <button className="btn btn-primary">
-                Подписаться
+            <div className="col-auto">
+              <button 
+                onClick={fetchSignals} 
+                className="btn btn-outline-primary"
+                disabled={loading}
+              >
+                <i className="ti ti-refresh me-1"></i>
+                Обновить
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Filters */}
+      <div className="card mb-4">
+        <div className="card-body">
+          <div className="row g-3">
+            <div className="col-md-3">
+              <label className="form-label">Торговая пара</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="BTC, ETH, ADA..."
+                value={filters.pair}
+                onChange={(e) => setFilters(prev => ({ ...prev, pair: e.target.value }))}
+              />
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Статус</label>
+              <select
+                className="form-select"
+                value={filters.status}
+                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+              >
+                <option value="">Все</option>
+                <option value="ACTIVE">Активные</option>
+                <option value="TP_HIT">TP достигнут</option>
+                <option value="SL_HIT">SL достигнут</option>
+                <option value="CLOSED">Закрытые</option>
+              </select>
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Направление</label>
+              <select
+                className="form-select"
+                value={filters.direction}
+                onChange={(e) => setFilters(prev => ({ ...prev, direction: e.target.value }))}
+              >
+                <option value="">Все</option>
+                <option value="LONG">LONG</option>
+                <option value="SHORT">SHORT</option>
+              </select>
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Таймфрейм</label>
+              <select
+                className="form-select"
+                value={filters.timeframe}
+                onChange={(e) => setFilters(prev => ({ ...prev, timeframe: e.target.value }))}
+              >
+                <option value="">Все</option>
+                <option value="5m">5m</option>
+                <option value="15m">15m</option>
+                <option value="1h">1h</option>
+                <option value="4h">4h</option>
+                <option value="1d">1d</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Signals List */}
+      {signals.length === 0 ? (
+        <div className="card">
+          <div className="card-body text-center py-12">
+            <div className="display-1 mb-4">📊</div>
+            <h3 className="card-title">Нет сигналов</h3>
+            <p className="text-muted">
+              {Object.values(filters).some(f => f) 
+                ? 'По выбранным фильтрам сигналы не найдены'
+                : 'Пока нет доступных торговых сигналов'
+              }
+            </p>
+            {Object.values(filters).some(f => f) && (
+              <button 
+                onClick={() => setFilters({ pair: '', status: '', direction: '', timeframe: '' })}
+                className="btn btn-primary"
+              >
+                Сбросить фильтры
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="row row-cards">
+          {signals.map((signal) => (
+            <div key={signal.id} className="col-md-6 col-lg-4">
+              <div className="card">
+                <div className={`card-status-top ${
+                  signal.status === 'ACTIVE' ? 'bg-success' :
+                  signal.status === 'TP_HIT' ? 'bg-info' :
+                  signal.status === 'SL_HIT' ? 'bg-danger' : 'bg-secondary'
+                }`}></div>
+                
+                <div className="card-header">
+                  <h3 className="card-title">
+                    {getDirectionIcon(signal.direction)} {signal.pair}
+                  </h3>
+                  <div className="card-actions">
+                    {getStatusBadge(signal.status)}
+                  </div>
+                </div>
+                
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-6">
+                      <div className="mb-2">
+                        <small className="text-muted">Entry</small>
+                        <div className="h3 mb-0">{formatPrice(signal.entry_price)}</div>
+                      </div>
+                    </div>
+                    <div className="col-6">
+                      <div className="mb-2">
+                        <small className="text-muted">DCA</small>
+                        <div className="h4 mb-0">{formatPrice(signal.dca_price)}</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {signal.stop_loss && (
+                    <div className="mb-2">
+                      <small className="text-muted">Stop Loss</small>
+                      <div className="h5 mb-0 text-danger">{formatPrice(signal.stop_loss)}</div>
+                    </div>
+                  )}
+                  
+                  {signal.tp_levels && signal.tp_levels.length > 0 && (
+                    <div className="mb-3">
+                      <small className="text-muted">Take Profit Levels</small>
+                      <div className="mt-1">
+                        {signal.tp_levels.map((tp, index) => (
+                          <div key={index} className="d-flex justify-content-between align-items-center mb-1">
+                            <span className="small">TP{index + 1}</span>
+                            <span className={`badge ${tp.hit ? 'bg-success' : 'bg-outline-success'}`}>
+                              {formatPrice(tp.price)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="row">
+                    <div className="col-6">
+                      <small className="text-muted">Таймфрейм</small>
+                      <div>{signal.timeframe || '---'}</div>
+                    </div>
+                    <div className="col-6">
+                      <small className="text-muted">Уверенность</small>
+                      <div>
+                        {signal.confidence ? `${(signal.confidence * 100).toFixed(0)}%` : '---'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="card-footer">
+                  <div className="row align-items-center">
+                    <div className="col">
+                      <small className="text-muted">
+                        {new Date(signal.created_at).toLocaleString('ru-RU')}
+                      </small>
+                    </div>
+                    <div className="col-auto">
+                      <Link 
+                        href={`/signals/${signal.id}`}
+                        className="btn btn-sm btn-primary"
+                      >
+                        Детали
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
