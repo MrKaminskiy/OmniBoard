@@ -395,7 +395,6 @@ export default function Signals() {
           ))}
         </div>
         
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="d-flex justify-content-center mt-4">
             <nav>
