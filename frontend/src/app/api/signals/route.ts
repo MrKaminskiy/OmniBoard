@@ -296,8 +296,35 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Применяем пагинацию после обработки
-    const paginatedSignals = uniqueSignals.slice(offset, offset + limit);
+    // Применяем фильтры на нашей стороне
+    let filteredSignals = uniqueSignals;
+    
+    if (pair) {
+      filteredSignals = filteredSignals.filter(signal => 
+        signal.pair.toLowerCase().includes(pair.toLowerCase())
+      );
+    }
+    
+    if (status) {
+      filteredSignals = filteredSignals.filter(signal => 
+        signal.status === status
+      );
+    }
+    
+    if (direction) {
+      filteredSignals = filteredSignals.filter(signal => 
+        signal.direction === direction
+      );
+    }
+    
+    if (timeframe) {
+      filteredSignals = filteredSignals.filter(signal => 
+        signal.timeframe === timeframe
+      );
+    }
+
+    // Применяем пагинацию после фильтрации
+    const paginatedSignals = filteredSignals.slice(offset, offset + limit);
 
     console.log('✅ Processing completed:', {
       originalCount: ctssData.data.length,
@@ -317,12 +344,12 @@ export async function GET(request: NextRequest) {
       success: true,
       data: paginatedSignals,
       groupedByPair: Object.fromEntries(groupedSignals),
-      count: uniqueSignals.length,
+      count: filteredSignals.length,
       pagination: {
         limit,
         offset,
-        total: uniqueSignals.length,
-        hasMore: offset + limit < uniqueSignals.length
+        total: filteredSignals.length,
+        hasMore: offset + limit < filteredSignals.length
       }
     };
 
