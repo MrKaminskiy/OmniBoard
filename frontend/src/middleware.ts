@@ -10,19 +10,19 @@ const publicPaths = ['/', '/auth/login', '/auth/signup', '/pricing', '/access', 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   
-  // Простая защита паролем для всех страниц (временно для деплоя)
-  const accessPassword = process.env.ACCESS_PASSWORD;
-  const isAccessPage = path === '/access';
-  const isApiAccess = path === '/api/access';
+  // Парольная защита временно отключена
+  // const accessPassword = process.env.ACCESS_PASSWORD;
+  // const isAccessPage = path === '/access';
+  // const isApiAccess = path === '/api/access';
   
-  if (accessPassword && !isAccessPage && !isApiAccess) {
-    const hasAccess = request.cookies.get('omniboard-access')?.value === accessPassword;
+  // if (accessPassword && !isAccessPage && !isApiAccess) {
+  //   const hasAccess = request.cookies.get('omniboard-access')?.value === accessPassword;
     
-    if (!hasAccess) {
-      const redirectUrl = new URL('/access', request.url);
-      return NextResponse.redirect(redirectUrl);
-    }
-  }
+  //   if (!hasAccess) {
+  //     const redirectUrl = new URL('/access', request.url);
+  //     return NextResponse.redirect(redirectUrl);
+  //   }
+  // }
 
   const { supabase, response } = createMiddlewareClient(request)
 
