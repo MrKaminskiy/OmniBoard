@@ -356,10 +356,11 @@ export async function GET(request: NextRequest) {
     // Преобразуем данные CTSS в формат OmniBoard
     const transformedSignals = ctssData.data.map(transformCTSSSignal);
     
-    // Удаляем дубликаты сигналов
-    const uniqueSignals = removeDuplicateSignals(transformedSignals);
-    console.log(`🔄 Removed duplicates: ${transformedSignals.length} → ${uniqueSignals.length}`);
-    console.log('📊 Unique signals after deduplication:', {
+    // Временно отключаем дедупликацию для отладки
+    // const uniqueSignals = removeDuplicateSignals(transformedSignals);
+    const uniqueSignals = transformedSignals; // Показываем все сигналы
+    console.log(`🔄 Skipping deduplication: ${transformedSignals.length} signals`);
+    console.log('📊 All signals after transformation:', {
       count: uniqueSignals.length,
       pairs: [...new Set(uniqueSignals.map(s => s.pair))].slice(0, 10),
       statuses: [...new Set(uniqueSignals.map(s => s.status))],
