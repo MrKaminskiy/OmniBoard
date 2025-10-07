@@ -7,10 +7,13 @@ const CTSS_API_KEY = 'sh3WPGHqnRAujaEwUQ3N0b5JfAyfn_AjJb0fzB4KCcg'
 
 // Функция для преобразования данных CTSS в формат OmniBoard
 function transformCTSSSignal(ctssSignal: any) {
+  console.log('🔄 Transforming signal:', ctssSignal.id, ctssSignal.parsed_pair)
+  
   // Парсим TP levels из строки JSON
   let tpLevels = [];
   try {
     if (ctssSignal.parsed_tp_levels) {
+      console.log('📊 Parsing TP levels:', ctssSignal.parsed_tp_levels)
       const parsed = JSON.parse(ctssSignal.parsed_tp_levels);
       tpLevels = parsed.map((tp: any, index: number) => ({
         level: index + 1,
@@ -18,9 +21,10 @@ function transformCTSSSignal(ctssSignal: any) {
         hit: tp.status === 'HIT',
         hit_at: tp.status === 'HIT' ? tp.hit_at : undefined
       }));
+      console.log('✅ Parsed TP levels:', tpLevels)
     }
   } catch (error) {
-    console.error('Error parsing TP levels:', error);
+    console.error('❌ Error parsing TP levels:', error, 'Raw data:', ctssSignal.parsed_tp_levels)
   }
 
   // Определяем статус сигнала на основе TP levels
@@ -36,7 +40,7 @@ function transformCTSSSignal(ctssSignal: any) {
     }
   }
 
-  return {
+  const transformed = {
     id: ctssSignal.id.toString(),
     source: 'telegram' as const,
     pair: ctssSignal.parsed_pair || 'UNKNOWN',
@@ -63,10 +67,19 @@ function transformCTSSSignal(ctssSignal: any) {
     created_at: ctssSignal.created_at,
     updated_at: ctssSignal.updated_at
   };
+
+  console.log('✅ Transformed signal:', transformed.id, transformed.pair, transformed.direction)
+  return transformed;
 }
 
 export async function GET(request: NextRequest) {
+  console.log('🚀 Starting /api/signals request')
+  
   try {
+    console.log('📋 Request URL:', request.url)
+    console.log('🔑 CTSS API URL:', CTSS_API_URL)
+    console.log('🔑 CTSS API Key (first 10 chars):', CTSS_API_KEY.substring(0, 10) + '...')
+
     // Временно отключаем проверку авторизации для тестирования
     // const supabase = createClient()
     // const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -103,6 +116,8 @@ export async function GET(request: NextRequest) {
     const direction = searchParams.get('direction')
     const timeframe = searchParams.get('timeframe')
 
+    console.log('📊 Request params:', { limit, offset, pair, status, direction, timeframe })
+
     // Формируем URL для запроса к CTSS API
     const ctssUrl = new URL(`${CTSS_API_URL}/api/signals`)
     ctssUrl.searchParams.set('limit', limit.toString())
@@ -122,31 +137,79 @@ export async function GET(request: NextRequest) {
       headers['X-API-Key'] = CTSS_API_KEY;
     }
 
-    console.log('API: Fetching from CTSS:', ctssUrl.toString())
-    console.log('API: Using API Key:', CTSS_API_KEY.substring(0, 10) + '...')
+    console.log('🌐 Making request to CTSS:', ctssUrl.toString())
+    console.log('🔑 Request headers:', { ...headers, 'X-API-Key': '***' })
 
     const ctssResponse = await fetch(ctssUrl.toString(), { headers });
 
+    console.log('📡 CTSS response status:', ctssResponse.status)
+    console.log('📡 CTSS response headers:', Object.fromEntries(ctssResponse.headers.entries()))
+
     if (!ctssResponse.ok) {
+      console.error('❌ CTSS API error:', ctssResponse.status, ctssResponse.statusText)
       const errorData = await ctssResponse.json().catch(() => ({ error: 'Unknown error' }));
-      console.error('CTSS API error:', errorData)
+      console.error('❌ CTSS error data:', errorData)
       return NextResponse.json({ error: errorData.error || 'Failed to fetch signals from CTSS' }, { status: ctssResponse.status });
     }
 
     const ctssData = await ctssResponse.json();
-    console.log('API: Successfully fetched signals from CTSS:', ctssData.data?.length || 0)
+    console.log('✅ CTSS response received')
+    console.log('📊 CTSS data structure:', {
+      hasData: !!ctssData.data,
+      dataLength: ctssData.data?.length || 0,
+      count: ctssData.count,
+      success: ctssData.success,
+      firstSignal: ctssData.data?.[0] ? {
+        id: ctssData.data[0].id,
+        pair: ctssData.data[0].parsed_pair,
+        direction: ctssData.data[0].parsed_direction
+      } : null
+    })
 
+    if (!ctssData.data || !Array.isArray(ctssData.data)) {
+      console.error('❌ Invalid CTSS data format:', ctssData)
+      return NextResponse.json({ error: 'Invalid data format from CTSS' }, { status: 500 });
+    }
+
+    console.log('🔄 Starting data transformation...')
+    
     // Преобразуем данные CTSS в формат OmniBoard
     const transformedSignals = ctssData.data.map(transformCTSSSignal);
 
-    return NextResponse.json({ 
-      success: true, 
-      data: transformedSignals, 
-      count: ctssData.count 
-    });
+    console.log('✅ Transformation completed:', {
+      originalCount: ctssData.data.length,
+      transformedCount: transformedSignals.length,
+      firstTransformed: transformedSignals[0] ? {
+        id: transformedSignals[0].id,
+        pair: transformedSignals[0].pair,
+        direction: transformedSignals[0].direction,
+        tpLevelsCount: transformedSignals[0].tp_levels.length
+      } : null
+    })
+
+    const response = {
+      success: true,
+      data: transformedSignals,
+      count: ctssData.count
+    };
+
+    console.log('🚀 Returning response:', {
+      success: response.success,
+      dataLength: response.data.length,
+      count: response.count
+    })
+
+    return NextResponse.json(response);
 
   } catch (error: any) {
-    console.error('Error in /api/signals:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    console.error('💥 Fatal error in /api/signals:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    return NextResponse.json({ 
+      error: error.message || 'Internal Server Error',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 });
   }
 }

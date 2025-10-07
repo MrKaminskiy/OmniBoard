@@ -17,6 +17,7 @@ export default function Signals() {
 
   const fetchSignals = async () => {
     try {
+      console.log('🚀 Frontend: Starting to fetch signals');
       setLoading(true);
       setError(null);
       
@@ -26,17 +27,36 @@ export default function Signals() {
       if (filters.direction) params.set('direction', filters.direction);
       if (filters.timeframe) params.set('timeframe', filters.timeframe);
       
-      const response = await fetch(`/api/signals?${params.toString()}`);
+      const url = `/api/signals?${params.toString()}`;
+      console.log('🌐 Frontend: Making request to:', url);
+      
+      const response = await fetch(url);
+      console.log('📡 Frontend: Response status:', response.status);
+      console.log('📡 Frontend: Response headers:', Object.fromEntries(response.headers.entries()));
+      
       const data = await response.json();
+      console.log('📊 Frontend: Response data:', {
+        hasData: !!data.data,
+        dataLength: data.data?.length || 0,
+        success: data.success,
+        error: data.error,
+        firstSignal: data.data?.[0] ? {
+          id: data.data[0].id,
+          pair: data.data[0].pair,
+          direction: data.data[0].direction
+        } : null
+      });
       
       if (!response.ok) {
+        console.error('❌ Frontend: Request failed:', response.status, data);
         throw new Error(data.error || 'Failed to fetch signals');
       }
       
+      console.log('✅ Frontend: Setting signals:', data.data?.length || 0);
       setSignals(data.data || []);
     } catch (err) {
+      console.error('💥 Frontend: Error fetching signals:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch signals');
-      console.error('Error fetching signals:', err);
     } finally {
       setLoading(false);
     }
