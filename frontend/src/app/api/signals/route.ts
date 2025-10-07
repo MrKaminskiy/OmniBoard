@@ -356,16 +356,24 @@ export async function GET(request: NextRequest) {
     // Преобразуем данные CTSS в формат OmniBoard
     const transformedSignals = ctssData.data.map(transformCTSSSignal);
     
-    // Временно отключаем дедупликацию для отладки
-    // const uniqueSignals = removeDuplicateSignals(transformedSignals);
-    const uniqueSignals = transformedSignals; // Показываем все сигналы
-    console.log(`🔄 Skipping deduplication: ${transformedSignals.length} signals`);
-    console.log('📊 All signals after transformation:', {
-      count: uniqueSignals.length,
-      pairs: [...new Set(uniqueSignals.map(s => s.pair))].slice(0, 10),
-      statuses: [...new Set(uniqueSignals.map(s => s.status))],
-      directions: [...new Set(uniqueSignals.map(s => s.direction))]
+    // Сортируем сигналы по времени создания (новые сверху)
+    const sortedSignals = transformedSignals.sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    
+    console.log(`🔄 Sorted ${transformedSignals.length} signals by creation time`);
+    console.log('📊 All signals after transformation and sorting:', {
+      count: sortedSignals.length,
+      pairs: [...new Set(sortedSignals.map(s => s.pair))].slice(0, 10),
+      statuses: [...new Set(sortedSignals.map(s => s.status))],
+      directions: [...new Set(sortedSignals.map(s => s.direction))],
+      timeRange: {
+        newest: sortedSignals[0]?.created_at,
+        oldest: sortedSignals[sortedSignals.length - 1]?.created_at
+      }
     });
+    
+    const uniqueSignals = sortedSignals;
 
     console.log('🔄 Grouping signals by pair...')
     
