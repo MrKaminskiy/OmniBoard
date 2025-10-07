@@ -10,7 +10,7 @@ export default function Signals() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalSignals, setTotalSignals] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
   const [filters, setFilters] = useState({
     pair: '',
     status: '',
@@ -18,7 +18,7 @@ export default function Signals() {
     timeframe: '', // Показывать все таймфреймы по умолчанию
   });
 
-  const fetchSignals = async (page: number = 1, reset: boolean = true) => {
+  const fetchSignals = async (page: number = 1) => {
     try {
       console.log('🚀 Frontend: Starting to fetch signals, page:', page);
       setLoading(true);
@@ -29,8 +29,8 @@ export default function Signals() {
       if (filters.status) params.set('status', filters.status);
       if (filters.direction) params.set('direction', filters.direction);
       if (filters.timeframe) params.set('timeframe', filters.timeframe);
-      params.set('limit', '50');
-      params.set('offset', ((page - 1) * 50).toString());
+      params.set('limit', '20');
+      params.set('offset', ((page - 1) * 20).toString());
       
       const url = `/api/signals?${params.toString()}`;
       console.log('🌐 Frontend: Making request to:', url);
@@ -59,14 +59,9 @@ export default function Signals() {
       
       console.log('✅ Frontend: Setting signals:', data.data?.length || 0);
       
-      if (reset || page === 1) {
-        setSignals(data.data || []);
-      } else {
-        setSignals(prev => [...prev, ...(data.data || [])]);
-      }
-      
+      setSignals(data.data || []);
       setTotalSignals(data.count || 0);
-      setHasMore(data.pagination?.hasMore || false);
+      setTotalPages(Math.ceil((data.count || 0) / 20));
       setCurrentPage(page);
     } catch (err) {
       console.error('💥 Frontend: Error fetching signals:', err);
@@ -78,18 +73,18 @@ export default function Signals() {
 
   useEffect(() => {
     setCurrentPage(1);
-    fetchSignals(1, true);
+    fetchSignals(1);
   }, [filters]);
 
-  const loadMoreSignals = () => {
-    if (hasMore && !loading) {
-      fetchSignals(currentPage + 1, false);
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+      fetchSignals(page);
     }
   };
 
   const refreshSignals = () => {
     setCurrentPage(1);
-    fetchSignals(1, true);
+    fetchSignals(1);
   };
 
   const formatPrice = (price: number | null | undefined): string => {
@@ -401,25 +396,59 @@ export default function Signals() {
         </div>
         
         {/* Pagination */}
-        {hasMore && (
-          <div className="text-center mt-4">
-            <button 
-              onClick={loadMoreSignals}
-              className="btn btn-outline-primary"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2"></span>
-                  Загрузка...
-                </>
-              ) : (
-                <>
-                  <i className="ti ti-plus me-1"></i>
-                  Загрузить еще
-                </>
-              )}
-            </button>
+        {totalPages > 1 && (
+          <div className="d-flex justify-content-center mt-4">
+            <nav>
+              <ul className="pagination">
+                {/* Previous page */}
+                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                  <button 
+                    className="page-link" 
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1 || loading}
+                  >
+                    <i className="ti ti-chevron-left"></i>
+                  </button>
+                </li>
+                
+                {/* Page numbers */}
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <li key={pageNum} className={`page-item ${currentPage === pageNum ? 'active' : ''}`}>
+                      <button 
+                        className="page-link" 
+                        onClick={() => goToPage(pageNum)}
+                        disabled={loading}
+                      >
+                        {pageNum}
+                      </button>
+                    </li>
+                  );
+                })}
+                
+                {/* Next page */}
+                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                  <button 
+                    className="page-link" 
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages || loading}
+                  >
+                    <i className="ti ti-chevron-right"></i>
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
         )}
         
@@ -427,7 +456,7 @@ export default function Signals() {
         {signals.length > 0 && (
           <div className="text-center mt-3">
             <small className="text-muted">
-              Показано {signals.length} из {totalSignals} сигналов
+              Страница {currentPage} из {totalPages} • Показано {signals.length} из {totalSignals} сигналов
             </small>
           </div>
         )}
