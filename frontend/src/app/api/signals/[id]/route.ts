@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase-server'
+// import { createClient } from '@/lib/supabase-server'
 
 const CTSS_API_URL = process.env.NEXT_PUBLIC_CTSS_API_URL || 'https://ctss-production.up.railway.app'
 // const CTSS_API_KEY = process.env.CTSS_API_KEY // CTSS API is currently open, no key needed
@@ -9,16 +9,16 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Проверяем авторизацию
-    const supabase = createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Временно отключаем проверку авторизации для тестирования
+    // const supabase = createClient()
+    // const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (authError || !user) {
-      console.log('API: No user found for signal details, returning 401')
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // if (authError || !user) {
+    //   console.log('API: No user found for signal details, returning 401')
+    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // }
 
-    console.log('API: User authenticated for signal details:', user.email)
+    // console.log('API: User authenticated for signal details:', user.email)
 
     // Временно отключаем проверку подписки до настройки базы данных
     // const { data: profile } = await supabase

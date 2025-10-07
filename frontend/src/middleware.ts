@@ -2,10 +2,10 @@ import { createMiddlewareClient } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Защищенные пути (требуют авторизации)
-const protectedPaths = ['/signals', '/journal', '/media', '/profile', '/settings']
+const protectedPaths = ['/journal', '/media', '/profile', '/settings']
 
 // Публичные пути (не требуют авторизации)
-const publicPaths = ['/', '/auth/login', '/auth/signup', '/pricing', '/access', '/api/access']
+const publicPaths = ['/', '/auth/login', '/auth/signup', '/pricing', '/access', '/api/access', '/signals']
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -23,6 +23,11 @@ export async function middleware(request: NextRequest) {
   //     return NextResponse.redirect(redirectUrl);
   //   }
   // }
+
+  // Временно делаем /signals публичным для тестирования
+  if (path === '/signals' || path.startsWith('/signals/')) {
+    return NextResponse.next()
+  }
 
   const { supabase, response } = createMiddlewareClient(request)
 
