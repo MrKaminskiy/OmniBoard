@@ -2,22 +2,36 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setMessage('');
 
     try {
-      // Временная заглушка для деплоя
-      setError('Регистрация временно недоступна. Используйте демо-аккаунт.');
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setMessage('Проверьте почту для подтверждения регистрации');
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 3000);
+      }
     } catch (err) {
       setError('Ошибка регистрации');
     } finally {
@@ -78,6 +92,12 @@ export default function SignupPage() {
             </div>
           )}
 
+          {message && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+              {message}
+            </div>
+          )}
+
           <div>
             <button
               type="submit"
@@ -89,7 +109,7 @@ export default function SignupPage() {
           </div>
           
           <div className="text-center text-xs text-gray-500">
-            <p>Используйте демо-аккаунт: demo@omniboard.com / demo123</p>
+            <p>Уже есть аккаунт? <a href="/auth/login" className="text-blue-600 hover:underline">Войти</a></p>
           </div>
         </form>
       </div>

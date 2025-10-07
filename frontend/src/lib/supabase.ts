@@ -1,23 +1,19 @@
-// Временная заглушка для деплоя
-export const supabase = {
-  auth: {
-    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-    signInWithPassword: () => Promise.resolve({ data: { user: null }, error: null }),
-    signUp: () => Promise.resolve({ data: { user: null }, error: null }),
-    signOut: () => Promise.resolve({ error: null }),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
-  },
-  from: () => ({
-    select: () => ({
-      eq: () => ({
-        single: () => Promise.resolve({ data: null, error: null })
-      })
-    })
-  })
-};
+import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
-export const createClientComponentClient = () => supabase;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+// Client-side Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Browser client for SSR
+export const createClientComponentClient = () => {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
 // Types for our database
 export interface UserProfile {

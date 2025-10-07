@@ -1,4 +1,4 @@
-// import { createMiddlewareClient } from '@/lib/supabase-server'
+import { createMiddlewareClient } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Защищенные пути (требуют авторизации)
@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // const { supabase, response } = createMiddlewareClient(request)
+  const { supabase, response } = createMiddlewareClient(request)
 
   // Проверяем, является ли путь защищенным
   const isProtectedPath = protectedPaths.some(p => path.startsWith(p))
@@ -85,7 +85,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {

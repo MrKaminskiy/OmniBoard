@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectedFrom = searchParams.get('redirectedFrom') || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,12 +19,15 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Временная заглушка для деплоя
-      if (email === 'demo@omniboard.com' && password === 'demo123') {
-        // Успешный вход
-        router.push('/');
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
       } else {
-        setError('Неверные учетные данные. Используйте demo@omniboard.com / demo123');
+        router.push(redirectedFrom);
       }
     } catch (err) {
       setError('Ошибка входа');
@@ -94,10 +100,18 @@ export default function LoginPage() {
           </div>
           
           <div className="text-center text-xs text-gray-500">
-            <p>Демо: demo@omniboard.com / demo123</p>
+            <p>Нет аккаунта? <a href="/auth/signup" className="text-blue-600 hover:underline">Зарегистрироваться</a></p>
           </div>
         </form>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
