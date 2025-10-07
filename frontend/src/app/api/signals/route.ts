@@ -103,6 +103,7 @@ function transformCTSSSignal(ctssSignal: any) {
 
   // Маппинг статусов из CTSS в OmniBoard
   let status = 'ACTIVE';
+  const originalStatus = ctssSignal.status;
   
   // Сначала проверяем статус из CTSS
   if (ctssSignal.status) {
@@ -124,8 +125,11 @@ function transformCTSSSignal(ctssSignal: any) {
         break;
       default:
         status = 'ACTIVE';
+        console.log(`⚠️ Unknown CTSS status: ${ctssSignal.status}, mapping to ACTIVE`);
     }
   }
+  
+  console.log(`🔄 Status mapping: ${originalStatus} → ${status} (Signal ${ctssSignal.id})`);
   
   // Дополнительно проверяем TP levels для более точного статуса
   if (tpLevels.length > 0) {
@@ -218,6 +222,10 @@ function groupSignalsByPair(signals: any[]) {
 function removeDuplicateSignals(signals: any[]) {
   const seen = new Map();
   const unique = [];
+  let duplicatesFound = 0;
+  let replacements = 0;
+  
+  console.log(`🔍 Starting deduplication of ${signals.length} signals...`);
   
   for (const signal of signals) {
     // Создаем уникальный ключ по паре, таймфрейму и направлению
@@ -226,8 +234,8 @@ function removeDuplicateSignals(signals: any[]) {
     if (!seen.has(key)) {
       seen.set(key, signal);
       unique.push(signal);
-      console.log(`✅ Added signal: ${signal.id} (${key})`);
     } else {
+      duplicatesFound++;
       const existingSignal = seen.get(key);
       // Оставляем более новый сигнал
       if (new Date(signal.created_at) > new Date(existingSignal.created_at)) {
@@ -236,6 +244,7 @@ function removeDuplicateSignals(signals: any[]) {
         if (index !== -1) {
           unique[index] = signal;
           seen.set(key, signal);
+          replacements++;
           console.log(`🔄 Replaced signal: ${existingSignal.id} → ${signal.id} (${key})`);
         }
       } else {
@@ -244,6 +253,7 @@ function removeDuplicateSignals(signals: any[]) {
     }
   }
   
+  console.log(`✅ Deduplication completed: ${signals.length} → ${unique.length} (${duplicatesFound} duplicates found, ${replacements} replacements)`);
   return unique;
 }
 
@@ -319,13 +329,21 @@ export async function GET(request: NextRequest) {
         id: ctssData.data[0].id,
         pair: ctssData.data[0].parsed_pair,
         direction: ctssData.data[0].parsed_direction,
-        status: ctssData.data[0].status
+        status: ctssData.data[0].status,
+        created_at: ctssData.data[0].created_at
       } : null,
       lastSignal: ctssData.data?.[ctssData.data.length - 1] ? {
         id: ctssData.data[ctssData.data.length - 1].id,
-        pair: ctssData.data[ctssData.data.length - 1].parsed_pair
+        pair: ctssData.data[ctssData.data.length - 1].parsed_pair,
+        status: ctssData.data[ctssData.data.length - 1].status,
+        created_at: ctssData.data[ctssData.data.length - 1].created_at
       } : null,
-      allPairs: ctssData.data?.map(s => s.parsed_pair).slice(0, 10) || []
+      allPairs: ctssData.data?.map(s => s.parsed_pair).slice(0, 10) || [],
+      allStatuses: [...new Set(ctssData.data?.map(s => s.status) || [])],
+      dateRange: ctssData.data?.length > 0 ? {
+        earliest: ctssData.data[ctssData.data.length - 1]?.created_at,
+        latest: ctssData.data[0]?.created_at
+      } : null
     })
 
     if (!ctssData.data || !Array.isArray(ctssData.data)) {
@@ -414,15 +432,31 @@ export async function GET(request: NextRequest) {
     console.log('✅ Processing completed:', {
       originalCount: ctssData.data.length,
       transformedCount: uniqueSignals.length,
+      filteredCount: filteredSignals.length,
+      paginatedCount: paginatedSignals.length,
       groupedPairs: groupedSignals.size,
+      appliedFilters: { pair, status, direction, timeframe },
       firstTransformed: uniqueSignals[0] ? {
         id: uniqueSignals[0].id,
         pair: uniqueSignals[0].pair,
         direction: uniqueSignals[0].direction,
+        status: uniqueSignals[0].status,
         tpLevelsCount: uniqueSignals[0].tp_levels.length,
         currentPrice: uniqueSignals[0].current_price,
         priceChange: uniqueSignals[0].price_change_percent
-      } : null
+      } : null,
+      lastTransformed: uniqueSignals[uniqueSignals.length - 1] ? {
+        id: uniqueSignals[uniqueSignals.length - 1].id,
+        pair: uniqueSignals[uniqueSignals.length - 1].pair,
+        status: uniqueSignals[uniqueSignals.length - 1].status,
+        created_at: uniqueSignals[uniqueSignals.length - 1].created_at
+      } : null,
+      statusDistribution: {
+        ACTIVE: uniqueSignals.filter(s => s.status === 'ACTIVE').length,
+        CLOSED: uniqueSignals.filter(s => s.status === 'CLOSED').length,
+        CANCELLED: uniqueSignals.filter(s => s.status === 'CANCELLED').length,
+        SL_HIT: uniqueSignals.filter(s => s.status === 'SL_HIT').length
+      }
     })
 
     const response = {
