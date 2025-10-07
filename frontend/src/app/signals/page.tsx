@@ -394,71 +394,72 @@ export default function Signals() {
             </div>
           ))}
         </div>
-        
-        {totalPages > 1 && (
-          <div className="d-flex justify-content-center mt-4">
-            <nav>
-              <ul className="pagination">
-                {/* Previous page */}
-                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
-                    onClick={() => goToPage(currentPage - 1)}
-                    disabled={currentPage === 1 || loading}
-                  >
-                    <i className="ti ti-chevron-left"></i>
-                  </button>
-                </li>
+      )}
+      
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center mt-4">
+          <nav>
+            <ul className="pagination">
+              {/* Previous page */}
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button 
+                  className="page-link" 
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1 || loading}
+                >
+                  <i className="ti ti-chevron-left"></i>
+                </button>
+              </li>
+              
+              {/* Page numbers */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
                 
-                {/* Page numbers */}
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  
-                  return (
-                    <li key={pageNum} className={`page-item ${currentPage === pageNum ? 'active' : ''}`}>
-                      <button 
-                        className="page-link" 
-                        onClick={() => goToPage(pageNum)}
-                        disabled={loading}
-                      >
-                        {pageNum}
-                      </button>
-                    </li>
-                  );
-                })}
-                
-                {/* Next page */}
-                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
-                    onClick={() => goToPage(currentPage + 1)}
-                    disabled={currentPage === totalPages || loading}
-                  >
-                    <i className="ti ti-chevron-right"></i>
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        )}
-        
-        {/* Signals count info */}
-        {signals.length > 0 && (
-          <div className="text-center mt-3">
-            <small className="text-muted">
-              Страница {currentPage} из {totalPages} • Показано {signals.length} из {totalSignals} сигналов
-            </small>
-          </div>
-        )}
+                return (
+                  <li key={pageNum} className={`page-item ${currentPage === pageNum ? 'active' : ''}`}>
+                    <button 
+                      className="page-link" 
+                      onClick={() => goToPage(pageNum)}
+                      disabled={loading}
+                    >
+                      {pageNum}
+                    </button>
+                  </li>
+                );
+              })}
+              
+              {/* Next page */}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button 
+                  className="page-link" 
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages || loading}
+                >
+                  <i className="ti ti-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
+      
+      {/* Signals count info */}
+      {signals.length > 0 && (
+        <div className="text-center mt-3">
+          <small className="text-muted">
+            Страница {currentPage} из {totalPages} • Показано {signals.length} из {totalSignals} сигналов
+          </small>
+        </div>
       )}
     </div>
   );
