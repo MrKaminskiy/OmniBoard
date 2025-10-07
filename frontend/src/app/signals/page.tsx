@@ -216,9 +216,9 @@ export default function Signals() {
                 <option value="">Все</option>
                 <option value="5m">5m</option>
                 <option value="15m">15m</option>
+                <option value="30m">30m</option>
                 <option value="1h">1h</option>
                 <option value="4h">4h</option>
-                <option value="1d">1d</option>
               </select>
             </div>
           </div>
@@ -251,16 +251,13 @@ export default function Signals() {
         <div className="row row-cards">
           {signals.map((signal) => (
             <div key={signal.id} className="col-md-6 col-lg-4">
-              <div className={`card border-2 ${
-                signal.direction === 'LONG' ? 'border-success' : 'border-danger'
+              <div className={`card border-start ${
+                signal.direction === 'LONG' ? 'border-success border-3' : 'border-danger border-3'
               }`}>
                 <div className="card-header bg-transparent">
                   <h3 className="card-title d-flex align-items-center">
-                    <span className={`me-2 fs-4 ${signal.direction === 'LONG' ? 'text-success' : 'text-danger'}`}>
-                      {getDirectionIcon(signal.direction)}
-                    </span>
-                    <span className="fw-bold">{signal.pair}</span>
-                    <span className={`badge ms-2 ${signal.direction === 'LONG' ? 'bg-success-lt' : 'bg-danger-lt'}`}>
+                    <span className="fw-bold me-2">{signal.pair}</span>
+                    <span className={`badge ${signal.direction === 'LONG' ? 'bg-success-lt' : 'bg-danger-lt'}`}>
                       {signal.direction}
                     </span>
                   </h3>
