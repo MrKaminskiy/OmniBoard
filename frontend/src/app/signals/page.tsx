@@ -12,7 +12,7 @@ export default function Signals() {
     pair: '',
     status: '',
     direction: '',
-    timeframe: '',
+    timeframe: '1h', // По умолчанию 1h
   });
 
   const fetchSignals = async () => {
@@ -265,58 +265,77 @@ export default function Signals() {
                   </div>
                 </div>
                 
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-6">
-                      <div className="mb-2">
-                        <small className="text-muted">Entry</small>
-                        <div className="h3 mb-0">{formatPrice(signal.entry_price)}</div>
-                      </div>
-                    </div>
-                    <div className="col-6">
-                      <div className="mb-2">
-                        <small className="text-muted">DCA</small>
-                        <div className="h4 mb-0">{formatPrice(signal.dca_price)}</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {signal.stop_loss && (
-                    <div className="mb-2">
-                      <small className="text-muted">Stop Loss</small>
-                      <div className="h5 mb-0 text-danger">{formatPrice(signal.stop_loss)}</div>
-                    </div>
-                  )}
-                  
-                  {signal.tp_levels && signal.tp_levels.length > 0 && (
-                    <div className="mb-3">
-                      <small className="text-muted">Take Profit Levels</small>
-                      <div className="mt-1">
-                        {signal.tp_levels.map((tp, index) => (
-                          <div key={index} className="d-flex justify-content-between align-items-center mb-1">
-                            <span className="small">TP{index + 1}</span>
-                            <span className={`badge ${tp.hit ? 'bg-success' : 'bg-outline-success'}`}>
-                              {formatPrice(tp.price)}
-                            </span>
+                        <div className="card-body">
+                          <div className="row">
+                            <div className="col-4">
+                              <div className="mb-2">
+                                <small className="text-muted">Entry</small>
+                                <div className="h4 mb-0">{formatPrice(signal.entry_price)}</div>
+                              </div>
+                            </div>
+                            <div className="col-4">
+                              <div className="mb-2">
+                                <small className="text-muted">DCA</small>
+                                <div className="h5 mb-0">{formatPrice(signal.dca_price)}</div>
+                              </div>
+                            </div>
+                            <div className="col-4">
+                              <div className="mb-2">
+                                <small className="text-muted">Текущая цена</small>
+                                <div className="h4 mb-0 text-primary">
+                                  {signal.current_price ? formatPrice(signal.current_price) : '---'}
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="row">
-                    <div className="col-6">
-                      <small className="text-muted">Таймфрейм</small>
-                      <div>{signal.timeframe || '---'}</div>
-                    </div>
-                    <div className="col-6">
-                      <small className="text-muted">Уверенность</small>
-                      <div>
-                        {signal.confidence ? `${(signal.confidence * 100).toFixed(0)}%` : '---'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
+                          {signal.stop_loss && (
+                            <div className="mb-2">
+                              <small className="text-muted">Stop Loss</small>
+                              <div className="h5 mb-0 text-danger">{formatPrice(signal.stop_loss)}</div>
+                            </div>
+                          )}
+
+                          {signal.tp_levels && signal.tp_levels.length > 0 && (
+                            <div className="mb-3">
+                              <small className="text-muted">Take Profit Levels</small>
+                              <div className="mt-1">
+                                {signal.tp_levels.map((tp, index) => (
+                                  <div key={index} className="d-flex justify-content-between align-items-center mb-1">
+                                    <div className="d-flex align-items-center">
+                                      <span className="small me-2">TP{tp.level}</span>
+                                      {tp.confidence && (
+                                        <span className="badge bg-info bg-opacity-25 text-info small">
+                                          {(tp.confidence * 100).toFixed(0)}%
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className={`badge ${tp.hit ? 'bg-success' : 'bg-outline-success'}`}>
+                                      {formatPrice(tp.price)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="row">
+                            <div className="col-6">
+                              <small className="text-muted">Таймфрейм</small>
+                              <div>{signal.timeframe || '---'}</div>
+                            </div>
+                            <div className="col-6">
+                              <small className="text-muted">Прогресс</small>
+                              <div>
+                                {signal.tp_levels && signal.tp_levels.length > 0 ? (
+                                  <span className="badge bg-primary">
+                                    {signal.tp_levels.filter(tp => tp.hit).length}/{signal.tp_levels.length} TP
+                                  </span>
+                                ) : '---'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                 
                 <div className="card-footer">
                   <div className="row align-items-center">

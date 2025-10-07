@@ -40,6 +40,7 @@ export interface Signal {
     price: number
     hit: boolean
     hit_at?: string
+    confidence?: number
   }>
   current_price?: number
   status: 'ACTIVE' | 'TP_HIT' | 'SL_HIT' | 'CLOSED'
