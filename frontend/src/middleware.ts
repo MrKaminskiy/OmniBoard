@@ -36,35 +36,38 @@ export async function middleware(request: NextRequest) {
       const { data: { session }, error } = await supabase.auth.getSession()
       
       if (error || !session) {
+        console.log('No session found, redirecting to login')
         // Перенаправляем на страницу входа
         const redirectUrl = new URL('/auth/login', request.url)
         redirectUrl.searchParams.set('redirectTo', path)
         return NextResponse.redirect(redirectUrl)
       }
 
-      // Проверяем подписку для премиум функций
-      if (path.startsWith('/signals') || path.startsWith('/journal') || path.startsWith('/media')) {
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('subscription_tier, subscription_expires_at')
-          .eq('id', session.user.id)
-          .single()
+      console.log('Session found for user:', session.user.email)
 
-        if (!profile || profile.subscription_tier === 'free') {
-          // Перенаправляем на страницу с тарифами
-          const redirectUrl = new URL('/pricing', request.url)
-          redirectUrl.searchParams.set('redirectTo', path)
-          return NextResponse.redirect(redirectUrl)
-        }
+      // Временно отключаем проверку подписки до настройки базы данных
+      // if (path.startsWith('/signals') || path.startsWith('/journal') || path.startsWith('/media')) {
+      //   const { data: profile } = await supabase
+      //     .from('user_profiles')
+      //     .select('subscription_tier, subscription_expires_at')
+      //     .eq('id', session.user.id)
+      //     .single()
 
-        // Проверяем, не истекла ли подписка
-        if (profile.subscription_expires_at && new Date(profile.subscription_expires_at) < new Date()) {
-          const redirectUrl = new URL('/pricing', request.url)
-          redirectUrl.searchParams.set('redirectTo', path)
-          redirectUrl.searchParams.set('expired', 'true')
-          return NextResponse.redirect(redirectUrl)
-        }
-      }
+      //   if (!profile || profile.subscription_tier === 'free') {
+      //     // Перенаправляем на страницу с тарифами
+      //     const redirectUrl = new URL('/pricing', request.url)
+      //     redirectUrl.searchParams.set('redirectTo', path)
+      //     return NextResponse.redirect(redirectUrl)
+      //   }
+
+      //   // Проверяем, не истекла ли подписка
+      //   if (profile.subscription_expires_at && new Date(profile.subscription_expires_at) < new Date()) {
+      //     const redirectUrl = new URL('/pricing', request.url)
+      //     redirectUrl.searchParams.set('redirectTo', path)
+      //     redirectUrl.searchParams.set('expired', 'true')
+      //     return NextResponse.redirect(redirectUrl)
+      //   }
+      // }
     } catch (error) {
       console.error('Middleware auth error:', error)
       const redirectUrl = new URL('/auth/login', request.url)
