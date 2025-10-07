@@ -12,7 +12,7 @@ export default function Signals() {
     pair: '',
     status: '',
     direction: '',
-    timeframe: '1h', // По умолчанию 1h
+    timeframe: '', // Показывать все таймфреймы по умолчанию
   });
 
   const fetchSignals = async () => {

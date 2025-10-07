@@ -206,7 +206,7 @@ export async function GET(request: NextRequest) {
     const pair = searchParams.get('pair')
     const status = searchParams.get('status')
     const direction = searchParams.get('direction')
-    const timeframe = searchParams.get('timeframe') || '1h' // По умолчанию 1h
+    const timeframe = searchParams.get('timeframe') // Убираем дефолт, показываем все
 
     console.log('📊 Request params:', { limit, offset, pair, status, direction, timeframe })
 
@@ -297,6 +297,9 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Применяем пагинацию после обработки
+    const paginatedSignals = uniqueSignals.slice(offset, offset + limit);
+
     console.log('✅ Processing completed:', {
       originalCount: ctssData.data.length,
       transformedCount: uniqueSignals.length,
@@ -313,9 +316,15 @@ export async function GET(request: NextRequest) {
 
     const response = {
       success: true,
-      data: uniqueSignals,
+      data: paginatedSignals,
       groupedByPair: Object.fromEntries(groupedSignals),
-      count: uniqueSignals.length
+      count: uniqueSignals.length,
+      pagination: {
+        limit,
+        offset,
+        total: uniqueSignals.length,
+        hasMore: offset + limit < uniqueSignals.length
+      }
     };
 
     console.log('🚀 Returning response:', {
