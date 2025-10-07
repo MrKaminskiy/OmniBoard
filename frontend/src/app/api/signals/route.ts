@@ -241,7 +241,7 @@ export async function GET(request: NextRequest) {
 
     // Получаем параметры запроса
     const { searchParams } = new URL(request.url)
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100) // По умолчанию 20
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 1000) // По умолчанию 20, максимум 1000
     const offset = parseInt(searchParams.get('offset') || '0')
     const pair = searchParams.get('pair')
     const status = searchParams.get('status')
