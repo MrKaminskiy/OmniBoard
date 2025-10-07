@@ -91,7 +91,7 @@ export default function Signals() {
   };
 
   const getDirectionIcon = (direction: string) => {
-    return direction === 'LONG' ? '📈' : '📉';
+    return direction === 'LONG' ? '↗️' : '↘️';
   };
 
   if (loading) {
@@ -251,19 +251,21 @@ export default function Signals() {
         <div className="row row-cards">
           {signals.map((signal) => (
             <div key={signal.id} className="col-md-6 col-lg-4">
-              <div className="card">
-                <div className={`card-status-top ${
-                  signal.status === 'ACTIVE' ? 'bg-success' :
-                  signal.status === 'TP_HIT' ? 'bg-info' :
-                  signal.status === 'SL_HIT' ? 'bg-danger' : 'bg-secondary'
-                }`}></div>
-                
-                <div className="card-header">
-                  <h3 className="card-title">
-                    {getDirectionIcon(signal.direction)} {signal.pair}
+              <div className={`card border-2 ${
+                signal.direction === 'LONG' ? 'border-success' : 'border-danger'
+              }`}>
+                <div className="card-header bg-transparent">
+                  <h3 className="card-title d-flex align-items-center">
+                    <span className={`me-2 fs-4 ${signal.direction === 'LONG' ? 'text-success' : 'text-danger'}`}>
+                      {getDirectionIcon(signal.direction)}
+                    </span>
+                    <span className="fw-bold">{signal.pair}</span>
+                    <span className={`badge ms-2 ${signal.direction === 'LONG' ? 'bg-success-lt' : 'bg-danger-lt'}`}>
+                      {signal.direction}
+                    </span>
                   </h3>
-                  <div className="card-actions">
-                    {getStatusBadge(signal.status)}
+                  <div className="text-muted small">
+                    {signal.timeframe || '---'}
                   </div>
                 </div>
                 
@@ -309,62 +311,67 @@ export default function Signals() {
 
                           {signal.tp_levels && signal.tp_levels.length > 0 && (
                             <div className="mb-3">
-                              <small className="text-muted">Take Profit Levels</small>
-                              <div className="mt-1">
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <small className="text-muted">Take Profit Levels</small>
+                                <div className="progress progress-sm" style={{width: '60px'}}>
+                                  <div 
+                                    className={`progress-bar ${signal.direction === 'LONG' ? 'bg-success' : 'bg-danger'}`}
+                                    style={{
+                                      width: `${(signal.tp_levels.filter(tp => tp.hit).length / signal.tp_levels.length) * 100}%`
+                                    }}
+                                  ></div>
+                                </div>
+                              </div>
+                              <div className="row g-1">
                                 {signal.tp_levels.map((tp, index) => (
-                                  <div key={index} className="d-flex justify-content-between align-items-center mb-1">
-                                    <div className="d-flex align-items-center">
-                                      <span className="small me-2">TP{tp.level}</span>
-                                      {tp.confidence && (
-                                        <span className="badge bg-info bg-opacity-25 text-info small">
-                                          {(tp.confidence * 100).toFixed(0)}%
-                                        </span>
-                                      )}
+                                  <div key={index} className="col-6">
+                                    <div className={`p-2 rounded ${tp.hit ? 'bg-success-lt' : 'bg-muted-lt'}`}>
+                                      <div className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                          <div className="fw-bold small">TP{tp.level}</div>
+                                          <div className={`small ${tp.hit ? 'text-success' : 'text-muted'}`}>
+                                            {formatPrice(tp.price)}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          {tp.hit ? (
+                                            <i className="ti ti-check text-success"></i>
+                                          ) : (
+                                            <span className="badge bg-outline-secondary small">
+                                              {(tp.confidence * 100).toFixed(0)}%
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
                                     </div>
-                                    <span className={`badge ${tp.hit ? 'bg-success' : 'bg-outline-success'}`}>
-                                      {formatPrice(tp.price)}
-                                    </span>
                                   </div>
                                 ))}
                               </div>
                             </div>
                           )}
 
-                          <div className="row">
-                            <div className="col-6">
-                              <small className="text-muted">Таймфрейм</small>
-                              <div>{signal.timeframe || '---'}</div>
+                        </div>
+                        
+                        <div className="card-footer bg-transparent">
+                          <div className="row align-items-center">
+                            <div className="col">
+                              <small className="text-muted">
+                                {new Date(signal.created_at).toLocaleString('ru-RU')}
+                              </small>
                             </div>
-                            <div className="col-6">
-                              <small className="text-muted">Прогресс</small>
-                              <div>
-                                {signal.tp_levels && signal.tp_levels.length > 0 ? (
-                                  <span className="badge bg-primary">
-                                    {signal.tp_levels.filter(tp => tp.hit).length}/{signal.tp_levels.length} TP
-                                  </span>
-                                ) : '---'}
-                              </div>
+                            <div className="col-auto d-flex align-items-center gap-2">
+                              <span className="badge bg-outline-secondary small">
+                                {getStatusBadge(signal.status)}
+                              </span>
+                              <Link
+                                href={`/signals/${signal.id}`}
+                                className="btn btn-sm btn-outline-primary"
+                              >
+                                Детали
+                              </Link>
                             </div>
                           </div>
                         </div>
-                
-                <div className="card-footer">
-                  <div className="row align-items-center">
-                    <div className="col">
-                      <small className="text-muted">
-                        {new Date(signal.created_at).toLocaleString('ru-RU')}
-                      </small>
-                    </div>
-                    <div className="col-auto">
-                      <Link 
-                        href={`/signals/${signal.id}`}
-                        className="btn btn-sm btn-primary"
-                      >
-                        Детали
-                      </Link>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           ))}
