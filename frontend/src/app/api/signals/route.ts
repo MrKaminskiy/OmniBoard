@@ -211,9 +211,8 @@ export async function GET(request: NextRequest) {
     console.log('📊 Request params:', { limit, offset, pair, status, direction, timeframe })
 
     // Формируем URL для запроса к CTSS API
+    // CTSS API не поддерживает лимит, поэтому получаем все данные и применяем лимит на нашей стороне
     const ctssUrl = new URL(`${CTSS_API_URL}/api/signals`)
-    ctssUrl.searchParams.set('limit', limit.toString())
-    ctssUrl.searchParams.set('offset', offset.toString())
     
     if (pair) ctssUrl.searchParams.set('pair', pair)
     if (status) ctssUrl.searchParams.set('status', status)
