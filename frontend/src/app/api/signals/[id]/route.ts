@@ -7,11 +7,17 @@ const CTSS_API_KEY = process.env.CTSS_API_KEY
 // Функция для получения текущих цен с Binance
 async function getCurrentPrice(symbol: string): Promise<number | null> {
   try {
-    const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
-    if (!response.ok) return null;
+    // Пары уже содержат USDT, поэтому используем как есть
+    const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}`);
+    if (!response.ok) {
+      console.warn(`Failed to fetch price for ${symbol}: ${response.status} ${response.statusText}`);
+      return null;
+    }
     
     const data = await response.json();
-    return parseFloat(data.price);
+    const price = parseFloat(data.price);
+    console.log(`✅ Fetched price for ${symbol}: $${price}`);
+    return price;
   } catch (error) {
     console.error(`Error fetching price for ${symbol}:`, error);
     return null;

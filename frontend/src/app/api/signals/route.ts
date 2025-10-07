@@ -7,11 +7,17 @@ const CTSS_API_KEY = process.env.CTSS_API_KEY
 // Функция для получения текущих цен с Binance
 async function getCurrentPrice(symbol: string): Promise<number | null> {
   try {
-    const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
-    if (!response.ok) return null;
+    // Пары уже содержат USDT, поэтому используем как есть
+    const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}`);
+    if (!response.ok) {
+      console.warn(`Failed to fetch price for ${symbol}: ${response.status} ${response.statusText}`);
+      return null;
+    }
     
     const data = await response.json();
-    return parseFloat(data.price);
+    const price = parseFloat(data.price);
+    console.log(`✅ Fetched price for ${symbol}: $${price}`);
+    return price;
   } catch (error) {
     console.error(`Error fetching price for ${symbol}:`, error);
     return null;
@@ -138,6 +144,24 @@ function groupSignalsByPair(signals: any[]) {
   return groups;
 }
 
+// Функция для удаления дубликатов сигналов (по hash)
+function removeDuplicateSignals(signals: any[]) {
+  const seen = new Set();
+  const unique = [];
+  
+  for (const signal of signals) {
+    const hash = signal.raw_data?.hash || `${signal.pair}-${signal.timeframe}-${signal.created_at}`;
+    if (!seen.has(hash)) {
+      seen.add(hash);
+      unique.push(signal);
+    } else {
+      console.log(`🔄 Skipping duplicate signal: ${signal.id} (hash: ${hash})`);
+    }
+  }
+  
+  return unique;
+}
+
 export async function GET(request: NextRequest) {
   console.log('🚀 Starting /api/signals request')
   
@@ -223,18 +247,22 @@ export async function GET(request: NextRequest) {
     
     // Преобразуем данные CTSS в формат OmniBoard
     const transformedSignals = ctssData.data.map(transformCTSSSignal);
+    
+    // Удаляем дубликаты сигналов
+    const uniqueSignals = removeDuplicateSignals(transformedSignals);
+    console.log(`🔄 Removed duplicates: ${transformedSignals.length} → ${uniqueSignals.length}`);
 
     console.log('🔄 Grouping signals by pair...')
     
     // Группируем сигналы по парам
-    const groupedSignals = groupSignalsByPair(transformedSignals);
+    const groupedSignals = groupSignalsByPair(uniqueSignals);
 
     console.log('💰 Fetching current prices...')
     
     // Получаем текущие цены для уникальных пар
-    const uniquePairs = [...new Set(transformedSignals.map(s => s.pair))];
+    const uniquePairs = [...new Set(uniqueSignals.map(s => s.pair))];
     const pricePromises = uniquePairs.map(async (pair) => {
-      const price = await getCurrentPrice(pair);
+      const price = await getCurrentPrice(pair); // pair уже содержит USDT
       return { pair, price };
     });
     
@@ -242,7 +270,7 @@ export async function GET(request: NextRequest) {
     const priceMap = new Map(prices.map(p => [p.pair, p.price]));
     
     // Добавляем текущие цены и процентные изменения
-    transformedSignals.forEach(signal => {
+    uniqueSignals.forEach(signal => {
       signal.current_price = priceMap.get(signal.pair) || null;
       if (signal.entry_price && signal.current_price) {
         signal.price_change_percent = calculatePriceChange(signal.entry_price, signal.current_price);
@@ -251,23 +279,23 @@ export async function GET(request: NextRequest) {
 
     console.log('✅ Processing completed:', {
       originalCount: ctssData.data.length,
-      transformedCount: transformedSignals.length,
+      transformedCount: uniqueSignals.length,
       groupedPairs: groupedSignals.size,
-      firstTransformed: transformedSignals[0] ? {
-        id: transformedSignals[0].id,
-        pair: transformedSignals[0].pair,
-        direction: transformedSignals[0].direction,
-        tpLevelsCount: transformedSignals[0].tp_levels.length,
-        currentPrice: transformedSignals[0].current_price,
-        priceChange: transformedSignals[0].price_change_percent
+      firstTransformed: uniqueSignals[0] ? {
+        id: uniqueSignals[0].id,
+        pair: uniqueSignals[0].pair,
+        direction: uniqueSignals[0].direction,
+        tpLevelsCount: uniqueSignals[0].tp_levels.length,
+        currentPrice: uniqueSignals[0].current_price,
+        priceChange: uniqueSignals[0].price_change_percent
       } : null
     })
 
     const response = {
       success: true,
-      data: transformedSignals,
+      data: uniqueSignals,
       groupedByPair: Object.fromEntries(groupedSignals),
-      count: transformedSignals.length
+      count: uniqueSignals.length
     };
 
     console.log('🚀 Returning response:', {
