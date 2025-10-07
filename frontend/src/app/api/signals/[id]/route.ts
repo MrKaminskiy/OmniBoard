@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 // import { createClient } from '@/lib/supabase-server'
 
 const CTSS_API_URL = process.env.NEXT_PUBLIC_CTSS_API_URL || 'https://ctss-production.up.railway.app'
-// const CTSS_API_KEY = process.env.CTSS_API_KEY // CTSS API is currently open, no key needed
+// Используем API ключ для OmniBoard из терминала
+const CTSS_API_KEY = 'sh3WPGHqnRAujaEwUQ3N0b5JfAyfn_AjJb0fzB4KCcg'
 
 export async function GET(
   request: NextRequest,
@@ -43,16 +44,18 @@ export async function GET(
       'Content-Type': 'application/json',
     }
 
-    // if (CTSS_API_KEY) {
-    //   headers['X-API-Key'] = CTSS_API_KEY;
-    // }
+    // Добавляем API ключ
+    if (CTSS_API_KEY) {
+      headers['X-API-Key'] = CTSS_API_KEY;
+    }
 
     console.log('API: Fetching signal details from CTSS:', `${CTSS_API_URL}/api/signals/${signalId}`)
+    console.log('API: Using API Key:', CTSS_API_KEY.substring(0, 10) + '...')
 
     const ctssResponse = await fetch(`${CTSS_API_URL}/api/signals/${signalId}`, { headers });
 
     if (!ctssResponse.ok) {
-      const errorData = await ctssResponse.json();
+      const errorData = await ctssResponse.json().catch(() => ({ error: 'Unknown error' }));
       console.error('CTSS API error for signal details:', errorData)
       return NextResponse.json({ error: errorData.error || 'Failed to fetch signal from CTSS' }, { status: ctssResponse.status });
     }
