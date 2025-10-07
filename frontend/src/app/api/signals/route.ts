@@ -53,6 +53,31 @@ function calculatePriceChange(entryPrice: number, currentPrice: number): string 
   return `${sign}${change.toFixed(2)}%`;
 }
 
+// Функция для парсинга времени достижения TP из raw_text
+function parseTPHitTime(rawText: string, tpLevel: number): string | undefined {
+  try {
+    // Ищем строку типа "🎯 TP1 : 0.004281 - ✅ (0d 2h 23m)"
+    const tpRegex = new RegExp(`🎯 TP${tpLevel}.*?✅.*?\\((\\d+d)?\\s*(\\d+h)?\\s*(\\d+m)?\\)`);
+    const match = rawText.match(tpRegex);
+    
+    if (match) {
+      const days = parseInt(match[1]?.replace('d', '') || '0');
+      const hours = parseInt(match[2]?.replace('h', '') || '0');
+      const minutes = parseInt(match[3]?.replace('m', '') || '0');
+      
+      // Создаем дату на основе времени создания сигнала + время достижения
+      const now = new Date();
+      const hitTime = new Date(now.getTime() - (days * 24 + hours) * 60 * 60 * 1000 - minutes * 60 * 1000);
+      
+      return hitTime.toISOString();
+    }
+  } catch (error) {
+    console.error('❌ Error parsing TP hit time:', error);
+  }
+  
+  return undefined;
+}
+
 // Функция для преобразования данных CTSS в формат OmniBoard
 function transformCTSSSignal(ctssSignal: any) {
   console.log('🔄 Transforming signal:', ctssSignal.id, ctssSignal.parsed_pair)
@@ -67,7 +92,7 @@ function transformCTSSSignal(ctssSignal: any) {
         level: index + 1,
         price: parseFloat(tp.price),
         hit: tp.status === 'HIT',
-        hit_at: tp.status === 'HIT' ? tp.hit_at : undefined,
+        hit_at: tp.status === 'HIT' ? parseTPHitTime(ctssSignal.raw_text, index + 1) : undefined,
         confidence: parseFloat(tp.confidence) // Каждый TP имеет свой confidence
       }));
       console.log('✅ Parsed TP levels:', tpLevels)
@@ -164,18 +189,33 @@ function groupSignalsByPair(signals: any[]) {
   return groups;
 }
 
-// Функция для удаления дубликатов сигналов (по hash)
+// Функция для удаления дубликатов сигналов (по паре + таймфрейм + направление)
 function removeDuplicateSignals(signals: any[]) {
-  const seen = new Set();
+  const seen = new Map();
   const unique = [];
   
   for (const signal of signals) {
-    const hash = signal.raw_data?.hash || `${signal.pair}-${signal.timeframe}-${signal.created_at}`;
-    if (!seen.has(hash)) {
-      seen.add(hash);
+    // Создаем уникальный ключ по паре, таймфрейму и направлению
+    const key = `${signal.pair}-${signal.timeframe}-${signal.direction}`;
+    
+    if (!seen.has(key)) {
+      seen.set(key, signal);
       unique.push(signal);
+      console.log(`✅ Added signal: ${signal.id} (${key})`);
     } else {
-      console.log(`🔄 Skipping duplicate signal: ${signal.id} (hash: ${hash})`);
+      const existingSignal = seen.get(key);
+      // Оставляем более новый сигнал
+      if (new Date(signal.created_at) > new Date(existingSignal.created_at)) {
+        // Заменяем старый сигнал на новый
+        const index = unique.findIndex(s => s.id === existingSignal.id);
+        if (index !== -1) {
+          unique[index] = signal;
+          seen.set(key, signal);
+          console.log(`🔄 Replaced signal: ${existingSignal.id} → ${signal.id} (${key})`);
+        }
+      } else {
+        console.log(`🔄 Skipping older duplicate signal: ${signal.id} (${key})`);
+      }
     }
   }
   
