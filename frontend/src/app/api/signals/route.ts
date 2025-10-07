@@ -108,7 +108,7 @@ function transformCTSSSignal(ctssSignal: any) {
     const someHit = tpLevels.some((tp: any) => tp.hit);
     
     if (allHit) {
-      status = 'TP_HIT';
+      status = 'CLOSED'; // Все TP достигнуты = сигнал закрыт
     } else if (someHit) {
       status = 'ACTIVE'; // Частично выполнен
     }

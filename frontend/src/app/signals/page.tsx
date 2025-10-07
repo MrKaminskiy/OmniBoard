@@ -77,8 +77,6 @@ export default function Signals() {
     switch (status) {
       case 'ACTIVE':
         return <span className="badge bg-success">Активен</span>;
-      case 'TP_HIT':
-        return <span className="badge bg-info">TP достигнут</span>;
       case 'SL_HIT':
         return <span className="badge bg-danger">SL достигнут</span>;
       case 'CLOSED':
@@ -262,7 +260,7 @@ export default function Signals() {
                         {signal.direction}
                       </span>
                     </h3>
-                    <div className="text-muted small">
+                    <div className="text-muted small position-absolute" style={{top: '1rem', right: '1rem'}}>
                       {signal.timeframe || '---'}
                     </div>
                   </div>
