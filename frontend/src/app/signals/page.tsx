@@ -8,6 +8,9 @@ export default function Signals() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalSignals, setTotalSignals] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [filters, setFilters] = useState({
     pair: '',
     status: '',
@@ -15,9 +18,9 @@ export default function Signals() {
     timeframe: '', // Показывать все таймфреймы по умолчанию
   });
 
-  const fetchSignals = async () => {
+  const fetchSignals = async (page: number = 1, reset: boolean = true) => {
     try {
-      console.log('🚀 Frontend: Starting to fetch signals');
+      console.log('🚀 Frontend: Starting to fetch signals, page:', page);
       setLoading(true);
       setError(null);
       
@@ -26,6 +29,8 @@ export default function Signals() {
       if (filters.status) params.set('status', filters.status);
       if (filters.direction) params.set('direction', filters.direction);
       if (filters.timeframe) params.set('timeframe', filters.timeframe);
+      params.set('limit', '50');
+      params.set('offset', ((page - 1) * 50).toString());
       
       const url = `/api/signals?${params.toString()}`;
       console.log('🌐 Frontend: Making request to:', url);
@@ -53,7 +58,16 @@ export default function Signals() {
       }
       
       console.log('✅ Frontend: Setting signals:', data.data?.length || 0);
-      setSignals(data.data || []);
+      
+      if (reset || page === 1) {
+        setSignals(data.data || []);
+      } else {
+        setSignals(prev => [...prev, ...(data.data || [])]);
+      }
+      
+      setTotalSignals(data.count || 0);
+      setHasMore(data.pagination?.hasMore || false);
+      setCurrentPage(page);
     } catch (err) {
       console.error('💥 Frontend: Error fetching signals:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch signals');
@@ -63,8 +77,20 @@ export default function Signals() {
   };
 
   useEffect(() => {
-    fetchSignals();
+    setCurrentPage(1);
+    fetchSignals(1, true);
   }, [filters]);
+
+  const loadMoreSignals = () => {
+    if (hasMore && !loading) {
+      fetchSignals(currentPage + 1, false);
+    }
+  };
+
+  const refreshSignals = () => {
+    setCurrentPage(1);
+    fetchSignals(1, true);
+  };
 
   const formatPrice = (price: number | null | undefined): string => {
     if (!price) return '---';
@@ -152,7 +178,7 @@ export default function Signals() {
             </div>
             <div className="col-auto">
               <button 
-                onClick={fetchSignals} 
+                onClick={refreshSignals} 
                 className="btn btn-outline-primary"
                 disabled={loading}
               >
@@ -373,6 +399,38 @@ export default function Signals() {
             </div>
           ))}
         </div>
+        
+        {/* Pagination */}
+        {hasMore && (
+          <div className="text-center mt-4">
+            <button 
+              onClick={loadMoreSignals}
+              className="btn btn-outline-primary"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2"></span>
+                  Загрузка...
+                </>
+              ) : (
+                <>
+                  <i className="ti ti-plus me-1"></i>
+                  Загрузить еще
+                </>
+              )}
+            </button>
+          </div>
+        )}
+        
+        {/* Signals count info */}
+        {signals.length > 0 && (
+          <div className="text-center mt-3">
+            <small className="text-muted">
+              Показано {signals.length} из {totalSignals} сигналов
+            </small>
+          </div>
+        )}
       )}
     </div>
   );
