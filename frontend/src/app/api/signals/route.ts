@@ -1,25 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 // import { createClient } from '@/lib/supabase-server'
 
+export const runtime = 'edge'
+
 const CTSS_API_URL = process.env.NEXT_PUBLIC_CTSS_API_URL || 'https://ctss-production.up.railway.app'
 const CTSS_API_KEY = process.env.CTSS_API_KEY
 
 // Функция для получения текущих цен с Binance
 async function getCurrentPrice(symbol: string): Promise<number | null> {
   try {
-    // Пары уже содержат USDT, поэтому используем как есть
-    const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}`);
+    console.log(`🔍 Fetching price for symbol: ${symbol}`);
+    const url = `https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}`;
+    console.log(`🌐 Request URL: ${url}`);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'OmniBoard/1.0'
+      },
+      // Добавляем timeout
+      signal: AbortSignal.timeout(5000)
+    });
+    
+    console.log(`📡 Response status: ${response.status} ${response.statusText}`);
+    
     if (!response.ok) {
       console.warn(`Failed to fetch price for ${symbol}: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.warn(`Error response body: ${errorText}`);
       return null;
     }
     
     const data = await response.json();
+    console.log(`📊 Raw response for ${symbol}:`, data);
+    
     const price = parseFloat(data.price);
-    console.log(`✅ Fetched price for ${symbol}: $${price}`);
+    console.log(`✅ Successfully parsed price for ${symbol}: $${price}`);
     return price;
   } catch (error) {
-    console.error(`Error fetching price for ${symbol}:`, error);
+    console.error(`❌ Error fetching price for ${symbol}:`, error);
     return null;
   }
 }
