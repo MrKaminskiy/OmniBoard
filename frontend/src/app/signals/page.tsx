@@ -29,8 +29,8 @@ export default function Signals() {
       if (filters.status) params.set('status', filters.status);
       if (filters.direction) params.set('direction', filters.direction);
       if (filters.timeframe) params.set('timeframe', filters.timeframe);
-      params.set('limit', '50'); // Используем максимум CTSS API
-      params.set('offset', ((page - 1) * 50).toString());
+      params.set('limit', '20'); // 20 сигналов на страницу
+      params.set('offset', ((page - 1) * 20).toString());
       
       const url = `/api/signals?${params.toString()}`;
       console.log('🌐 Frontend: Making request to:', url);
@@ -61,7 +61,7 @@ export default function Signals() {
       
       setSignals(data.data || []);
       setTotalSignals(data.count || 0);
-      setTotalPages(Math.ceil((data.count || 0) / 50));
+      setTotalPages(Math.ceil((data.count || 0) / 20));
       setCurrentPage(page);
     } catch (err) {
       console.error('💥 Frontend: Error fetching signals:', err);
@@ -457,7 +457,7 @@ export default function Signals() {
       {signals.length > 0 && (
         <div className="text-center mt-3">
           <small className="text-muted">
-            Страница {currentPage} из {totalPages} • Показано {signals.length} из {totalSignals} сигналов (по 50 на страницу)
+            Страница {currentPage} из {totalPages} • Показано {signals.length} из {totalSignals} сигналов (по 20 на страницу)
           </small>
         </div>
       )}
